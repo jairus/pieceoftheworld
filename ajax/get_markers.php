@@ -179,13 +179,10 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false)
 
 $uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
 
-//echo file_get_contents($uploads_dir."/post.txt");
-$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
-
-$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
-
-if(trim($post['filename'])&&trim($markers[0]['folder'])){
+if(trim($markers[0]['folder'])){
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
+	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
+	
 	$markers[0]['land_owner'] = $post['land_owner'];
 	showThumb($post['filename'], "97", "97", dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
 	showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
