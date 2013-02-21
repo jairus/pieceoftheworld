@@ -28,9 +28,9 @@ function GetGlobalConnectionOptions()
 	return array(
 	'server' => 'localhost',
 	'port' => '3306',
-	'username' => 'pieceoft_db',
+	'username' => 'pieceoft_db2',
 	'password' => '1litervand',
-	'database' => 'pieceoft_db'
+	'database' => 'pieceoft_db2'
 );
 }
 ?>
