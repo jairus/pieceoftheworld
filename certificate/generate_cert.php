@@ -148,7 +148,7 @@ $html = "<html>
 }
 </style>
 <body style='margin:0px;'>
-	<div class='image'><img src='http://pieceoftheworld.com/certificate/generate_cert.php?f=".$_GET['f']."&image=1' /></div>
+	<div class='image'><img src='http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f']."&image=1' /></div>
 </body>
 </html>
 ";

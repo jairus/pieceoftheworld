@@ -436,7 +436,7 @@ else {
 			<td valign=top>
 				<table border=0 align="center">
 					<tr>
-						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=418617858219868&link=http://www.pieceoftheworld.com/&picture=http://www.pieceoftheworld.com/images/pastedgraphic.jpg&name=PieceoftheWorld&caption=The%20best%20Valentine%27s%20gift%20of%202013&description=I%20just%20bought%20myself%20a%20piece%20of%20the%20world&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
+						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=418617858219868&link=http://www.pieceoftheworld.co/&picture=http://www.pieceoftheworld.co/images/pastedgraphic.jpg&name=PieceoftheWorld&caption=The%20best%20Valentine%27s%20gift%20of%202013&description=I%20just%20bought%20myself%20a%20piece%20of%20the%20world&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
 						<td><font size="3">Share on Facebook to get 30% discount.</font></td>
 					</tr>
 				</table>
@@ -460,11 +460,11 @@ else {
 		<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
 			<input type="hidden" value="_xclick" name="cmd">
 			<input type="hidden" value="pieceoftheworld2013@gmail.com" name="business">
-			<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.com/ipn.php?f=<?php echo $foldername; ?>">
+			<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>">
 			<input type="hidden" value="Land" name="item_name">
 			<input type="hidden" value="0" name="amount" id="amount_id">
-			<input type="hidden" value="http://www.pieceoftheworld.com/ppc2.php?f=<?php echo $foldername; ?>&step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
-			<input type="hidden" value="http://www.pieceoftheworld.com/" name="cancel_return">
+			<input type="hidden" value="http://www.pieceoftheworld.co/ppc2.php?f=<?php echo $foldername; ?>&step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
+			<input type="hidden" value="http://www.pieceoftheworld.co/" name="cancel_return">
 			<input type="hidden" value="USD" name="currency_code">
 			<input type="hidden" value="US" name="lc">
 			Upon pressing Buy Now button I accept<br>
@@ -485,8 +485,8 @@ else {
 		<input type="hidden" name="no_note" value="1">
 		<input type="hidden" name="no_shipping" value="1">
 		<input type="hidden" name="rm" value="1">
-		<input type="hidden" value="http://www.pieceoftheworld.com/ppc.php?step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
-		<input type="hidden" name="cancel_return" value="http://www.pieceoftheworld.com">
+		<input type="hidden" value="http://www.pieceoftheworld.co/ppc.php?step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
+		<input type="hidden" name="cancel_return" value="http://www.pieceoftheworld.co">
 		<input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted">
 		Upon pressing Buy Now button I accept<br>
 		PieceoftheWorld's all <a href="#" onclick="window.showModalDialog('tac.php',0, 'dialogWidth:600px; dialogHeight:400px; center:yes; resizable: no; status: no');">terms and conditions</a><br>

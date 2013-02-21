@@ -308,9 +308,9 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	if($iid){
 		$message .= "ID: ".$iid."\r\n";
 	}
-	//mail_attachment("johandblomberg@gmail.com", $subject, $message, "noreply@pieceoftheworld.com", $_FILES["picture_name"]["tmp_name"], $_FILES["picture_name"]["name"]);
-	mail_attachment("pieceoftheworld2013@gmail.com", $subject, $message, "noreply@pieceoftheworld.com", $post['filename'], basename($post['filename']));
-	mail_attachment("fuzylogic28@gmail.com", $subject, $message, "noreply@pieceoftheworld.com", $post['filename'], basename($post['filename']));
+	//mail_attachment("johandblomberg@gmail.com", $subject, $message, "noreply@pieceoftheworld.co", $_FILES["picture_name"]["tmp_name"], $_FILES["picture_name"]["name"]);
+	mail_attachment("pieceoftheworld2013@gmail.com", $subject, $message, "noreply@pieceoftheworld.co", $post['filename'], basename($post['filename']));
+	mail_attachment("fuzylogic28@gmail.com", $subject, $message, "noreply@pieceoftheworld.co", $post['filename'], basename($post['filename']));
 	
 	
 
@@ -318,8 +318,8 @@ $message = "<b>Thank you for your purchase. You now own a piece of the world!</b
 It usually takes a few minutes before your purchased piece of the world appears on the map. If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
 ";
 
-$from = "noreply@pieceoftheworld.com";
-$file = "http://pieceoftheworld.com/certificate/generate_cert.php?f=".$_GET['f'];
+$from = "noreply@pieceoftheworld.co";
+$file = "http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f'];
 $filename = "certificate.pdf";
 
 $filedata = file_get_contents($file);

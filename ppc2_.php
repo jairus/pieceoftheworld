@@ -204,8 +204,8 @@ if(1){
 		$message .= $tPlot."\r\n";
 	}
 
-	//mail_attachment("johandblomberg@gmail.com", $subject, $message, "noreply@pieceoftheworld.com", $_FILES["picture_name"]["tmp_name"], $_FILES["picture_name"]["name"]);
-	mail_attachment("pieceoftheworld2013@gmail.com", $subject, $message, "noreply@pieceoftheworld.com", $post['filename'], basename($post['filename']));
+	//mail_attachment("johandblomberg@gmail.com", $subject, $message, "noreply@pieceoftheworld.co", $_FILES["picture_name"]["tmp_name"], $_FILES["picture_name"]["name"]);
+	mail_attachment("pieceoftheworld2013@gmail.com", $subject, $message, "noreply@pieceoftheworld.co", $post['filename'], basename($post['filename']));
 
 	die('<center><h2>Thank you for your purchase.</h2></center>');
 }

@@ -1374,7 +1374,7 @@
         <div id="help" class="tab_body">
               <h3>About</h3>
 			  <p>Dear Citizen of the World</p>
-			  <p>Welcome to <a href="http://www.PieceoftheWorld.com" target="_blank">PieceoftheWorld.com</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>Welcome to <a href="http://www.pieceoftheworld.co" target="_blank">pieceoftheworld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
 			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
 			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9:90 ($ 6:93 if shared on Facebook).</p>
 			  <p>So join us and set your mark - get your piece of the world today.</p>

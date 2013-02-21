@@ -12,12 +12,12 @@
 <p><b><span>INTRODUCTION
 AND GOVERNING LAW</span></b><span><br>
 These are the Terms &amp; Conditions of Sale applicable to on-line purchases
-from PieceoftheWorld.com. </span></p>
+from pieceoftheworld.co. </span></p>
 
 <p><span>These
 terms and the laws of Singapore, apply to all transactions for the purchase of pieces
 of land (&quot;Products&quot;) from Piece of the World Pte Ltd through its web
-site at https://www.pieceoftheworld.com/ and any associated web page (the
+site at https://www.pieceoftheworld.co/ and any associated web page (the
 &quot;Site&quot;). These terms represent the complete Agreement between PotW
 and the Buyer covering the sale of Products from this Site. Except for terms implied
 by applicable legislation, PotW does not offer or agree to any conditions,
@@ -120,7 +120,7 @@ fees incurred in connection therewith.</span></p>
 AN ORDER</span></b><span><br>
 If the Buyer wishes to cancel an Order prior to shipment, the Buyer must
 contact PotW Online</span> <a href="http://tech.epson.com.au/contact/"
-target="_blank"><span>contact@pieceoftheworld.com</span></a><span>
+target="_blank"><span>contact@pieceoftheworld.co</span></a><span>
 and PotW will endeavour to accommodate the Buyer's request provided the order
 has not been processed.</span></p>
 

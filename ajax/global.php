@@ -9,7 +9,7 @@ function GetMasterUserId()
 }
 function GetTmpUser()
 {
-	return "tmpuser@pieceoftheworld.com";
+	return "tmpuser@pieceoftheworld.co";
 }
 function GetTmpUserId()
 {

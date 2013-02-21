@@ -30,8 +30,8 @@ function mail_attachment($to, $subject, $message, $from, $file, $filename) {
 $message = "<b>Thank you for your purchase. You now own a piece of the world!</b>
 It usually takes a few minutes before your purchased piece of the world appears on the map. If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.";
 
-$from = "noreply@pieceoftheworld.com";
-$file = "http://pieceoftheworld.com/certificate/generate_cert.php?f=20130212_1360677537.9889";
+$from = "noreply@pieceoftheworld.co";
+$file = "http://pieceoftheworld.co/certificate/generate_cert.php?f=20130212_1360677537.9889";
 $filename = "certificate.pdf";
 
 mail_attachment("pieceoftheworld2013@gmail.com", "Confirmation of purchase", $message, $from, $file, $filename);
