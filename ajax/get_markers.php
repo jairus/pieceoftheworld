@@ -26,6 +26,7 @@ if (!empty($_GET)) {
 	else {
 		//$sql = "SELECT * FROM land WHERE ";
 		//$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, picture, email FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE ";
+		/*
 		$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE ";
 		for ($x = $x1; $x <= $x2; $x++) {
 			for ($y = $y1; $y <= $y2; $y++) {
@@ -35,6 +36,9 @@ if (!empty($_GET)) {
 				$sql .= "(x=".$x." AND y=".$y.") ";
 			}
 		}
+		*/
+		$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) where x>=$x1 and x<=$x2 and y>=$y1 and y<=$y2";
+		
 	}
 }
 else {

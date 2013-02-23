@@ -121,6 +121,7 @@
 	var ZOOM_LEVEL_CITY = 16;
 	
 	var rectangles = [];
+	var rectanglesxy = [];
 	var markers = [];
 	var markers_loaded = false;
 	var map = null;
@@ -563,6 +564,8 @@
 	}
 	
 	function onRectangleClick(event) {
+	
+		
 		if (draggableRect != null) {
 			draggableRect.setMap(null);
 			draggableRect = null;
@@ -629,7 +632,7 @@
 
 	var disableZoomChange = false;
 	var disableOnIdle = false;
-	
+	var blocksHidden = true;
 	function onIdle(manualCall) {
 		if (disableOnIdle == true) {
 			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
@@ -637,7 +640,10 @@
 			return;
 		}
 		// Remove rectangles if exist
-		while (rectangles.length > 0) { rectangles.pop().setMap(null); }
+		// while (rectangles.length > 0) { rectangles.pop().setMap(null); }
+		//Hide rectangles
+		
+		
 		if (map == null) { return; }
 		if (map.getZoom() >= ZOOM_LEVEL_CITY) {
 			if (markers_loaded == true) {
@@ -648,9 +654,25 @@
 			}
 			if (getCookie("config_showgrid") != "false") {
 				drawBlocks(map);
+				blocksHidden = false;
 			}
 		}
 		else {
+			if(!blocksHidden){
+				var i = 0;
+				process = function(){
+					for(; i<window.rectangles.length; i++){
+						//window.rectangles[i].setOptions({strokeColor: "#ff0000"});
+						window.rectangles[i].setOptions({strokeOpacity: 0});
+					}
+					if (i + 1 <= window.rectangles.length && i % 20 == 0) {
+						setTimeout(process, 5);
+					}
+				}
+				process();
+				blocksHidden = true;
+			}
+			
 			if (manualCall) {
 				// Manually refresh markers if required
 				if (markers_loaded == true) {
@@ -749,6 +771,10 @@
 		if (getCookie("config_showimportantplaces") == "false" && color == fillColorSpecialArea) {
 			opacity = 0;
 		}
+		strokeColor = "#ffff00"; //yellow
+		//strokeColor = "#00fff0"; //light blue
+		//consoleX(strokeOpacity);
+		strokeOpacity = 0.9;
 		var rectangle = new google.maps.Rectangle({
 			strokeColor: strokeColor,
 			strokeOpacity: parseInt(strokeOpacity),
@@ -763,7 +789,47 @@
 		window.rectangles.push(rectangle);
 	}
 	
-	function drawBlocks(map) {
+	function consoleX(str){
+		try{
+			console.log(str);
+		}
+		catch(e){
+		}
+	}
+	
+	
+	var returnTextCache = [];
+	
+	function inreturnTextCache(hStart, vStart, hEnd, vEnd){
+		for(i=0; i<returnTextCache.length; i++){
+			consoleX(hStart + ">=" + returnTextCache[i].hStart +"&&"+ hEnd +"<="+ returnTextCache[i].hEnd +"&&"+ vStart +">="+ returnTextCache[i].vStart +"&&"+ vEnd +"<="+ returnTextCache[i].vEnd)
+			if(
+				hStart >= returnTextCache[i].hStart && hEnd <= returnTextCache[i].hEnd &&
+				vStart >= returnTextCache[i].vStart && vEnd <= returnTextCache[i].vEnd
+			){
+				consoleX("in cache");
+				return returnTextCache[i].returnText;
+			}
+		}
+		return false;
+	}
+	
+	function returnTextClass(hStartx, vStartx, hEndx, vEndx, returnTextx){
+		this.hStart = hStartx;
+		this.vStart = vStartx;
+		this.hEnd = hEndx;
+		this.vEnd = vEndx;
+		this.returnText = returnTextx;
+	}
+	
+	function drawBlocks(map) {		
+		jQuery("#loadinggrid").css('left', jQuery(window).width()/2 - jQuery("#loadinggrid").width()/2);
+		jQuery("#loadinggrid").css('top', jQuery(window).height()/2 - jQuery("#loadinggrid").height()/2);
+		jQuery("#loadinggrid").css('z-index', 20000);
+		jQuery("#loadinggrid").show();
+		
+		
+		consoleX("show loading");
 		var config_showownedland = getCookie("config_showownedland");
 		var config_showimportantplaces = getCookie("config_showimportantplaces");
 		var config_showownland = getCookie("config_showownland");
@@ -777,34 +843,115 @@
 		var vEnd = blockLB[2].y;
 		var hStart = blockLB[2].x;
 		var hEnd = blockRT[2].x;
-		var returnText = ajaxGetMarker(map, hStart, vStart, hEnd, vEnd);
+		var returnText;
+		returnText = inreturnTextCache(hStart, vStart, hEnd, vEnd);
+		//consoleX(returnText);
+		if(!returnText){
+			allowance = 0.20;
+			returnText = ajaxGetMarker(map, (hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance));
+			rtc = new returnTextClass((hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance), returnText);
+			returnTextCache.push(rtc);
+		}
+		
+		//returnText = '[[]]';
 		//alert(JSON.stringify(returnText));
 		var markersJSON = JSON.parse(returnText);
 		var color;
 		var opacity;
 		var email;
-		for (var cnt1 = vStart; cnt1 <= vEnd; cnt1++) {
-			for (var cnt2 = hStart; cnt2 <= hEnd; cnt2++) {
-				color = "";
-				opacity = 0;
-				var result = getBlockLTRB(new google.maps.Point(cnt2, cnt1));
-				if (returnText != '[[]]') {
-					for (var i = 0, len = markersJSON.length; i < len; i++) {
-						email = markersJSON[i].email;
-						if (markersJSON[i].x == result[2].x && markersJSON[i].y == result[2].y) {
-							color = (markersJSON[i].land_special_id == null) ? fillColorAcquiredPlot : fillColorAcquiredSpecialArea;
-							if (email == masterUser) { color = fillColorSpecialArea; }
-							opacity = parseFloat(fillOpacity);
-							break;
+		var cnt1 = vStart;		
+		var process0 = function() {
+			for (; cnt1 <= vEnd; cnt1++) {
+				var cnt2 = hStart;
+				var process = function() {
+					/*
+					for (; index < length; index++) {
+					var toProcess = xmlElements[index];
+					// Perform xml processing
+					if (index + 1 < length && index % 100 == 0) {
+						setTimeout(process, 5);
+					}
+					}
+					*/
+					for (; cnt2 <= hEnd; cnt2++) {
+						color = "";
+						opacity = 0;
+						var result = getBlockLTRB(new google.maps.Point(cnt2, cnt1));
+						
+						if(window.rectanglesxy.indexOf(result[0]+"-"+result[1])<0){
+							
+							if (returnText != '[[]]') {
+								for (var i = 0, len = markersJSON.length; i < len; i++) {
+									email = markersJSON[i].email;
+									if (markersJSON[i].x == result[2].x && markersJSON[i].y == result[2].y) {
+										color = (markersJSON[i].land_special_id == null) ? fillColorAcquiredPlot : fillColorAcquiredSpecialArea;
+										if (email == masterUser) { color = fillColorSpecialArea; }
+										opacity = parseFloat(fillOpacity);
+										break;
+									}
+								}
+							}
+							if (config_showownedland == "false" && color != fillColorSpecialArea && masterUser != email && user_email != email) { opacity = 0; }
+							if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
+							if (config_showownland == "false" && user_email == email) { opacity = 0; }
+						
+						
+							<?php if($_GET['norec']){ echo "//";};?>drawRect(result[0], result[1], color, opacity);
+							window.rectanglesxy[window.rectangles.length-1]= result[0]+"-"+result[1];
+						}
+						else{
+							ndexx = window.rectanglesxy.indexOf(result[0]+"-"+result[1]);
+							//window.rectanglesxy[ndexx].setOptions();
+							//window.rectangles[ndexx].setOptions({strokeColor: "#ff0000"});
+							window.rectangles[ndexx].setOptions({strokeOpacity: 0.9});
+						}
+						if (cnt2 + 1 <= hEnd && cnt2 % 20 == 0) {
+							//consoleX("cnt2 setTimeout "+cnt2);
+							setTimeout(process, 5);
 						}
 					}
+				};
+				process();
+				
+				/*
+				for (var cnt2 = hStart; cnt2 <= hEnd; cnt2++) {
+					color = "";
+					opacity = 0;
+					var result = getBlockLTRB(new google.maps.Point(cnt2, cnt1));
+					if (returnText != '[[]]') {
+						for (var i = 0, len = markersJSON.length; i < len; i++) {
+							email = markersJSON[i].email;
+							if (markersJSON[i].x == result[2].x && markersJSON[i].y == result[2].y) {
+								color = (markersJSON[i].land_special_id == null) ? fillColorAcquiredPlot : fillColorAcquiredSpecialArea;
+								if (email == masterUser) { color = fillColorSpecialArea; }
+								opacity = parseFloat(fillOpacity);
+								break;
+							}
+						}
+					}
+					if (config_showownedland == "false" && color != fillColorSpecialArea && masterUser != email && user_email != email) { opacity = 0; }
+					if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
+					if (config_showownland == "false" && user_email == email) { opacity = 0; }
+					drawRect(result[0], result[1], color, opacity);
 				}
-				if (config_showownedland == "false" && color != fillColorSpecialArea && masterUser != email && user_email != email) { opacity = 0; }
-				if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
-				if (config_showownland == "false" && user_email == email) { opacity = 0; }
-				drawRect(result[0], result[1], color, opacity);
+				*/
+				if (cnt1 + 1 <= vEnd && cnt1 % 20 == 0) {
+					//consoleX("cnt1 setTimeout "+cnt1);
+					setTimeout(process0, 5);
+				}
+				
+				//consoleX(cnt1 +" "+ vEnd +" - "+ cnt2 +" "+ hEnd);
+				
+				if(cnt1 >= vEnd && cnt2 >= hEnd ){
+					jQuery("#loadinggrid").css('top', -10000);
+					consoleX("hide loading");
+				}
 			}
 		}
+		<?php if($_GET['noprocess']){ echo "//";};?>process0();
+		consoleX("process "+(new Date()).getTime());
+		//jQuery("#loadinggrid").hide();
+		
 	}
 	/*
 	function trimString(id, title, str, noOfCharactersToRestrict) {
@@ -868,6 +1015,8 @@
 		var blockInfo = getBlockInfo(inLatLng);
 		var returnText = ajaxGetMarker(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
+		document.getElementById('info-land_owner_container').style.display="none";
+		document.getElementById('info-img').src = "images/place_holder.png";
 		if (returnText != '[[]]') {
 			document.getElementById('info-title').innerHTML = markerJSON[0].title;
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
@@ -875,9 +1024,6 @@
 				
 				document.getElementById('info-land_owner').innerHTML = markerJSON[0].land_owner;
 				document.getElementById('info-land_owner_container').style.display="";
-			}
-			else{
-				document.getElementById('info-land_owner_container').style.display="none";
 			}
 			ajaxExtractLandPicture(markerJSON[0].id);
 			//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
@@ -1178,6 +1324,7 @@
 		var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
 		document.cookie=c_name + "=" + c_value;
 	}
+	
 </script>
 
 
@@ -1198,6 +1345,7 @@
 </head>
 
 <body style="cursor: auto; margin:0px;">
+<table style='z-index: 1010; width:300px; height:100px; position:absolute; background:white; top:-10000px' id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
 <div id="map_canvas"></div>
 <div class="cpanelwnd ui-dialog ui-widget ui-widget-content ui-corner-all" style="outline: 0px none; z-index: 1008; position: absolute; border: 0px !important;" tabindex="-1" role="dialog" aria-labelledby="ui-id-1">
   <!--
@@ -1374,7 +1522,7 @@
         <div id="help" class="tab_body">
               <h3>About</h3>
 			  <p>Dear Citizen of the World</p>
-			  <p>Welcome to <a href="http://www.pieceoftheworld.co" target="_blank">pieceoftheworld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>Welcome to <a href="http://www.PieceoftheWorld.co" target="_blank">PieceoftheWorld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
 			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
 			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9:90 ($ 6:93 if shared on Facebook).</p>
 			  <p>So join us and set your mark - get your piece of the world today.</p>
