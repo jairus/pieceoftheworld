@@ -166,7 +166,9 @@
 		}
 
 		// Add markers
-		markers = ajaxAddMarkers(map);
+		//markers = ajaxAddMarkers(map);
+		
+		self.setInterval(function(){ajaxAddMarkers(map, true);}, 5*60*1000);
 		
 		google.maps.event.addListener(map, 'click', function(event) { onClick(event); });
 		google.maps.event.addListener(map, 'idle', function(event) { onIdle(false); });
@@ -226,13 +228,13 @@
 		else {
 			initialize(ZOOM_LEVEL_WORLD, google.maps.MapTypeId.HYBRID);
 		}
-		document.getElementById('buy-button').disabled = true;
+		//document.getElementById('buy-button').disabled = true;
 	}
 
 	function showRegionalView(object) {
 		map.setZoom(ZOOM_LEVEL_REGION);
 		map.setMapTypeId(google.maps.MapTypeId.HYBRID);
-		document.getElementById('buy-button').disabled = true;
+		//document.getElementById('buy-button').disabled = true;
 	}
 
 	function showCityView(object) {
@@ -245,42 +247,158 @@
 		//updatePopupWindowTabInfo(event.latLng);
 	}
 
-	function onMarkerClick(event) {
+	function onMarkerClick(event, type) {
 		//onColoredRectangleClick(event);
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",1);
 		if (map.getZoom() >= ZOOM_LEVEL_CITY) {
-			document.getElementById('buy-button').disabled = false;
+			//document.getElementById('buy-button').disabled = false;
 		}
+		
 		//jairus
 		jQuery("#clicktozoom").show();
 		jQuery("#clicktozoom").click(function () {
 			var loc = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng());
+			consoleX(event.latLng.lat()+" - "+event.latLng.lng());
 			map.setZoom(ZOOM_LEVEL_CITY);
 			map.setCenter(loc);
 			jQuery("#clicktozoom").hide();
 			onColoredRectangleClick(event);
-			onRectangleClick(event) ;
-			scheduleDelayedCallback();
+			//onRectangleClick(event) ;
+			//scheduleDelayedCallback();
 			
 		});
-			
+		
+		
+		//set draggable rect
+		var projection = new MercatorProjection();
+		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
+		worldCoordinate.x = Math.floor(worldCoordinate.x);
+		worldCoordinate.y = Math.floor(worldCoordinate.y);
+		var block = getBlockLTRB(worldCoordinate);
+		var bounds = new google.maps.LatLngBounds(
+			new google.maps.LatLng(block[0].lat(),block[0].lng()),
+			new google.maps.LatLng(block[1].lat(),block[1].lng())
+		);
+
+		var LtLgNE = bounds.getNorthEast();
+		var LtLgSW = bounds.getSouthWest();
+
+		var projection = new MercatorProjection();
+		
+
+		var WcNE = projection.fromLatLngToPoint(LtLgNE);
+		var WcSW = projection.fromLatLngToPoint(LtLgSW);
+
+		if (Math.abs(Math.floor(WcNE.y) - WcNE.y) >= 0.5) {
+			WcNE.y = Math.floor(WcNE.y) + 1;
+		}
+		else {
+			WcNE.y = Math.floor(WcNE.y);
+		}
+
+		if (Math.abs(Math.floor(WcNE.x) - WcNE.x) >= 0.5) {
+			WcNE.x = Math.floor(WcNE.x);
+		}
+		else {
+			WcNE.x = Math.floor(WcNE.x) - 1;
+		}
+		
+		if (Math.abs(Math.floor(WcSW.y) - WcSW.y) >= 0.5) {
+			WcSW.y = Math.floor(WcSW.y);
+		}
+		else {
+			WcSW.y = Math.floor(WcSW.y) - 1;
+		}
+
+		if (Math.abs(Math.floor(WcSW.x) - WcSW.x) >= 0.5) {
+			WcSW.x = Math.floor(WcSW.x) + 1;
+		}
+		else {
+			WcSW.x = Math.floor(WcSW.x);
+		}
+		
+		// Because we need TopLeft points to set new rectangle so lets move NE block 1 step towards E and SW 1 step towards S
+		WcNE.x += 1;
+		WcSW.y += 1;
+		
+		updatePopupWindowTabInfo(event.latLng);
+		
+		consoleX(type);
+		if(type=='special'){		
+			// Acquired Special Area or Special Area
+			$.ajax({
+				url:'ajax/get_minmaxareacoordinates.php?x='+WcNE.x+'&y='+WcSW.y,
+				dataType:'html',
+				async:false,
+				success:function(data, textStatus, jqXHR){
+					if (data != null) {
+						var resultJSON = JSON.parse(data);
+						WcNE.x = resultJSON['maxX'];
+						WcNE.y = resultJSON['minY']-1;
+						WcSW.x = resultJSON['minX']-1;
+						WcSW.y = resultJSON['maxY'];
+					}
+				}
+			});
+			var BlSW = getBlockLTRB(WcSW);
+			var BlNE = getBlockLTRB(WcNE);
+			if (BlSW[2].y < BlNE[2].y) {
+				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y-1;
+			}
+			else {
+				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y+"_"+(BlNE[2].x-1)+"-"+(BlSW[2].y-1);
+			}
+			if(document.getElementById('buy-button').value=='Buy'){
+				//price = 499;
+				//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+			}
+		}
+		else{
+			blocksAvailableInDraggableRect = WcNE.x+'-'+WcSW.y;
+			/*
+			var BlSW = getBlockLTRB(WcSW);
+			var BlNE = getBlockLTRB(WcNE);
+			if (BlSW[2].y < BlNE[2].y) {
+				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y-1;
+			}
+			else {
+				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y+"_"+(BlNE[2].x-1)+"-"+(BlSW[2].y-1);
+			}
+			*/
+		}
+
+		
+		
+		
+		//onDraggableRectangleChanged(bounds);
+		
+		
+		
 		//window.searchMarker.setPosition(location);
 		//window.map.setZoom(ZOOM_LEVEL_CITY);
 		//window.map.setCenter(location);
 		
-		
+		//scheduleDelayedCallback();
 		//document.getElementById('buy-button').disabled = false;
-		updatePopupWindowTabInfo(event.latLng);
+		
 	}
 	
-	function onDraggableRectangleChanged() {
-		if (lastEvent.getTime() + 250 <= new Date().getTime()) {
-			var bounds = draggableRect.getBounds();
-
+	var numblocks = 0;
+	
+	function onDraggableRectangleChanged(bounds) {
+		consoleX("onDraggableRectangleChanged");
+		//alert(blocksAvailableInDraggableRect);
+		if (bounds||(lastEvent.getTime() + 250 <= new Date().getTime())) {
+			consoleX(bounds);
+			if(!bounds){
+				var bounds = draggableRect.getBounds();
+			}
+			
 			var LtLgNE = bounds.getNorthEast();
 			var LtLgSW = bounds.getSouthWest();
 		
 			var projection = new MercatorProjection();
+			
 		
 			var WcNE = projection.fromLatLngToPoint(LtLgNE);
 			var WcSW = projection.fromLatLngToPoint(LtLgSW);
@@ -333,6 +451,7 @@
 			var matrix = [];
 			var row = null;
 			var currentPlotType = 0;
+			//alert(rectangles.length);
 			for (var i = 0; i < rectangles.length; i++) {
 				var plot = getBlockInfo(rectangles[i].getBounds().getCenter());
 				//alert(' ( ' + plot[2].x + ' > ' + WcSW.x + ' && ' + plot[2].x + ' <= ' + WcNE.x + ' ) ' + ' ( ' + plot[2].y + ' > ' + WcNE.y + ' && ' + plot[2].y + ' <= ' + WcSW.y + ' ) ');
@@ -363,6 +482,8 @@
 					row.push(new Array(plot[2].x, plot[2].y, currentPlotType));
 				}
 			}
+			
+			//alert(row.length);
 			if (row != null) {
 				matrix.push(row);
 			}
@@ -395,6 +516,9 @@
 					}
 				}
 			}
+			
+			//alert(matrix.length);
+			
 			var typeFirstBlock = -1;
 			for (var i = 0; i < matrix.length; i++) {
 				for (var j = 0; j < matrix[i].length; j++) {
@@ -408,6 +532,8 @@
 				}
 				break;
 			}
+			
+			consoleX("typeFirstBlock = "+typeFirstBlock);
 			if (typeFirstBlock == 1) {
 				document.getElementById('buy-button').value = 'Buy';
 				document.getElementById('buy-button').disabled = false;
@@ -470,6 +596,8 @@
 				else {
 					document.getElementById('buy-button').value = 'Buy';
 					document.getElementById('buy-button').disabled = false;
+					//price = 499;
+					//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 				}
 				// Acquired Special Area or Special Area
 				$.ajax({
@@ -489,7 +617,7 @@
 			}
 			else {
 				document.getElementById('buy-button').value = 'Buy';
-				document.getElementById('buy-button').disabled = true;
+				//document.getElementById('buy-button').disabled = true;
 			}
 			//////////////////////////////////////////////////////////////////////////////////////////
 			
@@ -555,10 +683,20 @@
 			else {
 				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y+"_"+(BlNE[2].x-1)+"-"+(BlSW[2].y-1);
 			}
+			if(!(typeFirstBlock == 3 || typeFirstBlock == 4)){
+				numblocks = (BlNE[2].x - BlSW[2].x) * (BlSW[2].y - BlNE[2].y);
+				if(numblocks > 0){
+					document.getElementById('info-detail').innerHTML = 'Your description here.';
+					price = (numblocks*9.90);
+					price = price.toFixed(2);
+					document.getElementById('info-detail').innerHTML  =  document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+				}
+			}
 		}
 	}
 
 	function scheduleDelayedCallback() {
+		consoleX("scheduleDelayedCallback");
 		lastEvent = new Date();
 		setTimeout(onDraggableRectangleChanged, 500);
 	}
@@ -572,7 +710,7 @@
 		}
 		blocksAvailableInDraggableRect = "";
 
-		updatePopupWindowTabInfo(event.latLng);
+		//updatePopupWindowTabInfo(event.latLng);
 				
 		var projection = new MercatorProjection();
 		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
@@ -595,6 +733,8 @@
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",4);
 		
 		scheduleDelayedCallback();	// To update rect according to selected area
+	
+		updatePopupWindowTabInfo(event.latLng);
 	}
 
 	function onColoredRectangleClick(event) {
@@ -627,6 +767,8 @@
 
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",4);
 
+		
+		consoleX("Here");
 		scheduleDelayedCallback();	// To update rect according to selected area
 	}
 
@@ -645,7 +787,8 @@
 		
 		
 		if (map == null) { return; }
-		if (map.getZoom() >= ZOOM_LEVEL_CITY) {
+		//consoleX(ZOOM_LEVEL_CITY+" - "+map.getZoom());
+		if (map.getZoom() >= 17) {
 			if (markers_loaded == true) {
 				markers_loaded = false;
 				while (markers.length > 0) {
@@ -722,7 +865,7 @@
 		}
 		if (map.getZoom() < ZOOM_LEVEL_CITY) {
 			document.getElementById('buy-button').value = 'Buy';
-			document.getElementById('buy-button').disabled = true;
+			//document.getElementById('buy-button').disabled = true;
 			showPopupWindowTabInfo(false);
 		}
 	}
@@ -848,7 +991,7 @@
 		//consoleX(returnText);
 		if(!returnText){
 			allowance = 0.20;
-			returnText = ajaxGetMarker(map, (hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance));
+			returnText = ajaxGetMarker(map, (hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance), true);
 			rtc = new returnTextClass((hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance), returnText);
 			returnTextCache.push(rtc);
 		}
@@ -1020,6 +1163,12 @@
 		if (returnText != '[[]]') {
 			document.getElementById('info-title').innerHTML = markerJSON[0].title;
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
+			
+			if(markerJSON[0].land_special_id){
+				price = 499;
+				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+			}
+			
 			if(markerJSON[0].land_owner){
 				
 				document.getElementById('info-land_owner').innerHTML = markerJSON[0].land_owner;
@@ -1059,8 +1208,17 @@
 			//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 		}
 		else {
-			document.getElementById('info-title').innerHTML = 'N.A';
-			document.getElementById('info-detail').innerHTML = 'N.A';
+			//alert(blocksAvailableInDraggableRect);
+			document.getElementById('info-title').innerHTML = 'Your title here.';
+			
+			
+			document.getElementById('info-detail').innerHTML = 'Your description here.';
+			if(numblocks > 0){
+				price = (numblocks*9.90);
+				price = price.toFixed(2);
+				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+			}
+
 			document.getElementById('info-img').src = 'images/place_holder.png';
 			document.getElementById('buy-button').value = "Buy";
 
@@ -1150,73 +1308,109 @@
 		//return markersJSON;
 	}
 	
-	function ajaxGetMarker(map, x1, y1, x2, y2) {
-		var markersJSON = null;
-		$.ajax({
-			url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2,
-			dataType:'html',
-			async:false,
-			success:function(data, textStatus, jqXHR){
-				markersJSON = data;
-			}
-		});
-		return markersJSON;
+	function ajaxGetMarker(map, x1, y1, x2, y2, multi) {
+		if(multi){
+			var markersJSON = null;
+			$.ajax({
+				url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2+'&multi=1',
+				dataType:'html',
+				async:false,
+				success:function(data, textStatus, jqXHR){
+					markersJSON = data;
+				}
+			});
+			return markersJSON;
+		}
+		else{
+			var markersJSON = null;
+			$.ajax({
+				url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2,
+				dataType:'html',
+				async:false,
+				success:function(data, textStatus, jqXHR){
+					markersJSON = data;
+				}
+			});
+			return markersJSON;
+		}
 	}
 	
-	function ajaxAddMarkers(map) {
+	function ajaxAddMarkers(map, force) {
 		markers_loaded = true;
 		var markers = [];
-		ajaxAddGreenMarkers(map, markers);
+		if(force){
+			ajaxAddGreenMarkers(map, markers, force);
+		}
+		else{
+			ajaxAddGreenMarkers(map, markers);
+		}
 		ajaxAddRedMarkers(map, markers);
 		//markers = ajaxAddGreenMarkers(map);
 		//markers.push.apply(markers, ajaxAddRedMarkers(map));
 		return markers;
 	}
-
-	function ajaxAddGreenMarkers(map, gMarkers) {
-		var jqxhr = $.ajax('ajax/get_markers.php')
-		.done(function() { 
-			if (jqxhr.status == 200) {
-				var config_showownland = getCookie("config_showownland");
-				var config_showownedland = getCookie("config_showownedland");
-				var user_email = getCookie("user_email");
-				var markers = [];
-				var markersJSON = JSON.parse(jqxhr.responseText);
-				var pass = false;
-				//alert(JSON.stringify(markersJSON));
-				for (var i = 0, len = markersJSON.length; i < len; ++i) {
-					pass = true;
-					// check your own id when possible and act according to this config setting
-					if (config_showownedland == "false" && user_email != markersJSON[i].email) {
-						pass = false;
-					}
-					if (config_showownland == "false" && user_email == markersJSON[i].email) {
-						pass = false;
-					}
-					if (pass == true) {
-						if (markersJSON[i].land_special_id == null) {
-							var marker = new google.maps.Marker({
-								position: getBlockMarker(parseInt(markersJSON[i].x), parseInt(markersJSON[i].y)),
-								map: map,
-								icon: 'images/gmarker.png'
-								//icon: (markersJSON[i].land_special_id == null) ? 'images/gmarker.png' : 'images/rmarker.png'
-							});
-							google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event); });
-							markers.push(marker);
-						}
-					}
-				}
-				gMarkers.push.apply(gMarkers, markers);
+	
+	
+	
+	function setGreenMarkers(map, gMarkers, markersJSON){
+		var config_showownland = getCookie("config_showownland");
+		var config_showownedland = getCookie("config_showownedland");
+		var user_email = getCookie("user_email");
+		
+		var pass = false;
+		//alert(JSON.stringify(markersJSON));
+		for (var i = 0, len = markersJSON.length; i < len; ++i) {
+			pass = true;
+			// check your own id when possible and act according to this config setting
+			if (config_showownedland == "false" && user_email != markersJSON[i].email) {
+				pass = false;
 			}
-		})
-		.fail(function() {
-			//alert("error");
-		})
-		.always(function() {
-			//alert("complete");
-		});
+			if (config_showownland == "false" && user_email == markersJSON[i].email) {
+				pass = false;
+			}
+			if (pass == true) {
+				if (markersJSON[i].land_special_id == null) {
+					var marker = new google.maps.Marker({
+						position: getBlockMarker(parseInt(markersJSON[i].x), parseInt(markersJSON[i].y)),
+						map: map,
+						icon: 'images/rmarker.png'
+						//icon: (markersJSON[i].land_special_id == null) ? 'images/gmarker.png' : 'images/rmarker.png'
+					});
+					google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, 'regular'); consoleX(this.position); });
+					markers.push(marker);
+				}
+			}
+		}
+		gMarkers.push.apply(gMarkers, markers);
+	}
+	var globalMarkersResponseTextCacheJSON = "";
+	
+	function ajaxAddGreenMarkers(map, gMarkers, force) {
+		if(globalMarkersResponseTextCacheJSON!=""&&!force){
+			//consoleX(globalMarkersResponseTextCacheJSON);
+			setGreenMarkers(map, gMarkers, globalMarkersResponseTextCacheJSON);
+		}
+		else{
+			var jqxhr = $.ajax('ajax/get_markers.php')
+			.done(function() { 
+				if (jqxhr.status == 200) {
+					var markers = [];
+					var markersJSON = JSON.parse(jqxhr.responseText);
+					globalMarkersResponseTextCacheJSON = markersJSON;
+					setGreenMarkers(map, gMarkers, markersJSON);
+				}
+			})
+			.fail(function() {
+				//alert("error");
+			})
+			.always(function() {
+				//alert("complete");
+			});
+		}
 	}
 
+	
+	
 	function ajaxGetRedMarkerCoordinates(land_special_id) {
 		var marker;
 		$.ajax({
@@ -1231,72 +1425,87 @@
 		return marker;
 	}
 	
-	function ajaxAddRedMarkers(map, gMarkers) {
-		var jqxhr = $.ajax('ajax/get_markers.php?type=special')
-		.done(function() { 
-			if (jqxhr.status == 200) {
-				var config_showownland = getCookie("config_showownland");
-				var config_showownedland = getCookie("config_showownedland");
-				var config_showimportantplaces = getCookie("config_showimportantplaces");
-				var user_email = getCookie("user_email");
-				var markers = [];
-				var markersJSON = JSON.parse(jqxhr.responseText);
-				var pass = false;
-				//alert(JSON.stringify(markersJSON));
-				for (var i = 0, len = markersJSON.length; i < len; ++i) {
-					pass = true;
-					// check your own id when possible and act according to this config setting
-					if (config_showownedland == "false" && (user_email != markersJSON[i].email && masterUser != markersJSON[i].email)) {
-						pass = false;
-					}
-					if (config_showownland == "false" && user_email == markersJSON[i].email) {
-						pass = false;
-					}
-					if (config_showimportantplaces == "false" && masterUser == markersJSON[i].email) {
-						pass = false;
-					}
-					if (pass == true) {
-						/*
-						var coordinates = ajaxGetRedMarkerCoordinates(markersJSON[i].id);
-						if (coordinates != null) {
-							var marker = new google.maps.Marker({
-								position: getBlockMarker(coordinates.x, coordinates.y),
-								map: map,
-								icon: (markersJSON[i].email == masterUser) ? 'images/rmarker.png' : 'images/dgmarker.png'
-								//icon: (markersJSON[i].land_special_id == null) ? 'images/gmarker.png' : 'images/rmarker.png'
-							});
-							google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event); });
-							markers.push(marker);
-						}
-						*/
-						var marker = new google.maps.Marker({
-							position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
-							map: map,
-							icon: (markersJSON[i].email == masterUser) ? 'images/rmarker.png' : 'images/dgmarker.png'
-						});
-						google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event); });
-						markers.push(marker);
-					}
-				}
-				gMarkers.push.apply(gMarkers, markers);
+	
+	function setRedMarkers(map, gMarkers, markersJSON){
+		var config_showownland = getCookie("config_showownland");
+		var config_showownedland = getCookie("config_showownedland");
+		var config_showimportantplaces = getCookie("config_showimportantplaces");
+		var user_email = getCookie("user_email");
+		
+		var pass = false;
+		//alert(JSON.stringify(markersJSON));
+		for (var i = 0, len = markersJSON.length; i < len; ++i) {
+			pass = true;
+			// check your own id when possible and act according to this config setting
+			if (config_showownedland == "false" && (user_email != markersJSON[i].email && masterUser != markersJSON[i].email)) {
+				pass = false;
 			}
-		})
-		.fail(function() {
-			//alert("error");
-		})
-		.always(function() {
-			//alert("complete");
-		});
+			if (config_showownland == "false" && user_email == markersJSON[i].email) {
+				pass = false;
+			}
+			if (config_showimportantplaces == "false" && masterUser == markersJSON[i].email) {
+				pass = false;
+			}
+			if (pass == true) {
+				/*
+				var coordinates = ajaxGetRedMarkerCoordinates(markersJSON[i].id);
+				if (coordinates != null) {
+					var marker = new google.maps.Marker({
+						position: getBlockMarker(coordinates.x, coordinates.y),
+						map: map,
+						icon: (markersJSON[i].email == masterUser) ? 'images/rmarker.png' : 'images/dgmarker.png'
+						//icon: (markersJSON[i].land_special_id == null) ? 'images/gmarker.png' : 'images/rmarker.png'
+					});
+					google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event); });
+					markers.push(marker);
+				}
+				*/
+				var marker = new google.maps.Marker({
+					position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
+					map: map,
+					icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/dgmarker.png'
+				});
+				google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, "special"); });
+				markers.push(marker);
+			}
+		}
+		gMarkers.push.apply(gMarkers, markers);
 		return markers;
+	}
+	
+	var globalRedMarkersResponseTextCacheJSON = "";
+	function ajaxAddRedMarkers(map, gMarkers, force) {
+		if(globalRedMarkersResponseTextCacheJSON!=""&&!force){
+			setRedMarkers(map, gMarkers, globalRedMarkersResponseTextCacheJSON);
+		}
+		else{
+			var jqxhr = $.ajax('ajax/get_markers.php?type=special')
+			.done(function() { 
+				if (jqxhr.status == 200) {
+					
+					var markers = [];
+					var markersJSON = JSON.parse(jqxhr.responseText);
+					globalRedMarkersResponseTextCacheJSON = markersJSON;
+					setRedMarkers(map, gMarkers, markersJSON);
+				}
+			})
+			.fail(function() {
+				//alert("error");
+			})
+			.always(function() {
+				//alert("complete");
+			});
+		}
+		
 	}
 	
 	function onBuyLand() {
 		var url = "";
 		if (document.getElementById('buy-button').value == "Buy") {
-			url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect;
+			url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src;
 		}
 		else {
-			url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect;
+			url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src;
 		}
 		//window.open(url);
 		window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
@@ -1425,8 +1634,8 @@
                       </tr>
                       <tr>
                         <td colspan="2">
-                          <center><br><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();" disabled>
-						  <input type="button" id="clicktozoom" value="Click to Zoom" style="padding: 3px; padding-left: 25px; padding-right: 25px; display:none">
+                          <center><br><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();">
+						 <!--<input type="button" id="clicktozoom" value="Click to Zoom" style="padding: 3px; padding-left: 25px; padding-right: 25px; display:none">-->
 						  </center>
 					    </td>
                       </tr>
@@ -1524,7 +1733,7 @@
 			  <p>Dear Citizen of the World</p>
 			  <p>Welcome to <a href="http://www.PieceoftheWorld.co" target="_blank">PieceoftheWorld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
 			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
-			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9:90 ($ 6:93 if shared on Facebook).</p>
+			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
 			  <p>So join us and set your mark - get your piece of the world today.</p>
 			  <p>Piece of the World team</p>
 			  <p>Contact us:<br><a href='mailto:PieceoftheWorld2013@gmail.com'>PieceoftheWorld2013@gmail.com</a></p>

@@ -11,7 +11,7 @@ $con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions
 if (!$con) { die('[[]]'); }
 mysql_select_db($conOptions['database'], $con);
 $sql = "";
-if (!empty($_GET)) {
+if (!empty($_GET)&&!$_GET['default']) {
 	if ($type == 'special') {
 		//$sql = "SELECT * FROM land_special WHERE 1";
 		//$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, picture, email FROM land_special, user WHERE (land_special.owner_user_id = user.id)";
@@ -37,48 +37,67 @@ if (!empty($_GET)) {
 			}
 		}
 		*/
-		$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) where x>=$x1 and x<=$x2 and y>=$y1 and y<=$y2";
-		
+		if($_GET['multi']){
+			$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) where x>=$x1 and x<=$x2 and y>=$y1 and y<=$y2";
+			
+		}
+		else{
+			$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) where x>=$x1 and x<=$x2 and y>=$y1 and y<=$y2";
+		}
 	}
 }
 else {
 	//$sql = "SELECT x, y, land_special_id FROM land WHERE 1";
-	$sql = "SELECT x, y, land_special_id, email FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE 1";
+	$sql = "SELECT x, y, land_special_id, email FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE land_special_id IS NULL";
 }
-$result = mysql_query($sql);
-$markers[ ] = array();
-$index = 0;
-while ($row = mysql_fetch_array($result)) {
-	$markers[$index++] = $row;
-	/*
-	if (!empty($_GET) && empty($land_special_id)) {
-		if ($type == 'special') {
-			$filename = '../images/thumbs/land_special_id_'.$row[0];
+
+$markers = dbQuery($sql, $_dblink);
+
+
+$uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
+
+if(trim($markers[0]['folder'])){
+	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
+	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
+	
+	$markers[0]['land_owner'] = $post['land_owner'];
+	
+	if(trim($post['filename'])){
+		showThumb($post['filename'], "97", "97", dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
+		showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
+		$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
+		$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
+		
+		/*
+		if(trim($markers[0]['land_owner'])==""){
+			$markers[0]['land_owner'] = $post['useremail'];
 		}
-		else {
-			$filename = '../images/thumbs/land_id_'.$row[0];
-		}
-		if (!file_exists($filename) || filesize($filename) == 0) {
-			$file = fopen($filename,'w');
-			$success = false;
-			if ($type == 'special') {
-				$success = fwrite($file, $row[4]);	// reading land_special table
-			}
-			else {
-				$success = fwrite($file, $row[7]);	// reading land table
-			}
-			fclose($file);
-			if ($success == false) {
-				unlink($filename);
-			}
-		}
+		*/
 	}
-	*/
+}
+if(isset($_GET['print'])){
+	echo "<pre>";
+	echo $sql."\n";
+	echo $uploads_dir;
+	print_r($post);
+	print_r($markers);
+	echo "</pre>";
+}
+else{
+	if(count($markers)){
+		echo json_encode($markers);
+	}
+	else{
+		echo "[[]]";
+	}
 }
 
 
-function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false) 
-{
+
+
+/************* FUNCTIONS BELOW ****************/
+
+function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false) {
 	$info = pathinfo($src);
 
 	$img = @imagecreatefromjpeg( $src );
@@ -181,28 +200,5 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false)
 	
 }
 
-$uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
 
-if(trim($markers[0]['folder'])){
-	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
-	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
-	
-	$markers[0]['land_owner'] = $post['land_owner'];
-	showThumb($post['filename'], "97", "97", dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
-	showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
-	$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
-	$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
-}
-if(isset($_GET['print'])){
-	echo "<pre>";
-	echo $uploads_dir;
-	print_r($post);
-	print_r($markers);
-	echo "</pre>";
-}
-else{
-	
-	echo json_encode($markers);
-}
-mysql_close($con);
 ?>

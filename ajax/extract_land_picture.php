@@ -13,16 +13,7 @@ if ($result != null) {
 }
 if ($row != null) {
 	$filename = '../images/thumbs/land_id_'.$land_id;
-	if (!file_exists($filename) || filesize($filename) == 0) {
-		$file = fopen($filename,'w');
-		$success = fwrite($file, $row[1]);
-		fclose($file);
-		if ($success == false) {
-			unlink($filename);
-		}
-	}
-	if ($row[0] != null) {
-		$filename = '../images/thumbs/land_special_id_'.$row[0];
+	if(trim($row[1])){
 		if (!file_exists($filename) || filesize($filename) == 0) {
 			$file = fopen($filename,'w');
 			$success = fwrite($file, $row[1]);
@@ -31,8 +22,33 @@ if ($row != null) {
 				unlink($filename);
 			}
 		}
+		if ($row[0] != null) {
+			$filename = '../images/thumbs/land_special_id_'.$row[0];
+			if (!file_exists($filename) || filesize($filename) == 0) {
+				$file = fopen($filename,'w');
+				$success = fwrite($file, $row[1]);
+				fclose($file);
+				if ($success == false) {
+					unlink($filename);
+				}
+			}
+		}
+	}
+	else{
+		$contents = file_get_contents(dirname(__FILE__)."/../images/place_holder.png");
+		if ($row[0] != null) {
+			$filename = dirname(__FILE__).'/../images/thumbs/land_special_id_'.$row[0];
+			echo $filename;
+			file_put_contents($filename, $contents);
+		}
+		else{
+			$filename = dirname(__FILE__).'/../images/thumbs/land_id_'.$land_id;
+			echo $filename;
+			file_put_contents($filename, $contents);
+		}
 	}
 }
+
 echo '[[]]';
 mysql_close($con);
 ?>

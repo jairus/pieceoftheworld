@@ -57,7 +57,7 @@ $boughtSpecialArea = false;
 			price = String(amount.toFixed(2));
 		}
 		else if (unboughtSpecialArea === true) {
-			price = '499.90';
+			price = '499';
 		}
 		/*
 		else if (boughtStandardPlot === true) {
@@ -156,6 +156,9 @@ else {
 ?>
 <table border=0>
 <tr>
+<td valign="top" >
+
+</td>
 <td width="300" valign="top">
 <?php
 if (sizeof($plots) == 1) {
@@ -166,26 +169,33 @@ if (sizeof($plots) == 1) {
 	if ($result != null) {
 		$row = mysql_fetch_array($result);
 	}
+
 	if ($row == null) {
 		//mysql_close($con);
 		// Unbought standard plot selected
-		echo "<li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li>";
+		echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+		echo "<ul><li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li></ul>";
 		$unboughtStandardPlot = true;
 		//die('<li><font color=red>Invalid input</font></li></ul></td></tr></table></body></html>');
 	}
 	else {
+		
+		
+		
 		if ($owner_user_id == -1) {
 			$land_special_id = $row[3];
 			$owner_user_id = $row[4];
 			$title = $row[5];
 			$detail = $row[6];
 			echo "<h4>".$title." : ".$detail."</h4>";
+			echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
 			echo "<ul>";
 		}
 		if ($row[4] != 3) {
 			if ($row[3] == 0) {
 				$plotsArray[] = $row;
-				echo "<li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li>";
+				echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+				echo "<ul><li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li></ul>";
 				$boughtStandardPlot = true;
 			}
 			else {
@@ -201,7 +211,8 @@ if (sizeof($plots) == 1) {
 		else {
 			if ($row[3] == 0) {
 				$plotsArray[] = $row;
-				echo "<li>Plot Id (".$plots[0].") (Standard Plot)</li>";
+				echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+				echo "<ul><li>Plot Id (".$plots[0].") (Standard Plot)</li></ul>";
 				$unboughtStandardPlot = true;
 			}
 			else {
@@ -244,7 +255,14 @@ else if (sizeof($plots) == 2) {
 				$owner_user_id = $row[4];
 				$title = $row[5];
 				$detail = $row[6];
+				
+				if($_GET['print']){
+					echo "<pre>";
+					print_r($row);
+					echo "</pre>";
+				}
 				echo "<h4>".$title." : ".$detail."</h4>";
+				echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
 				echo "<ul>";
 			}
 			$plotsArray[] = $row;
@@ -342,8 +360,7 @@ if ($type == "bid") {
 	<table>
 	<tr><td>Name</td><td><input type="text" name="name"></td></tr>
 	<tr><td>Email</td><td><input type="text" id="email"></td></tr>
-	<tr><td>Message</td><td><textarea name="message" rows="6" cols="25">
-	<?php
+	<tr><td>Message</td><td><textarea name="message" rows="6" cols="25"><?php
 	echo "Placing a bid for the following plots:\n\n";
 	$count = count($plotsArray);
 	for ($i = 0; $i < $count; $i++) {
@@ -434,12 +451,14 @@ else {
 		<table align="center" border=0 valign=top width="300">
 		<tr valign=top>
 			<td valign=top>
+				<!--
 				<table border=0 align="center">
 					<tr>
 						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=418617858219868&link=http://www.pieceoftheworld.co/&picture=http://www.pieceoftheworld.co/images/pastedgraphic.jpg&name=PieceoftheWorld&caption=The%20best%20Valentine%27s%20gift%20of%202013&description=I%20just%20bought%20myself%20a%20piece%20of%20the%20world&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
-						<td><font size="3">Share on Facebook to get 30% discount.</font></td>
+						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.com and get a 30% discount</font></td>
 					</tr>
 				</table>
+				-->
 			</td>
 		</tr>
 		<tr><td>
