@@ -1,0 +1,242 @@
+body {
+	font: 62.5% "Trebuchet MS", sans-serif;
+	margin: 50px;
+}
+.gmarker {
+  height: 24px;
+  width: 24px;
+  background-image: url('images/gmarker.png');
+  cursor: pointer;
+}
+.rmarker {
+  height: 24px;
+  width: 24px;
+  background-image: url('images/rmarker.png');
+  cursor: pointer;
+}
+#map_canvas {
+	display: block;
+	position: absolute;
+	height: auto;
+	bottom: 0;
+	top: 0;
+	left: 0;
+	right: 0;
+	margin: 0px;
+}
+.demoHeaders {
+	margin-top: 2em;
+}
+#dialog-link {
+	padding: .4em 1em .4em 20px;
+	text-decoration: none;
+	position: relative;
+}
+#dialog-link span.ui-icon {
+	margin: 0 5px 0 0;
+	position: absolute;
+	left: .2em;
+	top: 50%;
+	margin-top: -8px;
+}
+#icons {
+	margin: 0;
+	padding: 0;
+}
+#icons li {
+	margin: 2px;
+	position: relative;
+	padding: 4px 0;
+	cursor: pointer;
+	float: left;
+	list-style: none;
+}
+#icons span.ui-icon {
+	float: left;
+	margin: 0 4px;
+}
+.cpanelwnd {
+	background: none !important;
+	top: 15%;
+	left: 60%;
+}
+.change_radio_button_style {
+	border-top-left-radius: 10px !important;
+	border-top-right-radius: 10px !important;
+	border-bottom-left-radius: 0px !important;
+	border-bottom-right-radius: 0px !important;
+}
+.change_titlebar_style {
+	border-top-left-radius: 10px !important;
+	border-top-right-radius: 10px !important;
+	border-bottom-left-radius: 0px !important;
+	border-bottom-right-radius: 0px !important;
+	padding-bottom: 0px !important;
+}
+.change_dialog_style {
+	border-top-left-radius: 0px !important;
+	border-top-right-radius: 0px !important;
+	border-bottom-left-radius: 10px !important;
+	border-bottom-right-radius: 10px !important;
+	padding: 7px !important;
+	padding-top: 0px !important;
+}
+.dialog_body {
+	border-top-left-radius: 0px !important;
+	border-top-right-radius: 0px !important;
+	border-bottom-left-radius: 10px !important;
+	border-bottom-right-radius: 10px !important;
+	background: #FFF !important;
+	padding: 5px !important;
+}
+.change_tab_style {
+	border: 0px !important;
+	background: #FFF !important;
+}
+.change_tab_ul_style {
+	border: 0px !important;
+	background: #FFF !important;
+}
+.tab_body {
+	background: #F5FFDA !important;
+	border: 1px solid #D4FBDA !important;
+	border-top-left-radius: 0px !important;
+	border-top-right-radius: 0px !important;
+	border-bottom-left-radius: 10px !important;
+	border-bottom-right-radius: 10px !important;
+	padding: 10px !important;
+	padding-top: 0px !important;
+	color: #1482b4 !important;
+}
+.tab_body h3 {
+	font-size: 12px !important;
+	font-weight: bold !important;
+	color: #1482b4 !important;
+	padding: 0px !important;
+	padding-bottom: 3px !important;
+	border-bottom: 1px solid #1482b4 !important;
+}
+.news {
+}
+.news ul {
+	list-style: none !important;
+	padding: 0px !important;
+}
+.news li {
+	margin-bottom: -1px !important;
+	margin-top: 4px !important;
+	padding: 5px !important;
+	background: #FFFFFF !important;
+	border: 1px solid #8ABE43 !important;
+	border-top-left-radius: 5px !important;
+	border-top-right-radius: 5px !important;
+	border-bottom-left-radius: 5px !important;
+	border-bottom-right-radius: 5px !important;
+}
+.img {
+	padding: 5px !important;
+	background: #FFFFFF !important;
+	border: 1px solid #8ABE43 !important;
+	border-top-left-radius: 5px !important;
+	border-top-right-radius: 5px !important;
+	border-bottom-left-radius: 5px !important;
+	border-bottom-right-radius: 5px !important;
+}
+
+.jcarousel-skin-tango .jcarousel-container {
+	-moz-border-radius: 10px;
+	-webkit-border-radius: 10px;
+	border-radius: 0px; /** border-radius: 10px; */
+	/** background: #F0F6F9; */
+	border: 0px; /** border: 1px solid #346F97; */
+}
+
+.jcarousel-skin-tango .jcarousel-container-vertical {
+    width: 100%; /** width: 75px; */
+    height: 140px; /** height: 245px; */
+    /** padding: 40px 20px; */
+	padding-top: 13px;
+	padding-bottom: 13px;
+}
+
+.jcarousel-skin-tango .jcarousel-clip {
+    overflow: hidden;
+}
+
+.jcarousel-skin-tango .jcarousel-clip-vertical {
+    width: 100%; /** width:  75px; */
+    height: 138px;
+}
+
+.jcarousel-skin-tango .jcarousel-item {
+    /** width: 75px; */
+    /** height: 75px; */
+	width: 235px;
+	height: 30px;
+}
+
+.jcarousel-skin-tango .jcarousel-item-vertical {
+    /** margin-bottom: 10px; */
+}
+
+.jcarousel-skin-tango .jcarousel-item-placeholder {
+    background: #fff;
+    color: #000;
+}
+
+/**
+ *  Vertical Buttons
+ */
+.jcarousel-skin-tango .jcarousel-next-vertical {
+    position: absolute;
+    bottom: 0px;
+    left: 116px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    background: transparent url(images/next-vertical.png) no-repeat 0 0;
+}
+
+.jcarousel-skin-tango .jcarousel-next-vertical:hover,
+.jcarousel-skin-tango .jcarousel-next-vertical:focus {
+	background-position: -16px 0px;
+}
+
+.jcarousel-skin-tango .jcarousel-next-vertical:active {
+	background-position: -32px 0px;
+}
+
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical,
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical:hover,
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical:focus,
+.jcarousel-skin-tango .jcarousel-next-disabled-vertical:active {
+	cursor: default;
+	background-position: -48px 0px;
+}
+
+.jcarousel-skin-tango .jcarousel-prev-vertical {
+    position: absolute;
+    top: 0px;
+    left: 116px;
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    background: transparent url(images/prev-vertical.png) no-repeat 0 0;
+}
+
+.jcarousel-skin-tango .jcarousel-prev-vertical:hover,
+.jcarousel-skin-tango .jcarousel-prev-vertical:focus {
+	background-position: -16px 0px;
+}
+
+.jcarousel-skin-tango .jcarousel-prev-vertical:active {
+	background-position: -32px 0px;
+}
+
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical,
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical:hover,
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical:focus,
+.jcarousel-skin-tango .jcarousel-prev-disabled-vertical:active {
+	cursor: default;
+	background-position: -48px 0px;
+}

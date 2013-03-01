@@ -1,0 +1,13 @@
+var xmlElements = $(xmlDoc).find('Object');
+var length = xmlElements.length;
+var index = 0;
+var process = function() {
+  for (; index < length; index++) {
+    var toProcess = xmlElements[index];
+    // Perform xml processing
+    if (index + 1 < length && index % 100 == 0) {
+        setTimeout(process, 5);
+    }
+  }
+};
+process();

@@ -451,14 +451,12 @@ else {
 		<table align="center" border=0 valign=top width="300">
 		<tr valign=top>
 			<td valign=top>
-				<!--
 				<table border=0 align="center">
 					<tr>
-						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=418617858219868&link=http://www.pieceoftheworld.co/&picture=http://www.pieceoftheworld.co/images/pastedgraphic.jpg&name=PieceoftheWorld&caption=The%20best%20Valentine%27s%20gift%20of%202013&description=I%20just%20bought%20myself%20a%20piece%20of%20the%20world&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
-						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.com and get a 30% discount</font></td>
+						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=http://www.pieceoftheworld.co/&picture=http://www.pieceoftheworld.co/images/pastedgraphic.jpg&name=PieceoftheWorld&caption=<?php echo urlencode("Mark your very own Piece of the World!	"); ?>&description=<?php echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
+						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.co and get a 30% discount</font></td>
 					</tr>
 				</table>
-				-->
 			</td>
 		</tr>
 		<tr><td>
