@@ -683,7 +683,8 @@
 			else {
 				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y+"_"+(BlNE[2].x-1)+"-"+(BlSW[2].y-1);
 			}
-			if(!(typeFirstBlock == 3 || typeFirstBlock == 4)){
+			if(typeFirstBlock == 1 || typeFirstBlock == 4){
+				//alert(typeFirstBlock);
 				numblocks = (BlNE[2].x - BlSW[2].x) * (BlSW[2].y - BlNE[2].y);
 				if(numblocks > 0){
 					document.getElementById('info-detail').innerHTML = 'Your description here.';
@@ -1164,10 +1165,7 @@
 			document.getElementById('info-title').innerHTML = markerJSON[0].title;
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
 			
-			if(markerJSON[0].land_special_id){
-				price = 499;
-				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
-			}
+			
 			
 			if(markerJSON[0].land_owner){
 				
@@ -1208,11 +1206,17 @@
 			//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 		}
 		else {
-			//alert(blocksAvailableInDraggableRect);
+			//alert(updatePopupWindowTabInfo);
 			document.getElementById('info-title').innerHTML = 'Your title here.';
 			
 			
 			document.getElementById('info-detail').innerHTML = 'Your description here.';
+			
+			if(markerJSON[0].land_special_id){
+				price = 499;
+				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+			}
+			
 			if(numblocks > 0){
 				price = (numblocks*9.90);
 				price = price.toFixed(2);
@@ -1463,7 +1467,7 @@
 				var marker = new google.maps.Marker({
 					position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
 					map: map,
-					icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/dgmarker.png'
+					icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/rmarker.png' //'images/dgmarker.png'
 				});
 				google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, "special"); });
 				markers.push(marker);

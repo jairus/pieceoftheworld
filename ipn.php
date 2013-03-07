@@ -1,4 +1,6 @@
 <?php
+include_once(dirname(__FILE__)."/emailer/email.php");
+
 $str = print_r($_GET, 1);
 $str .= print_r($_POST, 1);
 $str .= print_r($_SERVER, 1);
@@ -292,6 +294,58 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	mysql_close($con);
 
 	// Send email
+	
+	
+	$from = "noreply@pieceoftheworld.co";
+	$fromname = "PieceOfTheWorld.com";
+	$bouncereturn = "pieceoftheworld2013@gmail.com"; //where the email will forward in cases of bounced email
+	$subject = "Land purchased by $useremail";
+	$message = "Purchased land has been associated with the below given information:<br /><br />";
+	$message .= "Email: ".$useremail."<br />";
+	$message .= "Title: ".$title."<br />";
+	$message .= "Detail: ".$detail."<br />";
+	$message .= "Picture: (Attached)<br /><br />";
+	$message .= "This following plots have been purchased:<br /><br />";
+	foreach ($plot_list as $tPlot) {
+		$message .= $tPlot."\r\n";
+	}
+	$iid = mysql_insert_id();
+	if($iid){
+		$message .= "ID: ".$iid."\r\n";
+	}
+	
+	$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
+	$emails[0]['name'] = "pieceoftheworld2013@gmail.com";
+	$emails[1]['email'] = "fuzylogic28@gmail.com";
+	$emails[1]['name'] = "fuzylogic28@gmail.com";
+	$attachments[0] = $post['filename'];
+	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1); //last parameter for running debug
+	
+	
+	$file = "http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f'];
+	$contents = file_get_contents($file);
+	$filename = "certificate.pdf";
+	file_put_contents($uploads_dir."/".$filename, $contents);
+	
+	$from = "noreply@pieceoftheworld.co";
+	$fromname = "PieceOfTheWorld.com";
+	$bouncereturn = "pieceoftheworld2013@gmail.com"; //where the email will forward in cases of bounced email
+	$message = "<b>Thank you for your purchase. You now own a piece of the world!</b><br/>
+	It usually takes a few minutes before your purchased piece of the world appears on the map. If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
+	";
+	
+	$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
+	$emails[0]['name'] = "pieceoftheworld2013@gmail.com";
+	$emails[1]['email'] = "fuzylogic28@gmail.com";
+	$emails[1]['name'] = "fuzylogic28@gmail.com";
+	$emails[2]['email'] = $useremail;
+	$emails[2]['name'] = $useremail;
+	$attachments[0] = $uploads_dir."/".$filename;
+	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1); //last parameter for running debug
+	
+	
+	
+	/*
 	$subject = "Land purchased by $useremail";
 
 	$message = "Purchased land has been associated with the below given information:\r\n\r\n";
@@ -314,23 +368,24 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	
 	
 
-$message = "<b>Thank you for your purchase. You now own a piece of the world!</b><br/>
-It usually takes a few minutes before your purchased piece of the world appears on the map. If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
-";
+	$message = "<b>Thank you for your purchase. You now own a piece of the world!</b><br/>
+	It usually takes a few minutes before your purchased piece of the world appears on the map. If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
+	";
 
-$from = "noreply@pieceoftheworld.co";
-$file = "http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f'];
-$filename = "certificate.pdf";
+	$from = "noreply@pieceoftheworld.co";
+	$file = "http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f'];
+	$filename = "certificate.pdf";
 
-$filedata = file_get_contents($file);
+	$filedata = file_get_contents($file);
 
-mail_attachment($useremail, "Confirmation of Purchase", $message, $from, $filedata, $filename, true);
-mail_attachment("pieceoftheworld2013@gmail.com", "Confirmation of Purchase", $message, $from, $filedata, $filename, true);
-mail_attachment("fuzylogic28@gmail.com", "Confirmation of Purchase", $message, $from, $filedata, $filename, true);
+	mail_attachment($useremail, "Confirmation of Purchase", $message, $from, $filedata, $filename, true);
+	mail_attachment("pieceoftheworld2013@gmail.com", "Confirmation of Purchase", $message, $from, $filedata, $filename, true);
+	mail_attachment("fuzylogic28@gmail.com", "Confirmation of Purchase", $message, $from, $filedata, $filename, true);
 
 
 	if($_GET['jairus']){
 		echo $message;
 	}
+	*/
 }
 ?>

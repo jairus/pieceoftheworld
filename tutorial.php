@@ -69,11 +69,11 @@ function setCookie(c_name,value,exdays) {
 <body>
 	<table style="height:100%; width:100%;" height="100%"><tr>
 		<td style="padding-top:40px; text-align:center">
-			<div id='step1' class='step relative' ><div class='button' style='left:28px; top:29px' onclick='show(2);'></div><img src='tutorial/1.jpg' /></div>
-			<div id='step2' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='show(3);'></div><img src='tutorial/2.jpg' /></div>
-			<div id='step3' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='show(4);'></div><img src='tutorial/3.jpg' /></div>
-			<div id='step4' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='show(5);'></div><img src='tutorial/4.jpg' /></div>
-			<div id='step5' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='self.location="index.php?skip=1"'></div><img src='tutorial/5.jpg' /></div>
+			<div id='step1' class='step relative' ><div class='button' style='left:28px; top:29px' onclick='show(2);'></div><img src='tutorial/1.jpg?_=<?php echo time(); ?>' /></div>
+			<div id='step2' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='show(3);'></div><img src='tutorial/2.jpg?_=<?php echo time(); ?>' /></div>
+			<div id='step3' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='show(4);'></div><img src='tutorial/3.jpg?_=<?php echo time(); ?>' /></div>
+			<div id='step4' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='show(5);'></div><img src='tutorial/4.jpg?_=<?php echo time(); ?>' /></div>
+			<div id='step5' class='step relative hidden'><div class='button' style='left:95px; top:29px' onclick='self.location="index.php?skip=1"'></div><img src='tutorial/5.jpg?_=<?php echo time(); ?>' /></div>
 		
 		</td>
 	</tr>
