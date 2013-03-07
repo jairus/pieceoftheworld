@@ -34,13 +34,6 @@
 	mysql_close($con);
 	echo "var masterUser = '".$masterUser."';";
 ?>
-<?php if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) { ?>
-		var showTutorial = getCookie("showTutorial");
-		if (showTutorial !== "false") {
-			window.location="tutorial.php";
-			//window.showModalDialog("tutorial.html",0, "dialogWidth:700px; dialogHeight:500px; center:yes; resizable: no; status: no");
-		}
-<?php } ?>
 	var enableGeoLoc = false;
 	var geoLoc;
 
@@ -402,10 +395,6 @@
 		
 			var WcNE = projection.fromLatLngToPoint(LtLgNE);
 			var WcSW = projection.fromLatLngToPoint(LtLgSW);
-			
-			consoleX(WcNE);
-			consoleX(WcSW);
-			
 
 			if (Math.abs(Math.floor(WcNE.y) - WcNE.y) >= 0.5) {
 				WcNE.y = Math.floor(WcNE.y) + 1;
@@ -584,6 +573,8 @@
 				WcSW.y = (maxY == 0) ? matrix[rows-1][0][1] : maxY-1;
 			}
 			else if (typeFirstBlock == 2) {
+				jQuery("#addsland").hide();
+				jQuery("#theinfo").show();
 				document.getElementById('buy-button').value = 'Bid';
 				document.getElementById('buy-button').disabled = false;
 				// Acquired Plot
@@ -594,6 +585,8 @@
 			}
 			else if (typeFirstBlock == 3 || typeFirstBlock == 4) {
 				if (typeFirstBlock == 3) {
+					jQuery("#addsland").hide();
+					jQuery("#theinfo").show();
 					document.getElementById('buy-button').value = 'Bid';
 					document.getElementById('buy-button').disabled = false;
 				}
@@ -676,7 +669,7 @@
 				// Acquired Plot
 			}
 			else {
-				document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
+				document.getElementById('info-img').src = 'images/place_holder.png';
 			}
 			document.getElementById('info-latitude').innerHTML = LatLngCenter.lat().toFixed(5);
 			document.getElementById('info-longitude').innerHTML = LatLngCenter.lng().toFixed(5);
@@ -687,19 +680,15 @@
 			else {
 				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y+"_"+(BlNE[2].x-1)+"-"+(BlSW[2].y-1);
 			}
-			if(typeFirstBlock == 1){
+			if(typeFirstBlock == 1 || typeFirstBlock == 4){
 				//alert(typeFirstBlock);
 				numblocks = (BlNE[2].x - BlSW[2].x) * (BlSW[2].y - BlNE[2].y);
 				if(numblocks > 0){
 					document.getElementById('info-detail').innerHTML = 'Your description here.';
 					price = (numblocks*9.90);
 					price = price.toFixed(2);
-					document.getElementById('info-detail').innerHTML  =  document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+					//document.getElementById('info-detail').innerHTML  =  document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 				}
-			}
-			else if(typeFirstBlock == 4){
-				//price = 499;
-				//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 			}
 		}
 	}
@@ -711,9 +700,7 @@
 	}
 	
 	function onRectangleClick(event) {
-		
-		consoleX("onRectangleClick");
-		
+	
 		
 		if (draggableRect != null) {
 			draggableRect.setMap(null);
@@ -732,17 +719,6 @@
 			new google.maps.LatLng(block[0].lat(),block[0].lng()),
 			new google.maps.LatLng(block[1].lat(),block[1].lng())
 		);
-		
-
-		
-		//var p = projection.fromLatLngToContainerPixel(new google.maps.LatLng(block[0].lat(),block[0].lng()));
-		
-		
-		
-
-		
-		
-		
 		draggableRect = new google.maps.Rectangle({
 			bounds: bounds,
 			editable: true
@@ -951,13 +927,6 @@
 			bounds: new google.maps.LatLngBounds(lt, rb)
 		});
 		google.maps.event.addListener(rectangle, 'click', function(event) { (opacity == 0) ? onRectangleClick(event) :  onColoredRectangleClick(event); });
-		
-		
-		
-		
-
-
-
 		window.rectangles.push(rectangle);
 	}
 	
@@ -1173,8 +1142,8 @@
 	*/
 	
 	function showPopupWindowTabInfo(isSelected) {
-		document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
-		document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
+		//document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
+		//document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
 	}
 	function updatePopupWindowTabInfo(inLatLng) {
 		showPopupWindowTabInfo(true);
@@ -1188,7 +1157,7 @@
 		var returnText = ajaxGetMarker(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
 		document.getElementById('info-land_owner_container').style.display="none";
-		document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
+		document.getElementById('info-img').src = "images/place_holder.png";
 		if (returnText != '[[]]') {
 			document.getElementById('info-title').innerHTML = markerJSON[0].title;
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
@@ -1214,7 +1183,7 @@
 				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			}
 			else{
-				document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id+"_thumb?_="+((new Date()).getTime());
+				document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id+"?_="+((new Date()).getTime());
 				jQuery("#info-lightbox").attr("href", "images/thumbs/land_id_"+markerJSON[0].id+"?_="+((new Date()).getTime()) );
 				xtitle = "";
 				if(markerJSON[0].land_owner){
@@ -1225,28 +1194,21 @@
 				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			}
 			if (markerJSON[0].email == masterUser) {
-				if(markerJSON[0].land_special_id){
-					price = 499;
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
-				}
-				
-				if(numblocks > 0){
-					price = (numblocks*9.90);
-					price = price.toFixed(2);
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
-				}
 				document.getElementById('buy-button').value = "Buy";
 			}
 			else {
+				jQuery("#addsland").hide();
+				jQuery("#theinfo").show();
 				document.getElementById('buy-button').value = "Bid";
 			}
 			
-			
-			
-			
+			jQuery("#addsland").hide();
+			jQuery("#theinfo").show();
 			//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 		}
 		else {
+			jQuery("#theinfo").hide();
+			jQuery("#addsland").show();
 			//alert(updatePopupWindowTabInfo);
 			document.getElementById('info-title').innerHTML = 'Your title here.';
 			
@@ -1255,16 +1217,16 @@
 			
 			if(markerJSON[0].land_special_id){
 				price = 499;
-				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+				//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 			}
 			
 			if(numblocks > 0){
 				price = (numblocks*9.90);
 				price = price.toFixed(2);
-				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+				//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 			}
 
-			document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
+			document.getElementById('info-img').src = 'images/place_holder.png';
 			document.getElementById('buy-button').value = "Buy";
 
 			//document.getElementById('buy-img').src = 'images/place_holder.png';
@@ -1580,6 +1542,23 @@
 	}
 	
 	
+	function onBuySpecialLand() {
+		//		document.getElementById('addSpecialAreaForm').action = "addspecialland.php?land="+blocksAvailableInDraggableRect;
+		if (blocksAvailableInDraggableRect == null || blocksAvailableInDraggableRect == "") {
+			alert('Please select a land first.');
+			return false;
+		}
+		document.getElementById('land').value = blocksAvailableInDraggableRect;
+		if (document.getElementById('title').value == "") {
+			alert('Please provide a Title for special land.');
+			return false;
+		}
+		document.getElementById('addSpecialAreaForm').submit();
+		//document.addSpecialAreaForm.submit();
+		//window.open(url);
+		return true;
+	}
+	
 	
 </script>
 
@@ -1627,7 +1606,7 @@
     <label for="radio3" class="change_radio_button_style">City View</label>
   </div>
   -->
-      <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix change_titlebar_style" style="border: solid 1px #578C0B !important; border-bottom: solid 1px #97CF48 !important; background: #97CF48 !important;"><span id="ui-id-1" class="ui-dialog-title" style="text-align:center; width: 100%;"><img src="images/cpanel-logo.png?_=<?php echo time();?>"></span></div>
+      <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix change_titlebar_style" style="border: solid 1px #578C0B !important; border-bottom: solid 1px #97CF48 !important; background: #97CF48 !important;"><span id="ui-id-1" class="ui-dialog-title" style="text-align:center; width: 100%;"><img src="images/cpanel-logo.png"></span></div>
       <div id="dialog" class="ui-dialog-content ui-widget-content change_dialog_style" style="width: auto; min-height: 52px; height: auto; border: solid 1px #578C0B !important; border-top: solid 1px #97CF48 !important; background: #97CF48 !important;" scrolltop="0" scrollleft="0">
     <div class="dialog_body">
 		<div id="tabs" class="change_tab_style">
@@ -1635,8 +1614,8 @@
 				<!--
 				<li><a style="padding: 2px !important;" href="#news">News</a></li>
 				-->
-				<li><a style="padding: 2px !important;" href="#info">Info</a></li>
-				<li><a style="padding: 2px !important;" href="#search">Search</a></li>
+				<li><a style="padding: 2px !important;" href="#info">Add Special Land</a></li>
+				<li style='display:none'><a style="padding: 2px !important;" href="#search">Search</a></li>
 				<!--
 				<li><a style="padding: 2px !important;" href="#us">US</a></li>
 				-->
@@ -1646,11 +1625,11 @@
 				<!--
 				<li><a style="padding: 2px !important;" href="#configuration"><img src="images/compile.png" width="11" height="11" border="0"></a></li>
 				-->
-				<li><a style="padding: 2px !important;" href="#configuration">Settings</a></li>
+				<li style='display:none'><a style="padding: 2px !important;" href="#configuration">Settings</a></li>
 				<!--
 				<li><a style="padding: 2px !important;" href="#help"><img src="images/question.png" width="11" height="11" border="0"></a></li>
 				-->
-				<li><a style="padding: 2px !important;" href="#help">About</a></li>
+				<li style='display:none'><a style="padding: 2px !important;" href="#help">About</a></li>
 			</ul>
 		<!--
 		<div id="news" class="tab_body news">
@@ -1664,13 +1643,14 @@
 		-->
         <div id="info" class="tab_body">
 		  <span id="info-span-noselection" style="display:block; padding:5px; padding-top:15px;">
-		    <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center>
+		    
 		  </span>
-		  <span id="info-span" style="display:none;">
-            <h3><span id="info-title">Phasellus mattis</span></h3>
+		  <span id="info-span">
+            <div id='theinfo' style='display:none'>
+			<h3><span id="info-title">Phasellus mattis</span></h3>
               <table>
                 <tr>
-                  <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
+                  <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" src="images/place_holder.png" width="97" height="127" border="0"></a></div></td>
                   <td valign="top">
 				    <table>
                       <tr style='display:none'>
@@ -1694,7 +1674,7 @@
                       </tr>
                       <tr>
                         <td colspan="2">
-                          <center><br><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();">
+                          <center><br><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px; display:none" onClick="onBuyLand();">
 						 <!--<input type="button" id="clicktozoom" value="Click to Zoom" style="padding: 3px; padding-left: 25px; padding-right: 25px; display:none">-->
 						  </center>
 					    </td>
@@ -1702,7 +1682,35 @@
                     </table>
 			      </td>
                 </tr>
-              </table>
+				</table>
+			  </div>
+			  <div id='addsland'>
+				<h3>Search Google Map</h3>
+				<strong>Enter a place</strong>
+				<div style="width: 400px; overflow: hidden;">
+					<input type="text" id="search_enteraplace" name="search_enteraplace_name" style="width: 97%;">
+				</div>
+				<form id="addSpecialAreaForm" name="addSpecialAreaFormName" enctype="multipart/form-data" method="post" action="addspecialland.php" target="_blank">
+				<input type="hidden" id="land" name="land_name" value="">
+				<h3>Add Special Land</h3>
+				<strong>Title<font color=red>*</font>&nbsp;</strong>
+				<div style="width: 400px; overflow: hidden;">
+					<input type="text" id="title" name="title_name" maxlength="150" style="width: 97%;">
+				</div>
+				<strong style="vertical-align:top;">Detail&nbsp;</strong>
+				<div style="width: 400px; overflow: hidden;">
+					<textarea id="detail" name="detail_name"  style="width: 97%; height:75px;"></textarea>
+				</div>
+				<strong>Picture</strong>
+				<div style="width: 400px; overflow: hidden;">
+					<input type="file" id="picture" name="picture_name" style="width: 97%;">
+				</div>
+				<br>
+				<div style="width: 400px; overflow: hidden;">
+					<center><input type="button" id="button" name="button_name" value="Add Special Area" onclick="onBuySpecialLand();" style="width: 50%; height:30px;"></center>
+				</div>
+				</form>
+			  </div>
 		  </span>	  
         </div>
         <div id="search" class="tab_body">

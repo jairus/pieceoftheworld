@@ -1,4 +1,6 @@
-<!doctype html>
+<?php
+ob_start();
+?><!doctype html>
 <html lang="us">
 <head>
 <meta charset="utf-8">
@@ -15,16 +17,26 @@
 <?php
 	require_once 'ajax/global.php';
 	$masterUser = GetMasterUser();
+	/*
 	$conOptions = GetGlobalConnectionOptions();
 	$con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions['password']);
 	if (!$con) { die('Database connection error.'); }
 	mysql_select_db($conOptions['database'], $con);
+	
 	$sql = "SELECT * FROM settings WHERE 1";
+	
 	$result = mysql_query($sql);
 	while ($row = mysql_fetch_array($result)) {
 		echo 'var '.$row["name"].' = "'.$row["value"].'";';
 	}
 	mysql_close($con);
+	*/
+	
+	$sql = "SELECT * FROM settings WHERE 1";
+	$result = dbQuery($sql, $_dblink);
+	foreach($result as $row){
+		echo 'var '.$row["name"].' = "'.$row["value"].'";';
+	}
 	echo "var masterUser = '".$masterUser."';";
 ?>
 	// Try HTML5 geolocation
@@ -604,6 +616,7 @@
 	}
 
 	function ajaxGetRedMarkerCoordinates(land_special_id) {
+		return 0;
 		var marker;
 		$.ajax({
 			url:'ajax/get_markers.php?land_special_id='+land_special_id,
@@ -618,6 +631,7 @@
 	}
 	
 	function ajaxAddRedMarkers(map, gMarkers) {
+		return 0;
 		var jqxhr = $.ajax('ajax/get_markers.php?type=special')
 		.done(function() { 
 			if (jqxhr.status == 200) {
@@ -710,45 +724,45 @@
 </head>
 <?php
 function getEmailAndPassword($error) {
-?>
-<body>
-<div style="height:50%; margin-top:100px; font-family:Arial;" align="center" valign="middle">
-<h1>Add Special Land</h1>
-<table border="1px" style="border-color:black;">
-<tr>
-<td style="text-align:center; background-color:#CC0000; color: white;">
-	<strong>Login</strong>
-</td>
-</tr>
-<tr>
-<td>
-	<form action="add_special_land.php">
-		<table>
-			<tr>
-				<td>Email</td>
-				<td><input type="text" name="email" value=""></td>
-			</tr>
-			<tr>
-				<td>Password</td>
-				<td><input type="text" name="pwd" value=""></td>
-			</tr>
-			<tr>
-				<td colspan="2"><center><input type="submit" name="Submit" value="Submit"></center></td>
-			</tr>
-		</table>
-	</form>
-</td>
-</tr>
-</table>
-<?php
-if ($error != "") {
-	die("<br><font color=red><strong>Error: </strong>".$error."</font>");
-}
-?>
-</div>
-</body>
-</html>
-<?php
+	?>
+	<body>
+	<div style="height:50%; margin-top:100px; font-family:Arial;" align="center" valign="middle">
+	<h1>Add Special Land</h1>
+	<table border="1px" style="border-color:black;">
+	<tr>
+	<td style="text-align:center; background-color:#CC0000; color: white;">
+		<strong>Login</strong>
+	</td>
+	</tr>
+	<tr>
+	<td>
+		<form action="add_special_land.php">
+			<table>
+				<tr>
+					<td>Email</td>
+					<td><input type="text" name="email" value=""></td>
+				</tr>
+				<tr>
+					<td>Password</td>
+					<td><input type="text" name="pwd" value=""></td>
+				</tr>
+				<tr>
+					<td colspan="2"><center><input type="submit" name="Submit" value="Submit"></center></td>
+				</tr>
+			</table>
+		</form>
+	</td>
+	</tr>
+	</table>
+	<?php
+	if ($error != "") {
+		die("<br><font color=red><strong>Error: </strong>".$error."</font>");
+	}
+	?>
+	</div>
+	</body>
+	</html>
+	<?php
 }
 ?>
 <?php
@@ -756,6 +770,7 @@ $email = @$_GET['email'];
 $pwd = @$_GET['pwd'];
 if ($email == "" || $pwd == "") {
 	getEmailAndPassword("Please provide a username and password");
+	exit();
 }
 require_once 'ajax/global.php';
 $conOptions = GetGlobalConnectionOptions();

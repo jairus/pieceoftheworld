@@ -44,7 +44,10 @@ function isItWatter($lat,$lng) {
         return 0;
 }
 
-if(isItWatter($_GET['lat'], $_GET['long'])){
+$latlng = explode(",", $_GET['latlong']);
+
+
+if(isItWatter($latlng[0], $latlng[1])){
 	echo "<br />";
 	echo "<br />";
 	echo "Water";

@@ -63,7 +63,7 @@ if(trim($markers[0]['folder'])){
 	$markers[0]['land_owner'] = $post['land_owner'];
 	
 	if(trim($post['filename'])){
-		showThumb($post['filename'], "97", "97", dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
+		showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
 		showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
 		$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
 		$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
@@ -97,7 +97,8 @@ else{
 
 /************* FUNCTIONS BELOW ****************/
 
-function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false) {
+function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $returnim = false) 
+{
 	$info = pathinfo($src);
 
 	$img = @imagecreatefromjpeg( $src );
@@ -161,8 +162,8 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false) {
 		else{
 			$side = $new_height;
 		}
-		$side1 = $side;
-		$side2 = $side*1.3;
+		$side1 = $thumbWidth;
+		$side2 = $thumbHeight;
 		$tmp_img = imagecreatetruecolor( $side1, $side2 );
 		$white = imagecolorallocate($tmp_img, 255, 255, 255);
 		imagefill($tmp_img, 0, 0, $white);
@@ -189,16 +190,19 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false) {
 	}
 	*/
 	
-	
-	if(!trim($dest)){
-		imagepng( $tmp_img , null, 0);
+	if(!$returnim){
+		if(!trim($dest)){
+			imagepng( $tmp_img , null, 0);
+		}
+		else{
+			@imagepng ( $tmp_img , $dest, 0);
+		}
 	}
 	else{
-		@imagepng ( $tmp_img , $dest, 0);
+		return $tmp_img;
 	}
 	// save thumbnail into a file
 	
 }
-
 
 ?>

@@ -163,6 +163,8 @@ if ((($_FILES["picture_name"]["type"] == "image/gif")
 	}
 }
 else {
+	$error = false;
+	/*
 	if ($_FILES["picture_name"]["size"] > 102400) {
 		echo "Error: Image file size can not be greater than 100 Kb";
 	}
@@ -172,6 +174,7 @@ else {
 	else {
 		echo "Error: Invalid image file type";
 	}
+	*/
 }
 ?>
 <?php

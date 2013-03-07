@@ -129,6 +129,19 @@ $boughtSpecialArea = false;
 		document.cookie=c_name + "=" + c_value;
 	}
 </script>
+<script type="text/javascript">
+
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-39101024-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+
+</script>
 </head>
 
 <body style="cursor: auto; background-color: white;" onload="onLoad();">
@@ -173,7 +186,7 @@ if (sizeof($plots) == 1) {
 	if ($row == null) {
 		//mysql_close($con);
 		// Unbought standard plot selected
-		echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+		echo '<center><img  src="'.$_GET['thumb'].'" /></center>';
 		echo "<ul><li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li></ul>";
 		$unboughtStandardPlot = true;
 		//die('<li><font color=red>Invalid input</font></li></ul></td></tr></table></body></html>');
@@ -188,13 +201,13 @@ if (sizeof($plots) == 1) {
 			$title = $row[5];
 			$detail = $row[6];
 			echo "<h4>".$title." : ".$detail."</h4>";
-			echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+			echo '<center><img src="'.$_GET['thumb'].'" /></center>';
 			echo "<ul>";
 		}
 		if ($row[4] != 3) {
 			if ($row[3] == 0) {
 				$plotsArray[] = $row;
-				echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+				echo '<center><img src="'.$_GET['thumb'].'" /></center>';
 				echo "<ul><li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li></ul>";
 				$boughtStandardPlot = true;
 			}
@@ -211,7 +224,7 @@ if (sizeof($plots) == 1) {
 		else {
 			if ($row[3] == 0) {
 				$plotsArray[] = $row;
-				echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+				echo '<center><img src="'.$_GET['thumb'].'" /></center>';
 				echo "<ul><li>Plot Id (".$plots[0].") (Standard Plot)</li></ul>";
 				$unboughtStandardPlot = true;
 			}
@@ -262,7 +275,7 @@ else if (sizeof($plots) == 2) {
 					echo "</pre>";
 				}
 				echo "<h4>".$title." : ".$detail."</h4>";
-				echo '<center><img width="97" height="127" src="'.$_GET['thumb'].'" /></center>';
+				echo '<center><img src="'.$_GET['thumb'].'" /></center>';
 				echo "<ul>";
 			}
 			$plotsArray[] = $row;
