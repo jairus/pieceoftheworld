@@ -5,6 +5,11 @@
 <meta charset="utf-8">
 <title>PieceoftheWorld</title>
 
+
+
+<meta property='og:image' content='http://www.pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
+<meta property='og:title' content='Piece of the World' />
+
 <link href="twitmarquee/front.css" media="screen" rel="stylesheet" type="text/css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.0/jquery.min.js" type="text/javascript"></script>
 
@@ -1229,8 +1234,7 @@
 					price = 499;
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 				}
-				
-				if(numblocks > 0){
+				else if(numblocks > 0){
 					price = (numblocks*9.90);
 					price = price.toFixed(2);
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
@@ -1240,8 +1244,6 @@
 			else {
 				document.getElementById('buy-button').value = "Bid";
 			}
-			
-			
 			
 			
 			//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
@@ -1257,8 +1259,7 @@
 				price = 499;
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 			}
-			
-			if(numblocks > 0){
+			else if(numblocks > 0){
 				price = (numblocks*9.90);
 				price = price.toFixed(2);
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
@@ -1664,7 +1665,7 @@
 		-->
         <div id="info" class="tab_body">
 		  <span id="info-span-noselection" style="display:block; padding:5px; padding-top:15px;">
-		    <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center>
+		    <center><img src="images/pastedgraphic.jpg?_=<?php echo time();  ?>" border="0"></center>
 		  </span>
 		  <span id="info-span" style="display:none;">
             <h3><span id="info-title">Phasellus mattis</span></h3>
@@ -1791,7 +1792,7 @@
         <div id="help" class="tab_body">
               <h3>About</h3>
 			  <p>Dear Citizen of the World</p>
-			  <p>Welcome to <a href="http://www.PieceoftheWorld.co" target="_blank">PieceoftheWorld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>Welcome to <a href="http://www.PieceoftheWorld.com" target="_blank">PieceoftheWorld.com</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
 			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
 			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
 			  <p>So join us and set your mark - get your piece of the world today.</p>

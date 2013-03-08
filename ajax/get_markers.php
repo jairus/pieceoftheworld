@@ -61,7 +61,16 @@ if(trim($markers[0]['folder'])){
 	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
 	
 	$markers[0]['land_owner'] = $post['land_owner'];
-	
+	//overide email
+	$markers[0]['email'] = $post['email'];
+	//overide title
+	if(trim($post['title'])){
+		$markers[0]['title'] = $post['title'];
+	}
+	//overide description
+	if(trim($post['detail'])){
+		$markers[0]['detail'] = $post['detail'];
+	}
 	if(trim($post['filename'])){
 		showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
 		showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
