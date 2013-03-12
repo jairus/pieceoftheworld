@@ -11,7 +11,13 @@ require_once("dompdf_config.inc.php");
 if(isset($_GET['f'])){
 	$uploads_dir = dirname(__FILE__).'/../_uploads/'.$_GET['f'];
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
-	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
+	
+	if(!isset($post['filename'])){
+		$post['filename'] = dirname(__FILE__)."/../images/place_holder.png";
+	}
+	else{
+		$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
+	}
 	
 	$land = $post['land'];
 	$useremail = $post['useremail'];

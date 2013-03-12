@@ -2,13 +2,12 @@
 <!doctype html>
 <html lang="us">
 <head>
-<meta charset="utf-8">
-<title>PieceoftheWorld</title>
-
-
 
 <meta property='og:image' content='http://www.pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
 <meta property='og:title' content='Piece of the World' />
+
+<meta charset="utf-8">
+<title>PieceoftheWorld</title>
 
 <link href="twitmarquee/front.css" media="screen" rel="stylesheet" type="text/css" />
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.3.0/jquery.min.js" type="text/javascript"></script>
@@ -39,13 +38,18 @@
 	mysql_close($con);
 	echo "var masterUser = '".$masterUser."';";
 ?>
-<?php if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) { ?>
-		var showTutorial = getCookie("showTutorial");
-		if (showTutorial !== "false") {
-			window.location="tutorial.php";
-			//window.showModalDialog("tutorial.html",0, "dialogWidth:700px; dialogHeight:500px; center:yes; resizable: no; status: no");
+<?php 
+	if(!trim($_GET['latlong'])){
+		if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) { ?>
+			var showTutorial = getCookie("showTutorial");
+			if (showTutorial !== "false") {
+				window.location="tutorial.php";
+				//window.showModalDialog("tutorial.html",0, "dialogWidth:700px; dialogHeight:500px; center:yes; resizable: no; status: no");
+			}
+			<?php 
 		}
-<?php } ?>
+	}
+	?>
 	var enableGeoLoc = false;
 	var geoLoc;
 
@@ -178,6 +182,26 @@
 		google.maps.event.addListener(map, 'click', function(event) { onClick(event); });
 		google.maps.event.addListener(map, 'idle', function(event) { onIdle(false); });
 		google.maps.event.addListener(map, 'zoom_changed', function() { onZoomChanged(); });
+		
+		
+		
+		<?php
+		if(trim($_GET['latlong'])){
+			list($lat, $long) = explode("~", trim($_GET['latlong']));
+			?>
+			inLatLng = new google.maps.LatLng(<?php echo $lat; ?>, <?php echo $long; ?>);
+			updatePopupWindowTabInfo(inLatLng);
+			var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
+			consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+			map.setZoom(17);
+			map.setCenter(loc);
+			jQuery("#clicktozoom").hide();
+			<?php
+		}
+		?>
+		
+		
+		
 	}
 
 	google.maps.event.addDomListener(window, 'load', showWorldView);
@@ -223,6 +247,8 @@
 				map.setCenter(location);
 			}
 		});
+		
+		
 	});
 	
 	function showWorldView(object) {
@@ -260,18 +286,25 @@
 		}
 		
 		//jairus
-		jQuery("#clicktozoom").show();
+		if(map.getZoom()<17){
+			jQuery("#clicktozoom").show();
+		}
 		jQuery("#clicktozoom").click(function () {
 			var loc = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng());
 			consoleX(event.latLng.lat()+" - "+event.latLng.lng());
-			map.setZoom(ZOOM_LEVEL_CITY);
+			map.setZoom(17);
 			map.setCenter(loc);
 			jQuery("#clicktozoom").hide();
-			onColoredRectangleClick(event);
+			//onColoredRectangleClick(event);
 			//onRectangleClick(event) ;
 			//scheduleDelayedCallback();
 			
 		});
+		
+		
+		//jQuery("#fbsharelink").attr("href", "http://<?php echo $_SERVER['HTTP_HOST']; ?>/?latlong="+event.latLng.lat()+"-"+event.latLng.lng())
+		
+		
 		
 		
 		//set draggable rect
@@ -1181,10 +1214,19 @@
 		document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
 		document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
 	}
+	
+	
+	
+	
 	function updatePopupWindowTabInfo(inLatLng) {
+		
+		jQuery("#fbsharelink").hide();
 		showPopupWindowTabInfo(true);
 		document.getElementById('info-latitude').innerHTML = inLatLng.lat().toFixed(5);
 		document.getElementById('info-longitude').innerHTML = inLatLng.lng().toFixed(5);
+		
+		
+		
 		
 		//document.getElementById('buy-latitude').innerHTML = inLatLng.lat().toFixed(5);
 		//document.getElementById('buy-longitude').innerHTML = inLatLng.lng().toFixed(5);
@@ -1198,12 +1240,14 @@
 			document.getElementById('info-title').innerHTML = markerJSON[0].title;
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
 			
-			
-			
+
 			if(markerJSON[0].land_owner){
 				
 				document.getElementById('info-land_owner').innerHTML = markerJSON[0].land_owner;
 				document.getElementById('info-land_owner_container').style.display="";
+			}
+			else{
+				document.getElementById('info-land_owner').innerHTML = "";
 			}
 			ajaxExtractLandPicture(markerJSON[0].id);
 			//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
@@ -1229,12 +1273,29 @@
 				jQuery("#info-lightbox").attr("title", xtitle );
 				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			}
+			
+			shareowner = "";
+			sharetitle = "";
+			sharedetail = "";
+			
+			shareowner = jQuery('#info-land_owner').text();
+			sharetitle = jQuery('#info-title').text();	
+			sharedetail = jQuery('#info-detail').text();
+			
+			if(shareowner){
+				sharetext = " Owner: "+shareowner+". "+sharedetail;
+			}
+			else{
+				sharetext = sharedetail;
+			}
+			
 			if (markerJSON[0].email == masterUser) {
 				if(markerJSON[0].land_special_id){
 					price = 499;
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 				}
-				else if(numblocks > 0){
+				
+				if(numblocks > 0){
 					price = (numblocks*9.90);
 					price = price.toFixed(2);
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
@@ -1244,6 +1305,7 @@
 			else {
 				document.getElementById('buy-button').value = "Bid";
 			}
+			
 			
 			
 			//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
@@ -1259,7 +1321,8 @@
 				price = 499;
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
 			}
-			else if(numblocks > 0){
+			
+			if(numblocks > 0){
 				price = (numblocks*9.90);
 				price = price.toFixed(2);
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
@@ -1270,6 +1333,19 @@
 
 			//document.getElementById('buy-img').src = 'images/place_holder.png';
 		}
+		
+		if(!sharetitle){
+			sharetitle = "Mark your very own Piece of the World!";
+		}
+		if(!sharetext){
+			sharetext = "Get your own piece of the world at pieceoftheworld.com";
+		}
+		link = "http://<?php echo $_SERVER['HTTP_HOST']; ?>/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+		//link = encodeURIComponent(link);
+		sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+		
+		jQuery("#fbsharelink").attr("href", sharelink);
+		jQuery("#fbsharelink").show();
 	}
 	
 	function updatePopupWindowTabConfig(update) {
@@ -1665,10 +1741,10 @@
 		-->
         <div id="info" class="tab_body">
 		  <span id="info-span-noselection" style="display:block; padding:5px; padding-top:15px;">
-		    <center><img src="images/pastedgraphic.jpg?_=<?php echo time();  ?>" border="0"></center>
+		    <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center>
 		  </span>
 		  <span id="info-span" style="display:none;">
-            <h3><span id="info-title">Phasellus mattis</span></h3>
+            <h3><span id="info-title"></span></h3>
               <table>
                 <tr>
                   <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
@@ -1682,21 +1758,28 @@
                         <td><strong>Longitude:</strong></td>
                         <td><span id="info-longitude"></span></td>
                       </tr>
-					  
+					 
                       <tr id='info-land_owner_container' style='display:none'>
                         <td colspan="2">
                           Owner: <span id="info-land_owner"></span>
 					    </td>
                       </tr>
 					  <tr>
-                        <td colspan="2"><br/>
-                          <span id="info-detail">Phasellus mattis tincidunt nibh. Fusce sed lorem in enim dictum bibendum.</span>
+                        <td colspan="2">
+						  <br />
+                          <span id="info-detail"></span>
 					    </td>
                       </tr>
                       <tr>
                         <td colspan="2">
-                          <center><br><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();">
-						 <!--<input type="button" id="clicktozoom" value="Click to Zoom" style="padding: 3px; padding-left: 25px; padding-right: 25px; display:none">-->
+                          <center><br>
+						  <table>
+						  <tr>
+						  <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();"></td>
+						  <td><input type="button" id="clicktozoom" value="Click to Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
+						  <td><a id='fbsharelink' style='border:0px;' ><img style='border:0px;' src='fbshare.jpg' id='fbshare'></a></td>
+						  </tr>
+						  </table>
 						  </center>
 					    </td>
                       </tr>
@@ -1792,7 +1875,7 @@
         <div id="help" class="tab_body">
               <h3>About</h3>
 			  <p>Dear Citizen of the World</p>
-			  <p>Welcome to <a href="http://www.PieceoftheWorld.com" target="_blank">PieceoftheWorld.com</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>Welcome to <a href="http://www.PieceoftheWorld.co" target="_blank">PieceoftheWorld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
 			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
 			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
 			  <p>So join us and set your mark - get your piece of the world today.</p>

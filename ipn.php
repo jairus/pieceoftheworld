@@ -16,9 +16,10 @@ $str .= "\n\n".$url;
 $ppvalidate = file_get_contents($url);
 $str .= "\n\n".$ppvalidate;
 
-file_put_contents(dirname(__FILE__)."/_ipn/".date("Ymd_His").".txt", $str);
-
-error_reporting(E_ERROR);
+if(trim($_GET['f'])){
+	file_put_contents(dirname(__FILE__)."/_ipn/".trim($_GET['f']).".txt", $str);
+}
+error_reporting(E_ERROR );
 function mail_simple($to, $subject, $message, $from) {
 	// $file should include path and filename
 	$uid = md5(uniqid(time()));

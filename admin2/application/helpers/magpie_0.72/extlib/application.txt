@@ -1,0 +1,18 @@
+$sp = new Snoopy();
+
+//agent spoof and curl binary setup
+$sp->agent = "Mozilla/5.0 (Windows; U; Windows NT 6.0; en-US; rv:1.9.2.8) Gecko/20100722 Firefox/3.6.8 (.NET CLR 3.5.30729)";
+
+
+if(isset($_SERVER['WINDIR']) && strpos($_SERVER['WINDIR'], 'Windows') !== false)
+	$sp->curl_path = getCwd()."/curlwin32/curl";
+else
+	$sp->curl_path = "/usr/bin/curl"; //assumed return curl binary path for linux
+	
+$sp->temp_dir = getCwd()."/tmp";
+
+
+$sp->cookiesonly = true;
+$formvars['email'] ='gofreecredit@adpartners.com';
+$formvars['password'] = 'cmgfc2011!';
+$sp->submit($URI, $formvars);

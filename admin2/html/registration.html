@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta charset="utf-8">
+    <title>Startupkit</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <!-- Le styles -->
+    <link href="themes/css/bootstrap.min.css" rel="stylesheet">
+    <link href="themes/css/bootstrap-responsive.min.css" rel="stylesheet">
+    <link href="themes/css/custom.css" rel="stylesheet">
+    <link href="themes/css/component.css" rel="stylesheet">
+    
+    <script src="js/functions.js"></script>
+
+    <!-- HTML5 shim, for IE6-8 support of HTML5 elements -->
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+
+  </head>
+
+  <body>
+
+    <div class="container-header">
+      <div class="container-narrow reg txt-c">
+        <a href=""><h1 class="brand">Startupkit</h1></a>
+      </div>
+    </div> <!-- /header container -->
+
+    <div class="container-registration">
+      <div class="container-narrow">
+        <iframe frameborder="0" marginwidth="0" marginheight="0" src="https://docs.google.com/forms/d/1Ch7cbuuLbQbOQ3MEZwW9d4udekcDgVHRlXhg60ztb30/viewform?embedded=true">Loading...</iframe>
+      </div>
+    </div>
+  
+
+  <!-- Modal Signup-->
+  <div id="signupModal" class="modal hide fade txt-c" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="label">Signup</h3>
+    </div>
+    <div class="modal-body">
+      <input type="text" placeholder="Name" /><br/>
+      <input type="text" placeholder="E-mail" /><br/>
+      <p class="txt-small-x">We prefer a company email address if you have one</p>
+      <input type="password" placeholder="Password" /><br/>
+      <input type="password" placeholder="Confirm Password" /><br/>
+      <input type="text" placeholder="Twitter (Optional)" /><br/>
+      <input type="text" placeholder="Website (Optional)" /><br/>
+      <span class="captcha-wrapper add-bot">
+        <img src="themes/img/captcha-img.jpg" /><br/>
+        <a class="refresh" href="">Get another word</a><br/>
+      </span><br/>
+      <input type="text" placeholder="Type the word in the image" />
+    </div>
+    <div class="modal-footer txt-c">
+      <button class="btn btn-large" data-dismiss="modal" aria-hidden="true">Submit</button>
+    </div>
+  </div>
+
+  <!-- Modal Login-->
+  <div id="loginModal" class="modal hide fade txt-c" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true" data-backdrop="static">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <h3 id="label">Login</h3>
+    </div>
+    <div class="modal-body">
+      <input type="text" placeholder="E-mail" /><br/>
+      <input type="password" placeholder="Password" />
+    </div>
+    <div class="modal-footer txt-c">
+      <button class="btn btn-large" data-dismiss="modal" aria-hidden="true">Submit</button>
+    </div>
+  </div>
+
+   
+
+    <!-- Le javascript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="js/plugins/jquery.js"></script>
+    <script src="js/plugins/slides.min.jquery.js"></script>
+    <script src="js/plugins/modal.js"></script>
+    <script src="js/functions.js"></script>
+  </body>
+</html>

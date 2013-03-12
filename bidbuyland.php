@@ -68,40 +68,40 @@ $boughtSpecialArea = false;
 		<?php
 		if ($type != "bid") {
 			?>
-			document.getElementById('amount_id').value = price;
-			document.getElementById('totalamount').value = price;
+			jQuery('#amount_id').val(price);
+			jQuery('#totalamount').val(price);
 			<?php
 		}	
 		?>
 		<?php
 		if (isset($_GET["post_id"])) {
 			?>
-			document.getElementById('facebookshare').href = '#';
-			document.getElementById('facebookshareimg').src = 'images/fsharedisabled.png';
+			jQuery('#facebookshare').attr("href", "#");
+			jQuery('#facebookshareimg').attr("src", 'images/fsharedisabled.png');
 
 			var discount = (price*discountPercent)/100.00;
 			price = price - discount;
-			document.getElementById('discount').value = discount.toFixed(2);
-			document.getElementById('totalamount').value = price.toFixed(2);
-			document.getElementById('amount_id').value = price.toFixed(2);
+			jQuery('#discount').val(discount.toFixed(2));
+			jQuery('#totalamount').val(price.toFixed(2));
+			jQuery('#amount_id').val(price.toFixed(2));
 			<?php
 		}
 		if($_GET['land']=='526825-289180_526825-289180'){
 			?>
-			document.getElementById('amount_id').value = 1;
-			document.getElementById('totalamount').value = 1;
+			jQuery('#amount_id').val(1);
+			jQuery('#totalamount').val(1);
 			<?php
 		}
 		?>		
 	}
 
 	function onSubmit() {
-		if (document.getElementById('email').value == "") {
+		if (jQuery('#email').val() == "") {
 			alert('Please provide a valid email address to proceed.');
 			return false;
 		}
 		
-		document.getElementById('paypal-return-url').value += document.getElementById('email').value;
+		jQuery('#paypal-return-url').val(jQuery('#paypal-return-url').val()+ jQuery('#email').val() ) ;
 		setTimeout('window.close()',5000);
 		return true;
 	}
@@ -394,7 +394,7 @@ else {
 			echo '<center><h4>Please complete fields with *</h4></center>';
 		}
 		?>
-		<form action="?type=buy&land=<?php echo $_GET['land']; ?>" method="post" enctype="multipart/form-data">
+		<form action="?type=buy&land=<?php echo $_GET['land']; ?>&thumb=<?php echo urlencode($_GET['thumb']); ?>" method="post" enctype="multipart/form-data">
 			<input type="hidden" value="1" name="save">
 			<input type="hidden" value="1" name="step">
 			<input type="hidden" value="A631CD74-1D21-40b1-8602-346611127127" name="pass">
@@ -466,8 +466,8 @@ else {
 			<td valign=top>
 				<table border=0 align="center">
 					<tr>
-						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=http://www.pieceoftheworld.co/&picture=<?php echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); ?>&name=PieceoftheWorld&caption=<?php echo urlencode("Mark your very own Piece of the World!	"); ?>&description=<?php echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
-						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.co and get a 30% discount</font></td>
+						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=http://www.pieceoftheworld.co/&picture=<?php echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); ?>&name=Piece of the World&caption=<?php echo urlencode("Mark your very own Piece of the World!	"); ?>&description=<?php echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
+						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.com and get a 30% discount</font></td>
 					</tr>
 				</table>
 			</td>
