@@ -1,4 +1,10 @@
-<?php session_start(); ?>
+<?php session_start(); 
+if($_GET['px']){
+	$_SESSION['px'] = $_GET['px'];
+	exit();
+}
+
+?>
 <!doctype html>
 <html lang="us">
 <head>
@@ -192,7 +198,7 @@
 			inLatLng = new google.maps.LatLng(<?php echo $lat; ?>, <?php echo $long; ?>);
 			updatePopupWindowTabInfo(inLatLng);
 			var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
-			consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+			//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
 			map.setZoom(17);
 			map.setCenter(loc);
 			jQuery("#clicktozoom").hide();
@@ -277,7 +283,102 @@
 		showPopupWindowTabInfo(false);
 		//updatePopupWindowTabInfo(event.latLng);
 	}
-
+	
+	function setSessionPrice(p){
+		jQuery.ajax({
+			dataType: "html",
+			url: "/index.php/?px="+p,
+			success: function(data){
+			}
+		});
+	}
+	
+	function setCity(LatLng, box, numblocks){
+		url = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+LatLng+"&sensor=true";
+		jQuery("#info-city").html("");
+		jQuery.ajax({
+			dataType: "json",
+			url: url,
+			success: function(data){
+				//consoleX(data);
+				//data = JSON.parse(data);
+				try{
+					length = data['results'][0]['address_components'].length;
+					//search for locality
+					for(i=0; i<length; i++){
+						type = data['results'][0]['address_components'][i]['types'][0];
+						if(type=='locality'){
+							city = data['results'][0]['address_components'][i].long_name;
+							break; 
+						}
+						else if(type.indexOf("administrative_area_level")==0){
+							city = data['results'][0]['address_components'][i].long_name;
+							break;
+						}
+						else if(type.indexOf("country")==0){
+							city = data['results'][0]['address_components'][i].long_name;
+							break;
+						}
+					}
+					jQuery("#info-city").html(city+": ");
+					
+					jQuery("#dcity").html("");
+					jQuery("#dregion").html("");
+					jQuery("#dcountry").html("");
+					city = "";
+					region = "";
+					country = "";
+					if(box){
+						for(i=0; i<length; i++){
+							type = data['results'][0]['address_components'][i]['types'][0];
+							if(type=='locality'&&!city){
+								city = data['results'][0]['address_components'][i].long_name;
+								jQuery("#dcity").html("City: "+city);
+							}
+							else if(type.indexOf("administrative_area_level")==0&&!region){
+								region = data['results'][0]['address_components'][i].long_name;
+								jQuery("#dregion").html("Region: "+region);
+							}
+							else if(type.indexOf("country")==0&&!country){
+								country = data['results'][0]['address_components'][i].long_name;
+								jQuery("#dcountry").html("Country: "+country);
+							}
+						}
+						if(city){
+							price = 9.90;
+						}
+						else if(region||country){
+							price = 5.90;
+						}
+						else{
+							price = 0.90;
+						}
+						
+						if(numblocks){
+							amount = numblocks * price;
+							amount = amount.toFixed(2);
+							jQuery("#theprice").html(amount);
+							setSessionPrice(amount);
+						}
+					}
+					//consoleX(city); //address_components[0].long_name+"<---");
+					//consoleX(data.results.address_components[0].types[0]+"<---");
+					
+				}
+				catch(e){
+					if(numblocks){
+						amount = numblocks * 0.90;
+						amount = amount.toFixed(2);
+						jQuery("#theprice").html(amount);
+						setSessionPrice(amount);
+					}
+				}
+				
+			}
+		});
+		
+		
+	}
 	function onMarkerClick(event, type) {
 		//onColoredRectangleClick(event);
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",1);
@@ -291,7 +392,7 @@
 		}
 		jQuery("#clicktozoom").click(function () {
 			var loc = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng());
-			consoleX(event.latLng.lat()+" - "+event.latLng.lng());
+			//consoleX(event.latLng.lat()+" - "+event.latLng.lng());
 			map.setZoom(17);
 			map.setCenter(loc);
 			jQuery("#clicktozoom").hide();
@@ -323,7 +424,14 @@
 
 		var projection = new MercatorProjection();
 		
-
+		
+		
+		//consoleX("Lat: "+LtLgNE.lat());
+		//consoleX("Lng: "+LtLgNE.lng());
+		strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+		
+		
+		
 		var WcNE = projection.fromLatLngToPoint(LtLgNE);
 		var WcSW = projection.fromLatLngToPoint(LtLgSW);
 
@@ -359,9 +467,9 @@
 		WcNE.x += 1;
 		WcSW.y += 1;
 		
-		updatePopupWindowTabInfo(event.latLng);
+		updatePopupWindowTabInfo(event.latLng, strlatlong);
 		
-		consoleX(type);
+		//consoleX(type);
 		if(type=='special'){		
 			// Acquired Special Area or Special Area
 			$.ajax({
@@ -424,25 +532,30 @@
 	var numblocks = 0;
 	
 	function onDraggableRectangleChanged(bounds) {
-		consoleX("onDraggableRectangleChanged");
+		//consoleX("onDraggableRectangleChanged");
 		//alert(blocksAvailableInDraggableRect);
 		if (bounds||(lastEvent.getTime() + 250 <= new Date().getTime())) {
-			consoleX(bounds);
+			//consoleX(bounds);
 			if(!bounds){
 				var bounds = draggableRect.getBounds();
 			}
 			
 			var LtLgNE = bounds.getNorthEast();
 			var LtLgSW = bounds.getSouthWest();
+			
+			
+			var LtLgNE = bounds.getNorthEast();
+			//consoleX(LtLgNE);
+			
+			var strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
 		
+			
 			var projection = new MercatorProjection();
 			
 		
 			var WcNE = projection.fromLatLngToPoint(LtLgNE);
 			var WcSW = projection.fromLatLngToPoint(LtLgSW);
 			
-			consoleX(WcNE);
-			consoleX(WcSW);
 			
 
 			if (Math.abs(Math.floor(WcNE.y) - WcNE.y) >= 0.5) {
@@ -575,7 +688,6 @@
 				break;
 			}
 			
-			consoleX("typeFirstBlock = "+typeFirstBlock);
 			if (typeFirstBlock == 1) {
 				document.getElementById('buy-button').value = 'Buy';
 				document.getElementById('buy-button').disabled = false;
@@ -732,7 +844,8 @@
 					document.getElementById('info-detail').innerHTML = 'Your description here.';
 					price = (numblocks*9.90);
 					price = price.toFixed(2);
-					document.getElementById('info-detail').innerHTML  =  document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+					document.getElementById('info-detail').innerHTML  =  document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+					setCity(strlatlong, 1, numblocks);
 				}
 			}
 			else if(typeFirstBlock == 4){
@@ -743,14 +856,15 @@
 	}
 
 	function scheduleDelayedCallback() {
-		consoleX("scheduleDelayedCallback");
+		//consoleX("scheduleDelayedCallback");
 		lastEvent = new Date();
 		setTimeout(onDraggableRectangleChanged, 500);
 	}
 	
+	//click
 	function onRectangleClick(event) {
 		
-		consoleX("onRectangleClick");
+		//consoleX("onRectangleClick");
 		
 		
 		if (draggableRect != null) {
@@ -758,8 +872,6 @@
 			draggableRect = null;
 		}
 		blocksAvailableInDraggableRect = "";
-
-		//updatePopupWindowTabInfo(event.latLng);
 				
 		var projection = new MercatorProjection();
 		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
@@ -771,14 +883,12 @@
 			new google.maps.LatLng(block[1].lat(),block[1].lng())
 		);
 		
-
+		
+		var LtLgNE = bounds.getNorthEast();
+		var strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+		
 		
 		//var p = projection.fromLatLngToContainerPixel(new google.maps.LatLng(block[0].lat(),block[0].lng()));
-		
-		
-		
-
-		
 		
 		
 		draggableRect = new google.maps.Rectangle({
@@ -794,7 +904,7 @@
 		
 		scheduleDelayedCallback();	// To update rect according to selected area
 	
-		updatePopupWindowTabInfo(event.latLng);
+		updatePopupWindowTabInfo(event.latLng, strlatlong);
 	}
 
 	function onColoredRectangleClick(event) {
@@ -805,7 +915,7 @@
 		blocksAvailableInDraggableRect = "";
 
 		//$("#tabs").tabs("select",1);
-		updatePopupWindowTabInfo(event.latLng);
+		
 
 		var projection = new MercatorProjection();
 		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
@@ -816,6 +926,12 @@
 			new google.maps.LatLng(block[0].lat(),block[0].lng()),
 			new google.maps.LatLng(block[1].lat(),block[1].lng())
 		);
+		
+		var LtLgNE = bounds.getNorthEast();
+		var strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+		
+		updatePopupWindowTabInfo(event.latLng, strlatlong);
+		
 		draggableRect = new google.maps.Rectangle({
 			bounds: bounds,
 			editable: true
@@ -828,7 +944,7 @@
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",4);
 
 		
-		consoleX("Here");
+		//consoleX("Here");
 		scheduleDelayedCallback();	// To update rect according to selected area
 	}
 
@@ -1012,12 +1128,12 @@
 	
 	function inreturnTextCache(hStart, vStart, hEnd, vEnd){
 		for(i=0; i<returnTextCache.length; i++){
-			consoleX(hStart + ">=" + returnTextCache[i].hStart +"&&"+ hEnd +"<="+ returnTextCache[i].hEnd +"&&"+ vStart +">="+ returnTextCache[i].vStart +"&&"+ vEnd +"<="+ returnTextCache[i].vEnd)
+			//consoleX(hStart + ">=" + returnTextCache[i].hStart +"&&"+ hEnd +"<="+ returnTextCache[i].hEnd +"&&"+ vStart +">="+ returnTextCache[i].vStart +"&&"+ vEnd +"<="+ returnTextCache[i].vEnd)
 			if(
 				hStart >= returnTextCache[i].hStart && hEnd <= returnTextCache[i].hEnd &&
 				vStart >= returnTextCache[i].vStart && vEnd <= returnTextCache[i].vEnd
 			){
-				consoleX("in cache");
+				//consoleX("in cache");
 				return returnTextCache[i].returnText;
 			}
 		}
@@ -1039,7 +1155,7 @@
 		jQuery("#loadinggrid").show();
 		
 		
-		consoleX("show loading");
+		//consoleX("show loading");
 		var config_showownedland = getCookie("config_showownedland");
 		var config_showimportantplaces = getCookie("config_showimportantplaces");
 		var config_showownland = getCookie("config_showownland");
@@ -1154,12 +1270,12 @@
 				
 				if(cnt1 >= vEnd && cnt2 >= hEnd ){
 					jQuery("#loadinggrid").css('top', -10000);
-					consoleX("hide loading");
+					//consoleX("hide loading");
 				}
 			}
 		}
 		<?php if($_GET['noprocess']){ echo "//";};?>process0();
-		consoleX("process "+(new Date()).getTime());
+		//consoleX("process "+(new Date()).getTime());
 		//jQuery("#loadinggrid").hide();
 		
 	}
@@ -1217,10 +1333,11 @@
 	
 	
 	
-	
-	function updatePopupWindowTabInfo(inLatLng) {
+	var globallink;
+	function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 		
 		jQuery("#fbsharelink").hide();
+		jQuery("#sharethisloc").hide();
 		showPopupWindowTabInfo(true);
 		document.getElementById('info-latitude').innerHTML = inLatLng.lat().toFixed(5);
 		document.getElementById('info-longitude').innerHTML = inLatLng.lng().toFixed(5);
@@ -1292,18 +1409,25 @@
 			if (markerJSON[0].email == masterUser) {
 				if(markerJSON[0].land_special_id){
 					price = 499;
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
 				
 				if(numblocks > 0){
 					price = (numblocks*9.90);
 					price = price.toFixed(2);
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
 				document.getElementById('buy-button').value = "Buy";
+				if(numblocks>0){
+					setCity(strlatlong, 1, numblocks);
+				}
+				else{
+					setCity(strlatlong, 1);
+				}
 			}
 			else {
 				document.getElementById('buy-button').value = "Bid";
+				setCity(strlatlong);
 			}
 			
 			
@@ -1319,17 +1443,24 @@
 			
 			if(markerJSON[0].land_special_id){
 				price = 499;
-				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 			}
 			
 			if(numblocks > 0){
 				price = (numblocks*9.90);
 				price = price.toFixed(2);
-				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $'+price;
+				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 			}
 
 			document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
 			document.getElementById('buy-button').value = "Buy";
+			if(numblocks>0){
+				setCity(strlatlong, 1, numblocks);
+			}
+			else{
+				setCity(strlatlong, 1);
+			}
+			
 
 			//document.getElementById('buy-img').src = 'images/place_holder.png';
 		}
@@ -1340,12 +1471,15 @@
 		if(!sharetext){
 			sharetext = "Get your own piece of the world at pieceoftheworld.com";
 		}
-		link = "http://<?php echo $_SERVER['HTTP_HOST']; ?>/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+		link = "http://www.pieceoftheworld.co/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+		
+		globallink = link;
 		//link = encodeURIComponent(link);
 		sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 		
 		jQuery("#fbsharelink").attr("href", sharelink);
 		jQuery("#fbsharelink").show();
+		jQuery("#sharethisloc").show();
 	}
 	
 	function updatePopupWindowTabConfig(update) {
@@ -1498,7 +1632,7 @@
 						icon: 'images/rmarker.png'
 						//icon: (markersJSON[i].land_special_id == null) ? 'images/gmarker.png' : 'images/rmarker.png'
 					});
-					google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, 'regular'); consoleX(this.position); });
+					google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, 'regular'); /*consoleX(this.position);*/ });
 					markers.push(marker);
 				}
 			}
@@ -1622,12 +1756,14 @@
 	}
 	
 	function onBuyLand() {
+	
+		
 		var url = "";
 		if (document.getElementById('buy-button').value == "Buy") {
-			url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src;
+			url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
 		}
 		else {
-			url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src;
+			url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
 		}
 		//window.open(url);
 		window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
@@ -1744,7 +1880,7 @@
 		    <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center>
 		  </span>
 		  <span id="info-span" style="display:none;">
-            <h3><span id="info-title"></span></h3>
+            <h3><span id="info-city"></span><span id="info-title"></span></h3>
               <table>
                 <tr>
                   <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
@@ -1768,6 +1904,10 @@
                         <td colspan="2">
 						  <br />
                           <span id="info-detail"></span>
+						  <br />&nbsp;
+						  <div id="dcountry"></div>
+						  <div id="dregion"></div>
+						  <div id="dcity"></div>
 					    </td>
                       </tr>
                       <tr>
@@ -1775,9 +1915,10 @@
                           <center><br>
 						  <table>
 						  <tr>
-						  <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();"></td>
-						  <td><input type="button" id="clicktozoom" value="Click to Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
+						  <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onClick="onBuyLand();"></td>
+						  <td><input type="button" id="clicktozoom" value="Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
 						  <td><a id='fbsharelink' style='border:0px;' ><img style='border:0px;' src='fbshare.jpg' id='fbshare'></a></td>
+						  <td valign='middle' id='sharethisloc'>Share this location</td>
 						  </tr>
 						  </table>
 						  </center>
@@ -1875,7 +2016,7 @@
         <div id="help" class="tab_body">
               <h3>About</h3>
 			  <p>Dear Citizen of the World</p>
-			  <p>Welcome to <a href="http://www.PieceoftheWorld.co" target="_blank">PieceoftheWorld.co</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>Welcome to <a href="http://www.PieceoftheWorld.com" target="_blank">PieceoftheWorld.com</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
 			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
 			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
 			  <p>So join us and set your mark - get your piece of the world today.</p>

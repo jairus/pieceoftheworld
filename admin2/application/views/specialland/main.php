@@ -26,7 +26,7 @@ jQuery(function(){
 			label = ui.item.label;
 			value = ui.item.value;
 			jQuery("#company_search").val(label);
-			self.location = "<?php echo site_url(); ?>land/edit/"+value;
+			self.location = "<?php echo site_url(); ?>specialland/edit/"+value;
 			return false;
 		},
 		focus: function(e, ui) {
@@ -165,7 +165,7 @@ $t = count($records);
 				//echo "here <pre>"; print_r($post);
 			//}
 			?></td>
-			<td><a href="<?php echo site_url(); ?>land/edit/<?php echo $records[$i]['id']?>" ><?php echo htmlentitiesX($records[$i]['id']); ?></a></td>
+			<td><a href="<?php echo site_url(); ?>specialland/edit/<?php echo $records[$i]['id']?>" ><?php echo htmlentitiesX($records[$i]['id']); ?></a></td>
 			<td align='center'>
 			<?php echo $records[$i]['x']."-".$records[$i]['y']?>
 			</td>
@@ -230,8 +230,8 @@ $t = count($records);
 				<?php
 			}
 			?>
-			[ <a href="<?php echo site_url(); ?>land/edit/<?php echo $records[$i]['id']?>" >Edit</a> ] 
-			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['id']) ?>"); ' >Delete</a> ]
+			[ <a href="<?php echo site_url(); ?>specialland/edit/<?php echo $records[$i]['land_special_id']?>" >Edit</a> ] 
+			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['land_special_id']) ?>"); ' >Delete</a> ]
 			
 			</td>
 		</tr>

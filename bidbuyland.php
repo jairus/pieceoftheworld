@@ -40,6 +40,14 @@ $boughtSpecialArea = false;
 
 ?>
 <script type="text/javascript">
+	function setSessionPrice(p){
+		jQuery.ajax({
+			dataType: "html",
+			url: "/index.php/?px="+p,
+			success: function(data){
+			}
+		});
+	}
 	var unboughtStandardPlot = false;
 	var unboughtSpecialArea = false;
 	var boughtStandardPlot = false;
@@ -48,16 +56,29 @@ $boughtSpecialArea = false;
 	var price = 0;
 	var discountPercent = 30.00;
 	function onLoad() {
+		//pricex = window.opener.jQuery('#theprice').html();
+		pricex = <?php echo $_SESSION['px']; ?>;
 		var user_email = getCookie("user_email");
 		//document.getElementById('email').value = user_email;
 		//document.getElementById('paypal-return-url').value += user_email;
 		
 		if (unboughtStandardPlot === true) {
-			var amount = 9.90 * numberOfPlots;
-			price = String(amount.toFixed(2));
+			if(!pricex){
+				var amount = 9.90 * numberOfPlots;
+				price = String(amount.toFixed(2));
+			}
+			else{
+				price = String(pricex.toFixed(2));
+			}
 		}
 		else if (unboughtSpecialArea === true) {
-			price = '499';
+			if(!pricex){
+				price = '499';
+			}
+			else{
+				price = String(pricex.toFixed(2));
+			}
+			
 		}
 		/*
 		else if (boughtStandardPlot === true) {
@@ -147,7 +168,7 @@ $boughtSpecialArea = false;
 <body style="cursor: auto; background-color: white;" onload="onLoad();">
 	<?php
 // find out the domain:
-$domain = $_SERVER['HTTP_HOST'];
+$domain = "www.pieceoftheworld.co";
 // find out the path to the current file:
 $path = $_SERVER['SCRIPT_NAME'];
 // find out the QueryString:
@@ -394,7 +415,7 @@ else {
 			echo '<center><h4>Please complete fields with *</h4></center>';
 		}
 		?>
-		<form action="?type=buy&land=<?php echo $_GET['land']; ?>&thumb=<?php echo urlencode($_GET['thumb']); ?>" method="post" enctype="multipart/form-data">
+		<form action="?type=buy&land=<?php echo $_GET['land']; ?>&thumb=<?php echo urlencode($_GET['thumb']); ?>&link=<?php echo urlencode($_GET['link']); ?>" method="post" enctype="multipart/form-data">
 			<input type="hidden" value="1" name="save">
 			<input type="hidden" value="1" name="step">
 			<input type="hidden" value="A631CD74-1D21-40b1-8602-346611127127" name="pass">
@@ -444,6 +465,7 @@ else {
 			$foldername = date("Ymd")."_".microtime_float();
 			
 			$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
+			$uploads_http = 'http://pieceoftheworld.co/_uploads/'.$foldername;
 			mkdir($uploads_dir, 0777);
 			$filename = $uploads_dir."/post.txt";
 			$post = $_POST;
@@ -453,6 +475,7 @@ else {
 				$name = $_FILES["picture_name"]["name"];
 				move_uploaded_file($tmp_name, "$uploads_dir/$name");
 				$post['filename'] = "$uploads_dir/$name";
+				$http_picture = $uploads_http."/$name";
 			}
 			file_put_contents ( $filename, serialize($post));
 		}
@@ -466,7 +489,7 @@ else {
 			<td valign=top>
 				<table border=0 align="center">
 					<tr>
-						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=http://www.pieceoftheworld.co/&picture=<?php echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); ?>&name=Piece of the World&caption=<?php echo urlencode("Mark your very own Piece of the World!	"); ?>&description=<?php echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
+						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=<?php /* echo "http://pieceoftheworld.co/"; */ echo urlencode($_GET['link']); ?>&picture=<?php if(trim($http_picture)){ echo $http_picture; } else { echo urlencode($_GET['thumb']); } /* echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); */ ?>&name=I just bought a Piece of the World&caption=<?php if(trim($post['title_name'])) { echo $post['title_name']; } else { echo urlencode("Mark your very own Piece of the World!	"); } ?>&description=<?php if(trim($post['detail_name'])) { echo $post['detail_name']; } else { echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); } ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
 						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.com and get a 30% discount</font></td>
 					</tr>
 				</table>

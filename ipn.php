@@ -76,8 +76,6 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	if ($image != null) {
 		$picture = mysql_real_escape_string(file_get_contents($image));
 	}
-	?>
-	<?php
 	$land_special_id = -1;	
 	$plot_list = array();	
 	$owner_user_id = 0;

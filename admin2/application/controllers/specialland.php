@@ -10,13 +10,13 @@ class specialland extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 		
-		$sql = "select `x`, `y`, `id`, `title`, `detail`, `folder`, `picture`, `email_resent` from `land` where `land_special_id`  is not NULL order by `folder` desc limit $start, $limit" ;
+		$sql = "select `x`, `y`, `id`, `title`, `detail`, `folder`, `picture`, `email_resent`, `land_special_id` from `land` where `land_special_id` is not NULL group by `land_special_id` order by `folder` desc limit $start, $limit" ;
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
 		$records = $q->result_array();
 		
-		$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is not NULL order by `folder` desc" ;
+		$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is not NULL group by `land_special_id` order by `folder` desc" ;
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
@@ -105,6 +105,16 @@ class specialland extends CI_Controller {
 		$data['cnt'] = $cnt[0]['cnt'];
 		$data['content'] = $this->load->view('companies/main', $data, true);
 		$this->load->view('layout/main', $data);
+	}
+	
+	public function edit($id){
+		$sql = "select `id`, `x`, `y`, `land_special_id`, `owner_user_id`, `title`, `detail`, `folder`, `picture` from `land` where `land_special_id` = '".mysql_real_escape_string($id)."' order by `folder` desc limit 1" ;
+		$q = $this->db->query($sql);
+		$record = $q->result_array();
+		$record = $record[0];
+		$data['record'] = $record;
+		$data['content'] = $this->load->view('specialland/add', $data, true);
+		$this->load->view('layout/main', $data);;
 	}
 	
 }
