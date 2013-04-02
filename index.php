@@ -1411,19 +1411,13 @@ if($_GET['px']){
 					price = 499;
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
-				
-				if(numblocks > 0){
+				else if(numblocks > 0){
 					price = (numblocks*9.90);
 					price = price.toFixed(2);
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
-				}
-				document.getElementById('buy-button').value = "Buy";
-				if(numblocks>0){
 					setCity(strlatlong, 1, numblocks);
 				}
-				else{
-					setCity(strlatlong, 1);
-				}
+				document.getElementById('buy-button').value = "Buy";
 			}
 			else {
 				document.getElementById('buy-button').value = "Bid";
@@ -1445,22 +1439,15 @@ if($_GET['px']){
 				price = 499;
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 			}
-			
-			if(numblocks > 0){
+			else if(numblocks > 0){
 				price = (numblocks*9.90);
 				price = price.toFixed(2);
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+				setCity(strlatlong, 1, numblocks);
 			}
 
 			document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
 			document.getElementById('buy-button').value = "Buy";
-			if(numblocks>0){
-				setCity(strlatlong, 1, numblocks);
-			}
-			else{
-				setCity(strlatlong, 1);
-			}
-			
 
 			//document.getElementById('buy-img').src = 'images/place_holder.png';
 		}

@@ -72,13 +72,15 @@ $boughtSpecialArea = false;
 			}
 		}
 		else if (unboughtSpecialArea === true) {
+			/*
 			if(!pricex){
 				price = '499';
 			}
 			else{
 				price = String(pricex.toFixed(2));
 			}
-			
+			*/
+			price = 499;
 		}
 		/*
 		else if (boughtStandardPlot === true) {
@@ -477,6 +479,7 @@ else {
 				$post['filename'] = "$uploads_dir/$name";
 				$http_picture = $uploads_http."/$name";
 			}
+			$post['amount'] = $_SESSION['px'];
 			file_put_contents ( $filename, serialize($post));
 		}
 		else if($_GET['f']){

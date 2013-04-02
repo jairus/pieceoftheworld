@@ -57,10 +57,15 @@ function mail_attachment($to, $subject, $message, $from, $file, $filename, $file
 	return mail($to, $subject, "", $header);
 }
 
+
 if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	$uploads_dir = dirname(__FILE__).'/_uploads/'.$_GET['f'];
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
-
+	
+	if(($_POST['amount']+0)!=($post['amount']+0)&&!$_GET['jairus']){ //inconsistent amount
+		exit();
+	}
+	
 	$land = $post['land'];
 	$useremail = $post['useremail'];
 	$land_owner = ($post['land_owner']);
