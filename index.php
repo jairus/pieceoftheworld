@@ -293,6 +293,29 @@ if($_GET['px']){
 		});
 	}
 	
+	function checkWater(LatLng){
+		url = "/checkwater.php/?latlong="+LatLng;
+		var areatype = "";
+		jQuery.ajax({
+			dataType: "html",
+			url: url,
+			success: function(data){
+				areatype = data;
+				if(areatype=="water"){
+					amount = numblocks * 0.90;
+				}
+				else{
+					amount = numblocks * 10.90;
+				}
+				amount = amount.toFixed(2);
+				jQuery("#theprice").html(amount);
+				setSessionPrice(amount);
+			}
+		});
+		
+		//return areatype;
+	}
+	
 	function setCity(LatLng, box, numblocks){
 		url = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+LatLng+"&sensor=true";
 		jQuery("#info-city").html("");
@@ -311,7 +334,7 @@ if($_GET['px']){
 							city = data['results'][0]['address_components'][i].long_name;
 							break; 
 						}
-						else if(type.indexOf("administrative_area_level")==0){
+						else if(type.indexOf("administrative_area_level_1")==0){
 							city = data['results'][0]['address_components'][i].long_name;
 							break;
 						}
@@ -335,7 +358,7 @@ if($_GET['px']){
 								city = data['results'][0]['address_components'][i].long_name;
 								jQuery("#dcity").html("City: "+city);
 							}
-							else if(type.indexOf("administrative_area_level")==0&&!region){
+							else if(type.indexOf("administrative_area_level_1")==0&&!region){
 								region = data['results'][0]['address_components'][i].long_name;
 								jQuery("#dregion").html("Region: "+region);
 							}
@@ -366,11 +389,11 @@ if($_GET['px']){
 					
 				}
 				catch(e){
+					jQuery("#dcity").html("");
+					jQuery("#dregion").html("");
+					jQuery("#dcountry").html("");
 					if(numblocks){
-						amount = numblocks * 0.90;
-						amount = amount.toFixed(2);
-						jQuery("#theprice").html(amount);
-						setSessionPrice(amount);
+						checkWater(LatLng);
 					}
 				}
 				
@@ -842,8 +865,9 @@ if($_GET['px']){
 				numblocks = (BlNE[2].x - BlSW[2].x) * (BlSW[2].y - BlNE[2].y);
 				if(numblocks > 0){
 					document.getElementById('info-detail').innerHTML = 'Your description here.';
-					price = (numblocks*9.90);
-					price = price.toFixed(2);
+					price = "";
+					//price = (numblocks*9.90);
+					//price = price.toFixed(2);
 					document.getElementById('info-detail').innerHTML  =  document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 					setCity(strlatlong, 1, numblocks);
 				}
@@ -1412,8 +1436,9 @@ if($_GET['px']){
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
 				else if(numblocks > 0){
-					price = (numblocks*9.90);
-					price = price.toFixed(2);
+					price = "";
+					//price = (numblocks*9.90);
+					//price = price.toFixed(2);
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 					setCity(strlatlong, 1, numblocks);
 				}
@@ -1440,8 +1465,9 @@ if($_GET['px']){
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 			}
 			else if(numblocks > 0){
-				price = (numblocks*9.90);
-				price = price.toFixed(2);
+				price = "";
+				//price = (numblocks*9.90);
+				//price = price.toFixed(2);
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				setCity(strlatlong, 1, numblocks);
 			}

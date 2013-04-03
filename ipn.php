@@ -62,7 +62,7 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	$uploads_dir = dirname(__FILE__).'/_uploads/'.$_GET['f'];
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
 	
-	if(($_POST['amount']+0)!=($post['amount']+0)&&!$_GET['jairus']){ //inconsistent amount
+	if(($_POST['mc_gross']+0)!=($post['amount']+0)&&!$_GET['jairus']){ //inconsistent amount
 		exit();
 	}
 	
