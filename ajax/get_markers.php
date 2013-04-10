@@ -11,7 +11,8 @@ $con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions
 if (!$con) { die('[[]]'); }
 mysql_select_db($conOptions['database'], $con);
 $sql = "";
-if (!empty($_GET)&&!$_GET['default']) {
+$keys = array_keys($_GET);
+if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ anti cache timestamp variable is always gonna be there
 	if ($type == 'special') {
 		//$sql = "SELECT * FROM land_special WHERE 1";
 		//$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, picture, email FROM land_special, user WHERE (land_special.owner_user_id = user.id)";

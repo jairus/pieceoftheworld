@@ -516,7 +516,7 @@ else {
 		<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
 			<input type="hidden" value="_xclick" name="cmd">
 			<input type="hidden" value="pieceoftheworld2013@gmail.com" name="business">
-			<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>">
+			<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>">
 			<input type="hidden" value="Land" name="item_name">
 			<input type="hidden" value="0" name="amount" id="amount_id">
 			<input type="hidden" value="http://www.pieceoftheworld.co/ppc2.php?f=<?php echo $foldername; ?>&step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">

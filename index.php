@@ -1,4 +1,25 @@
-<?php session_start(); 
+<?php 
+error_reporting(E_ALL^E_NOTICE);
+session_start(); 
+require_once 'ajax/global.php';
+if($_GET['affid']){
+	$_SESSION['affid'] = $_GET['affid'];
+	$sql = "select * from `affiliates` where md5(`id`)='".mysql_real_escape_string($_SESSION['affid'])."'";
+	$r = dbQuery($sql, $_dblink);
+	$r = $r[0];
+	if($r['id']){
+		$sql = "insert into `affiliate_clicks` set 
+			`affiliate_id`='".$r['id']."',
+			`server_json`='".mysql_real_escape_string(json_encode($_SERVER))."',
+			`dateadded`=NOW()
+		";
+		dbQuery($sql, $_dblink);
+	}
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: index.php');
+	exit();
+}
+
 if($_GET['px']){
 	$_SESSION['px'] = $_GET['px'];
 	exit();
@@ -226,7 +247,7 @@ if($_GET['px']){
 		*/
 		$('.cpanelwnd').draggable();
 		xleft = jQuery(window).width() - $('.cpanelwnd').width();
-		$('.cpanelwnd').css({left: xleft, top: '30px'});
+		$('.cpanelwnd').css({left: xleft, top: '60px'});
 		$("#radioset").buttonset();
 		$("#tabs").tabs();
 		$("#search_enteraplace").autocomplete({
@@ -325,25 +346,48 @@ if($_GET['px']){
 			success: function(data){
 				//consoleX(data);
 				//data = JSON.parse(data);
+				/*
 				try{
-					length = data['results'][0]['address_components'].length;
-					//search for locality
-					for(i=0; i<length; i++){
-						type = data['results'][0]['address_components'][i]['types'][0];
-						if(type=='locality'){
-							city = data['results'][0]['address_components'][i].long_name;
-							break; 
-						}
-						else if(type.indexOf("administrative_area_level_1")==0){
-							city = data['results'][0]['address_components'][i].long_name;
-							break;
-						}
-						else if(type.indexOf("country")==0){
-							city = data['results'][0]['address_components'][i].long_name;
-							break;
-						}
+					if(data['results'][1]){
+						ix = 1;
 					}
-					jQuery("#info-city").html(city+": ");
+					else{
+						ix = 0;
+					}
+				}
+				catch(e){
+					ix = 0;
+				}
+				*/
+				
+				//alert(ix);
+				try{
+					
+					ixt = data['results'].length;
+					for(ix=0; ix<ixt; ix++){
+						length = data['results'][ix]['address_components'].length;
+						
+						//alert(length);
+						//search for locality
+						for(i=0; i<length; i++){
+							type = data['results'][ix]['address_components'][i]['types'][0];
+							if(type=='locality'){
+								city = data['results'][ix]['address_components'][i].long_name;
+								break; 
+							}
+							else if(type.indexOf("administrative_area_level_1")==0){
+								city = data['results'][ix]['address_components'][i].long_name;
+								break;
+							}
+							else if(type.indexOf("country")==0){
+								city = data['results'][ix]['address_components'][i].long_name;
+								break;
+							}
+						}
+						jQuery("#info-city").html(city+": ");
+					}
+					
+					
 					
 					jQuery("#dcity").html("");
 					jQuery("#dregion").html("");
@@ -352,19 +396,21 @@ if($_GET['px']){
 					region = "";
 					country = "";
 					if(box){
-						for(i=0; i<length; i++){
-							type = data['results'][0]['address_components'][i]['types'][0];
-							if(type=='locality'&&!city){
-								city = data['results'][0]['address_components'][i].long_name;
-								jQuery("#dcity").html("City: "+city);
-							}
-							else if(type.indexOf("administrative_area_level_1")==0&&!region){
-								region = data['results'][0]['address_components'][i].long_name;
-								jQuery("#dregion").html("Region: "+region);
-							}
-							else if(type.indexOf("country")==0&&!country){
-								country = data['results'][0]['address_components'][i].long_name;
-								jQuery("#dcountry").html("Country: "+country);
+						for(ix=0; ix<ixt; ix++){
+							for(i=0; i<length; i++){
+								type = data['results'][ix]['address_components'][i]['types'][0];
+								if(type=='locality'&&!city){
+									city = data['results'][ix]['address_components'][i].long_name;
+									jQuery("#dcity").html("City: "+city);
+								}
+								else if(type.indexOf("administrative_area_level_1")==0&&!region){
+									region = data['results'][ix]['address_components'][i].long_name;
+									jQuery("#dregion").html("Region: "+region);
+								}
+								else if(type.indexOf("country")==0&&!country){
+									country = data['results'][ix]['address_components'][i].long_name;
+									jQuery("#dcountry").html("Country: "+country);
+								}
 							}
 						}
 						if(city){
@@ -496,7 +542,7 @@ if($_GET['px']){
 		if(type=='special'){		
 			// Acquired Special Area or Special Area
 			$.ajax({
-				url:'ajax/get_minmaxareacoordinates.php?x='+WcNE.x+'&y='+WcSW.y,
+				url:'ajax/get_minmaxareacoordinates.php?x='+WcNE.x+'&y='+WcSW.y+"&_=<?php echo time(); ?>",
 				dataType:'html',
 				async:false,
 				success:function(data, textStatus, jqXHR){
@@ -778,7 +824,7 @@ if($_GET['px']){
 				}
 				// Acquired Special Area or Special Area
 				$.ajax({
-					url:'ajax/get_minmaxareacoordinates.php?x='+matrix[0][0][0]+'&y='+matrix[0][0][1],
+					url:'ajax/get_minmaxareacoordinates.php?x='+matrix[0][0][0]+'&y='+matrix[0][0][1]+"&_=<?php echo time(); ?>",
 					dataType:'html',
 					async:false,
 					success:function(data, textStatus, jqXHR){
@@ -1089,6 +1135,16 @@ if($_GET['px']){
 		worldCoordinate.y -= 0.5;
 		var projection = new MercatorProjection();
 		return projection.fromPointToLatLng(worldCoordinate);
+	}
+	
+	function gotoLoc(x, y){
+		LatLng = getBlockMarker(x, y);
+		var loc = new google.maps.LatLng(LatLng.lat(),LatLng.lng());
+		map.setZoom(17);
+		map.setCenter(loc);
+		jQuery("#clicktozoom").hide();
+		strlatlong = LatLng.lat()+","+LatLng.lng();
+		updatePopupWindowTabInfo(LatLng, strlatlong);
 	}
 	
 	function getBlockInfo(inLatLng) {
@@ -1567,7 +1623,7 @@ if($_GET['px']){
 	function ajaxExtractLandPicture(land_id) {
 		//var markersJSON = null;
 		$.ajax({
-			url:'ajax/extract_land_picture.php?land_id='+land_id,
+			url:'ajax/extract_land_picture.php?land_id='+land_id+"&_=<?php echo time(); ?>",
 			dataType:'html',
 			async:false,
 			success:function(data, textStatus, jqXHR){
@@ -1581,7 +1637,7 @@ if($_GET['px']){
 		if(multi){
 			var markersJSON = null;
 			$.ajax({
-				url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2+'&multi=1',
+				url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2+'&multi=1'+"&_=<?php echo time(); ?>",
 				dataType:'html',
 				async:false,
 				success:function(data, textStatus, jqXHR){
@@ -1593,7 +1649,7 @@ if($_GET['px']){
 		else{
 			var markersJSON = null;
 			$.ajax({
-				url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2,
+				url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+'&x2='+x2+'&y2='+y2+"&_=<?php echo time(); ?>",
 				dataType:'html',
 				async:false,
 				success:function(data, textStatus, jqXHR){
@@ -1660,7 +1716,7 @@ if($_GET['px']){
 			setGreenMarkers(map, gMarkers, globalMarkersResponseTextCacheJSON);
 		}
 		else{
-			var jqxhr = $.ajax('ajax/get_markers.php')
+			var jqxhr = $.ajax('ajax/get_markers.php'+"?_=<?php echo time(); ?>")
 			.done(function() { 
 				if (jqxhr.status == 200) {
 					var markers = [];
@@ -1683,7 +1739,7 @@ if($_GET['px']){
 	function ajaxGetRedMarkerCoordinates(land_special_id) {
 		var marker;
 		$.ajax({
-			url:'ajax/get_markers.php?land_special_id='+land_special_id,
+			url:'ajax/get_markers.php?land_special_id='+land_special_id+"&_=<?php echo time(); ?>",
 			dataType:'html',
 			async:false,
 			success:function(data, textStatus, jqXHR){
@@ -1748,7 +1804,7 @@ if($_GET['px']){
 			setRedMarkers(map, gMarkers, globalRedMarkersResponseTextCacheJSON);
 		}
 		else{
-			var jqxhr = $.ajax('ajax/get_markers.php?type=special')
+			var jqxhr = $.ajax('ajax/get_markers.php?type=special'+"&_=<?php echo time(); ?>")
 			.done(function() { 
 				if (jqxhr.status == 200) {
 					
@@ -1816,6 +1872,7 @@ if($_GET['px']){
 <style>
 .ui-dialog {
     width: 450px;
+	top:60px;
 }
 #jquery-lightbox {
     z-index: 10000;
@@ -1841,7 +1898,7 @@ if($_GET['px']){
 
 <body style="cursor: auto; margin:0px;">
 <table style='z-index: 1010; width:300px; height:100px; position:absolute; background:white; top:-10000px' id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
-<div id="map_canvas"></div>
+<div id="map_canvas" style='top:55px;'></div>
 <div class="cpanelwnd ui-dialog ui-widget ui-widget-content ui-corner-all" style="outline: 0px none; z-index: 1008; position: absolute; border: 0px !important;" tabindex="-1" role="dialog" aria-labelledby="ui-id-1">
   <!--
   <div id="radioset" style="text-align: center;">
@@ -2043,30 +2100,72 @@ if($_GET['px']){
     </div>
 
 <div id="header">
-<div id="trends" style="position:absolute; top:0px; left:50px; right:50px;">
-	<div class="inner" style="background-color:#224466;">
-		<ul class="trendscontent">
-			<!--<li class="trend-label">RECENTLY PURCHASED LAND:</li>-->
-<?php
-	$conOptions = GetGlobalConnectionOptions();
-	$con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions['password']);
-	if (!$con) { die('Database connection error.'); }
-	mysql_select_db($conOptions['database'], $con);
-	$sql = "SELECT x, y, title, detail FROM land ORDER BY id DESC LIMIT 15";
-	$result = mysql_query($sql);
-	if ($result) {
-		while ($row = mysql_fetch_array($result)) {
-			echo '<li>';
-			echo '<a href=# class="search_link" name="'.$row[2].'" rel="nofollow">'.$row[2].' ('.$row[0].'-'.$row[1].')</a>';
-			echo '<em class="description">'.$row[3].'</em>';
-			echo '</li>';
-		}
-	}
-	mysql_close($con);
-?>
-		</ul>
-	</div>
-	<span class="fade fade-left">&nbsp;</span><span class="fade fade-right">&nbsp;</span>
+<style>
+#table{
+	width:100%;
+	height:100%;
+}
+#shadowx{
+	height:55px;
+	-webkit-box-shadow: 0px 3px 0px rgba(255, 255, 255, 0.21);
+	-moz-box-shadow:    0px 3px 0px rgba(255, 255, 255, 0.21);
+	box-shadow:         0px 4px 0px rgba(255, 255, 255, 0.21);
+	top:0px;
+	position:absolute;
+	width:100%;
+	background:#24416d;
+}
+</style>
+<div id='shadowx'>
+	<table id='table' cellpadding=0 cellspacing=0>
+		<tr>
+			<td style='vertical-align:middle; width:250px; padding-left:30px;'>
+				<a href='/'><img src='images/logo.png' style='border:0px'></a>
+			</td>
+			<td style='vertical-align:middle; padding-top"'>
+			<div id="trends" style="position:absolute; top:0px; height:55px; width:100%;">
+				<div class="inner" style="height:55px; width:100%; top:15px; font-size:14px;">
+							<?php
+								
+								echo '<ul class="trendscontent">';
+								$sql = "SELECT x, y, title, detail FROM land ORDER BY id DESC LIMIT 30";
+								$results = dbQuery($sql);
+								$t = count($results);
+								$titles = array();
+								$counter = 0;
+								for($i=0; $i<$t; $i++){
+									$tt = trim($results[$i]['title'])."~".trim($results[$i]['detail']);
+									if(!in_array($tt, $titles)){
+										$titles[] = $tt;
+										echo '<li style="display:inline;">';
+										echo '<img src="images/tinytrans.png">';
+										echo '</li>';
+										echo '<li style="display:inline; position:relative; margin-right:30px">';
+										//echo "<table style='display:inline; float: left;' cellpadding=0 cellspcaing=0 ><tr>";
+										//echo "<td style='padding-right:10px;'>";
+										//echo '<img src="images/tinytrans.png">';
+										//echo "</td>";
+										//echo "<td style='vertical-align:middle; padding-right:30px;'>";
+										echo '<a href=# onclick="gotoLoc('.$results[$i]['x'].', '.$results[$i]['y'].')" class="search_link" rel="nofollow" style="color:#b8ff00; text-decoration:none; top:-5px; position:relative">'.$results[$i]['title'].'</a>';
+										echo '<em class="description" style="color:#b8ff00; text-decoration:none">'.$results[$i]['detail'].'</em>';
+										//echo "</td>";
+										//echo "</tr></table>";
+										echo '</li>';
+										$counter++;
+										if($counter>15){
+											break;
+										}
+									}
+									
+								}
+							
+								echo '</ul>';
+							?>
+				</div>
+			</div>
+			</td>
+		</tr>
+	</table>
 </div>
 </div>
 <div class="trendtip">

@@ -115,10 +115,19 @@ function seoIze($str){
 function site_url(){
 	$host = $_SERVER['HTTP_HOST'];
 	if($host=='localhost'){
-		return "http://".$host."/admin2/";
+		return "http://".$host."/pieceoftheworld.co/admin2/";
 	}
 	else{
 		return "http://".$host."/admin2/";
+	}
+}
+function site_url2(){
+	$host = $_SERVER['HTTP_HOST'];
+	if($host=='localhost'){
+		return "http://".$host."/pieceoftheworld.co/";
+	}
+	else{
+		return "http://".$host."/";
 	}
 }
 function outlink($url){

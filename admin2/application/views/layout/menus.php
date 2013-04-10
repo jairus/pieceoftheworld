@@ -18,6 +18,10 @@ if($method=='contribution'){
 	<li <?php if($controller=="specialland"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."specialland";?>"'>
 		Special Land
 	</li>
+	<li <?php if($controller=="affiliates"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."affiliates";?>"'>
+		Affiliates
+	</li>
+	<!--
 	<li <?php if($controller=="sales"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."sales";?>"'>
 		Sales
 	</li>
@@ -27,29 +31,5 @@ if($method=='contribution'){
 	<li <?php if($controller=="webusers"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."webusers";?>"'>
 		Web Users
 	</li>
+	-->
 </ul>
-
-<script>
-jQuery.ajax({
-	url: "<?php echo site_url(); ?>revisions/countpending",
-	type: "POST",
-	data: "",
-	success: function(data){
-		if(data!="0"){
-			jQuery("#revcount").html(data);
-			jQuery("#revcount").show();
-		}
-	}
-});
-jQuery.ajax({
-	url: "<?php echo site_url(); ?>contributions/countpending",
-	type: "POST",
-	data: "",
-	success: function(data){
-		if(data!="0"){
-			jQuery("#concount").html(data);
-			jQuery("#concount").show();
-		}
-	}
-});
-</script>

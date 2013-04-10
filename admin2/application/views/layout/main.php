@@ -335,7 +335,7 @@ $user = $_SESSION['user'];
 		padding:5px;
 	}
 	#header{
-		background:#21913e;
+		background:#24416D;
 		padding: 5px;
 	}
 	#header a{
@@ -360,7 +360,8 @@ $user = $_SESSION['user'];
 		cursor:pointer;
 	}
 	#menus li:hover, #menus li.selected{
-		background:orange;
+		background:white;
+		color:black;
 	}
 	#dialoghtml{
 		text-align:center;
@@ -691,7 +692,7 @@ $user = $_SESSION['user'];
 			<td id='header'>
 				<table cellpadding="0" cellspacing="0" width="100%">
 					<tr>
-						<td><img onclick='self.location="<?php echo site_url(); ?>main"' src="<?php echo site_url()."media/startupkit/logo.jpg"; ?>"  style='cursor:pointer'/></td>
+						<td><img onclick='self.location="<?php echo site_url(); ?>main"' src="<?php echo site_url()."media/pieceoft/logo.png"; ?>"  style='cursor:pointer'/></td>
 						<?php
 						if($user){ //if logged in
 							?>

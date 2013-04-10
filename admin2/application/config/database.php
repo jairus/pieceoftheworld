@@ -55,7 +55,7 @@ if($host=='localhost'){
 	$db['default']['database'] = 'pieceoft_db2';
 }
 else{
-	$db['default']['hostname'] = 'localhost';
+	$db['default']['hostname'] = 'pieceoftheworld.co';
 	$db['default']['username'] = 'pieceoft_db2';
 	$db['default']['password'] = '1litervand';
 	$db['default']['database'] = 'pieceoft_db2';

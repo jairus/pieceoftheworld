@@ -14,7 +14,7 @@ Header set Expires "Wed, 11 Jan 1984 05:00:00 GMT"
 
 
 RewriteEngine On
-RewriteBase /admin2/
+RewriteBase /pieceoftheworld.co/admin2/
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteRule .* index.php/$0/ [PT,L]

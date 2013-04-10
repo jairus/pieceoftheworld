@@ -66,6 +66,37 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 		exit();
 	}
 	
+	//if there is an affiliate
+	if(trim($_GET['affid'])){
+		$sql = "select * from `affiliates` where md5(`id`)='".mysql_real_escape_string($_GET['affid'])."'";
+		$r = dbQuery($sql, $_dblink);
+		$r = $r[0];
+		if($r['id']){
+			$rate = trim($r['commissionrate']);
+			//if percentage
+			if(strpos($rate, "%")!==false){
+				$rate = $rate*1;
+				$rate = $rate/100;
+				$commission = $_POST['mc_gross']*$rate;
+			}
+			//if fixed
+			else{
+				$rate = $rate*1;
+				$commission = $rate;
+			}
+			
+			$sql = "insert into `affiliate_commissions` set 
+				`affiliate_id`='".$r['id']."',
+				`server_json`='".mysql_real_escape_string(json_encode($_SERVER))."',
+				`commission` = '".$commission."'
+				`dateadded`=NOW()
+			";
+			dbQuery($sql, $_dblink);
+		}
+	}
+	
+	
+	
 	$land = $post['land'];
 	$useremail = $post['useremail'];
 	$land_owner = ($post['land_owner']);
