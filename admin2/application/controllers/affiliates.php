@@ -26,6 +26,12 @@ class affiliates extends CI_Controller {
 			$cnt = $q->result_array();
 			$cnt = $cnt[0]['cnt'];
 			$records[$i]['clicks'] = $cnt;
+			
+			$sql = "select sum(`commission`) as `commission` from `affiliate_commissions` where `affiliate_id`='".$records[$i]['id']."'";
+			$q = $this->db->query($sql);
+			$cnt = $q->result_array();
+			$commission = $cnt[0]['commission'];
+			$records[$i]['commission'] = $commission;
 		}
 		
 		$sql = "select count(`id`) as `cnt` from `".$table."` where 1 order by `id` desc" ;
@@ -142,6 +148,7 @@ class affiliates extends CI_Controller {
 				`detail` = '".mysql_real_escape_string($_POST['detail'])."',
 				`website` = '".mysql_real_escape_string($_POST['website'])."',
 				`email` = '".mysql_real_escape_string($_POST['email'])."',
+				`active` = '".mysql_real_escape_string($_POST['active'])."',
 				`commissionrate` = '".mysql_real_escape_string($_POST['commissionrate'])."',
 				`dateadded` = NOW()
 			";
@@ -154,6 +161,14 @@ class affiliates extends CI_Controller {
 			<?php
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
+	}
+	
+	
+	function ajax_delete($id){
+		$sql = "delete from `affiliates` where `id`='".mysql_real_escape_string($id)."'";
+		$this->db->query($sql);
+		//$sql = "delete from `startupkit_product_coupons` where `product_id`='".mysql_real_escape_string($id)."'";
+		//$this->db->query($sql);
 	}
 	
 	function ajax_edit(){
@@ -179,8 +194,10 @@ class affiliates extends CI_Controller {
 				`detail` = '".mysql_real_escape_string($_POST['detail'])."',
 				`website` = '".mysql_real_escape_string($_POST['website'])."',
 				`email` = '".mysql_real_escape_string($_POST['email'])."',
+				`active` = '".mysql_real_escape_string($_POST['active'])."',
 				`commissionrate` = '".mysql_real_escape_string($_POST['commissionrate'])."',
 				`dateadded` = NOW()
+				where `id` = '".mysql_real_escape_string($_POST['id'])."'
 			";
 			$this->db->query($sql);
 			$insert_id = $this->db->insert_id();
@@ -200,6 +217,18 @@ class affiliates extends CI_Controller {
 		$q = $this->db->query($sql);
 		$record = $q->result_array();
 		$record = $record[0];
+		$sql = "select count(`id`) as `cnt` from `affiliate_clicks` where `affiliate_id`='".$record['id']."'";
+		$q = $this->db->query($sql);
+		$cnt = $q->result_array();
+		$cnt = $cnt[0]['cnt'];
+		$record['clicks'] = $cnt;
+		
+		$sql = "select sum(`commission`) as `commission` from `affiliate_commissions` where `affiliate_id`='".$record['id']."'";
+		$q = $this->db->query($sql);
+		$cnt = $q->result_array();
+		$commission = $cnt[0]['commission'];
+		$record['commission'] = $commission;
+		
 		$data['record'] = $record;
 		$data['content'] = $this->load->view($controller.'/add', $data, true);
 		$this->load->view('layout/main', $data);;

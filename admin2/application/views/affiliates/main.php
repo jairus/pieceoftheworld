@@ -139,7 +139,7 @@ $t = count($records);
 				<a href="<?php echo site_url(); echo $controller; ?>/edit/<?php echo $records[$i]['id']?>" ><?php echo htmlentitiesX($records[$i]['id']); ?></a>
 			</td>
 			<td align='center'>
-				<?php echo $records[$i]['name']; ?>
+				<?php echo $records[$i]['title']; ?>
 			</td>
 			<td>
 				<?php echo $records[$i]['email']; ?>
@@ -148,16 +148,16 @@ $t = count($records);
 				<?php echo $records[$i]['website'];	?>
 			</td>
 			<td>
-				<a href='<?php echo site_url2()."?affid=".md5($records[$i]['id']); ?>' target='_blank'>Link</a>
+				<a href='<?php echo site_url2()."?affid=".($records[$i]['id']); ?>' target='_blank'>Link</a>
 			</td>
 			<td>
 				<?php echo $records[$i]['clicks'];	?>
 			</td>
 			<td>
-				<?php echo $records[$i]['commision'];	?>
+				<?php echo $records[$i]['commission'];	?>
 			</td>
 			<td width='300px'>
-			[ <a href="<?php echo site_url(); echo $controller; ?>/edit/<?php echo $records[$i]['id']?>" >Edit</a> ] 
+			[ <a href="<?php echo site_url(); echo $controller; ?>/edit/<?php echo $records[$i]['id']?>" >More Details</a> ] 
 			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['id']) ?>"); ' >Delete</a> ]
 			
 			</td>

@@ -1,6 +1,6 @@
 <?php
 include_once(dirname(__FILE__)."/emailer/email.php");
-
+include_once(dirname(__FILE__)."/ajax/global.php"); 
 $str = print_r($_GET, 1);
 $str .= print_r($_POST, 1);
 $str .= print_r($_SERVER, 1);
@@ -68,7 +68,7 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	
 	//if there is an affiliate
 	if(trim($_GET['affid'])){
-		$sql = "select * from `affiliates` where md5(`id`)='".mysql_real_escape_string($_GET['affid'])."'";
+		$sql = "select * from `affiliates` where `id`='".$_GET['affid']."' and `active`=1";
 		$r = dbQuery($sql, $_dblink);
 		$r = $r[0];
 		if($r['id']){
@@ -88,7 +88,7 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 			$sql = "insert into `affiliate_commissions` set 
 				`affiliate_id`='".$r['id']."',
 				`server_json`='".mysql_real_escape_string(json_encode($_SERVER))."',
-				`commission` = '".$commission."'
+				`commission` = '".$commission."',
 				`dateadded`=NOW()
 			";
 			dbQuery($sql, $_dblink);

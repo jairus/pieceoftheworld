@@ -4,7 +4,7 @@ session_start();
 require_once 'ajax/global.php';
 if($_GET['affid']){
 	$_SESSION['affid'] = $_GET['affid'];
-	$sql = "select * from `affiliates` where md5(`id`)='".mysql_real_escape_string($_SESSION['affid'])."'";
+	$sql = "select * from `affiliates` where `id`='".$_SESSION['affid']."'  and `active`=1";
 	$r = dbQuery($sql, $_dblink);
 	$r = $r[0];
 	if($r['id']){

@@ -82,6 +82,7 @@ $boughtSpecialArea = false;
 			*/
 			price = 499;
 		}
+		setSessionPrice(price);
 		/*
 		else if (boughtStandardPlot === true) {
 		}

@@ -186,6 +186,11 @@ else{
 		  <td>E-mail:</td>
 		  <td><input type="text" name="email" size="40"></td>
 		</tr>
+		<tr class="odd">
+		  <td>Active?</td>
+		  <td><input type="checkbox" name="active" value="1" checked="checked" />
+		  </td>
+		</tr>
 	</table>
 </td>
 <td width='50%'>
@@ -199,7 +204,7 @@ else{
 			?>
 			<tr class="odd">
 			  <td>URL:</td>
-			  <td><a href='<?php echo site_url2()."?affid=".md5($record['id']); ?>' target='_blank'>Link</a></td>
+			  <td><a href='<?php echo site_url2()."?affid=".($record['id']); ?>' target='_blank'>Link</a></td>
 			</tr>
 			<tr class="even required">
 			  <td>Clicks:</td>
