@@ -52,13 +52,13 @@ if($host=='localhost'){
 	$db['default']['hostname'] = 'localhost';
 	$db['default']['username'] = 'root';
 	$db['default']['password'] = '';
-	$db['default']['database'] = 'pieceoft_db2';
+	$db['default']['database'] = 'pieceoft_db3';
 }
 else{
 	$db['default']['hostname'] = 'pieceoftheworld.co';
-	$db['default']['username'] = 'pieceoft_db2';
+	$db['default']['username'] = 'pieceoft_db3';
 	$db['default']['password'] = '1litervand';
-	$db['default']['database'] = 'pieceoft_db2';
+	$db['default']['database'] = 'pieceoft_db3';
 }
 
 

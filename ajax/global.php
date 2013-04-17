@@ -28,9 +28,9 @@ function GetGlobalConnectionOptions()
 	return array(
 	'server' => 'localhost',
 	'port' => '3306',
-	'username' => 'pieceoft_db2',
+	'username' => 'pieceoft_db3',
 	'password' => '1litervand',
-	'database' => 'pieceoft_db2'
+	'database' => 'pieceoft_db3'
 );
 }
 
@@ -38,11 +38,20 @@ function GetGlobalConnectionOptions()
 $_dblink = dbQuery("", "", true);
 
 function dbQuery($query, $link="", $connectonly=false){
-    $DATABASE_HOST = "localhost";
-	$DATABASE_USER = "pieceoft_db2";
-	$DATABASE_PASSWORD = "1litervand";
-	$DATABASE = "pieceoft_db2";
+	if($_SERVER['HTTP_HOST']=='localhost'){
+		$DATABASE_HOST = "localhost";
+		$DATABASE_USER = "root";
+		$DATABASE_PASSWORD = "";
+		$DATABASE = "pieceoft_db3";
+	}
+	else{
+		$DATABASE_HOST = "localhost";
+		$DATABASE_USER = "pieceoft_db3";
+		$DATABASE_PASSWORD = "1litervand";
+		$DATABASE = "pieceoft_db3";
+	}
     $returnArr = array();
+	
 	
 
 	if(!$link){
@@ -55,6 +64,10 @@ function dbQuery($query, $link="", $connectonly=false){
 	}
 	mysql_select_db($DATABASE) or die("Could not select database");
 
+	//detect if query is select
+	if(strpos(strtolower(trim($query)), "select")===0){
+		mysql_query('SET CHARACTER SET utf8;');
+	}
 	
     /* Performing SQL query */
     $result = mysql_query($query) or die("Query failed : " . mysql_error() . "<br>Query: <b>$query</b>");
@@ -72,13 +85,6 @@ function dbQuery($query, $link="", $connectonly=false){
     else if(@mysql_insert_id())
     {
         $returnArr["mysql_insert_id"] = @mysql_insert_id();
-    }
-    //other queries
-    else
-    {
-        /* Closing connection */
-        mysql_close($link);
-        return $returnArr;
     }
        
 

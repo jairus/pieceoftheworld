@@ -14,51 +14,88 @@ $sql = "";
 $keys = array_keys($_GET);
 if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ anti cache timestamp variable is always gonna be there
 	if ($type == 'special') {
-		//$sql = "SELECT * FROM land_special WHERE 1";
-		//$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, picture, email FROM land_special, user WHERE (land_special.owner_user_id = user.id)";
-		//$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, picture, email FROM land_special LEFT JOIN user ON (land_special.owner_user_id = user.id) WHERE 1";
-		//$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, email FROM land_special LEFT JOIN user ON (land_special.owner_user_id = user.id) WHERE 1";
-		//$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, email, (SELECT avg(x) AS x FROM land WHERE land_special_id=land_special.id LIMIT 1), (SELECT avg(y) AS y FROM land WHERE land_special_id=land_special.id LIMIT 1) FROM land_special LEFT JOIN user ON (land_special.owner_user_id = user.id) WHERE 1";
-		$sql = "SELECT land_special.id AS id, owner_user_id, title, detail, email, (SELECT avg(x) FROM land WHERE land_special_id=land_special.id LIMIT 1) AS x, (SELECT avg(y) FROM land WHERE land_special_id=land_special.id LIMIT 1) AS y FROM land_special LEFT JOIN user ON (land_special.owner_user_id = user.id) WHERE 1";
+		$sql = "SELECT 
+				land_special.id as id, 
+				owner_user_id, 
+				title, 
+				'masteruser@gmail.com' as `email`,
+				detail,
+				(SELECT avg(x) FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS x,
+				(SELECT avg(y) FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS y
+				FROM land_special WHERE 1";
 	}
 	else if (!empty($land_special_id)) {
-		$sql = "SELECT avg(x) AS x, avg(y) AS y FROM land WHERE land_special_id=".$land_special_id;
+		$sql = "SELECT 
+				avg(x) AS x,
+				avg(y) AS y 
+				FROM land 
+				WHERE land_special_id=".$land_special_id;
 	}
-	else {
-		//$sql = "SELECT * FROM land WHERE ";
-		//$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, picture, email FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE ";
-		/*
-		$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE ";
-		for ($x = $x1; $x <= $x2; $x++) {
-			for ($y = $y1; $y <= $y2; $y++) {
-				if (!($x == $x1 && $y == $y1)) {
-					$sql .= "OR ";
-				}
-				$sql .= "(x=".$x." AND y=".$y.") ";
-			}
-		}
-		*/
+	else { //non special blocks
 		if($_GET['multi']){
-			$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) where x>=$x1 and x<=$x2 and y>=$y1 and y<=$y2";
+			$sql = "SELECT 
+			if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`,
+			`a`.`id` AS `id`, 
+			`a`.`x`, 
+			`a`.`y`, 
+			`a`.`land_special_id`,
+			`a`.`web_user_id` as `owner_user_id`, 
+			`b`.`title`, 
+			`b`.`land_owner`, 
+			`b`.`detail`, 
+			`b`.`folder`, 
+			`c`.`useremail`
+			FROM `land` as `a` 
+			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`) 
+			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2";
 			
 		}
 		else{
-			$sql = "SELECT land.id AS id, x, y, land_special_id, owner_user_id, title, detail, email, folder FROM land LEFT JOIN user ON (land.owner_user_id = user.id) where x>=$x1 and x<=$x2 and y>=$y1 and y<=$y2";
+			$sql = "SELECT 
+			if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
+			`a`.`id` AS `id`, 
+			`a`.`x`, 
+			`a`.`y`, 
+			`a`.`land_special_id`, 
+			`a`.`web_user_id` as `owner_user_id`, 
+			`b`.`title`, 
+			`b`.`land_owner`, 
+			`b`.`detail`, 
+			`b`.`folder`,
+			`c`.`useremail` 
+			FROM `land` as `a` 
+			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
+			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2";
 		}
 	}
 }
-else {
-	//$sql = "SELECT x, y, land_special_id FROM land WHERE 1";
-	$sql = "SELECT x, y, land_special_id, email FROM land LEFT JOIN user ON (land.owner_user_id = user.id) WHERE land_special_id IS NULL";
+else { //getting purchased lands (red)
+	$sql = "SELECT 
+	`a`.`id` AS `id`, 
+	`a`.`x`, 
+	`a`.`y`, 
+	`a`.`land_special_id`, 
+	`a`.`web_user_id` as `owner_user_id`, 
+	`b`.`title`, 
+	`b`.`land_owner`, 
+	`b`.`detail`, 
+	`b`.`folder`,
+	`c`.`useremail` 
+	FROM `land` as `a` 
+	LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
+	LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+	WHERE web_user_id <> 0";
 }
 
+
+
 $markers = dbQuery($sql, $_dblink);
-
-
 $uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
 
 if(trim($markers[0]['folder'])){
-	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
+	$post = unserialize(@file_get_contents($uploads_dir."/post.txt"));
 	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
 	
 	$markers[0]['land_owner'] = $post['land_owner'];
@@ -90,10 +127,12 @@ if(isset($_GET['print'])){
 	echo $sql."\n";
 	echo $uploads_dir;
 	print_r($post);
+	echo "<hr>";
 	print_r($markers);
 	echo "</pre>";
 }
 else{
+	
 	if(count($markers)){
 		echo json_encode($markers);
 	}

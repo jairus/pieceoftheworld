@@ -20,7 +20,7 @@ if($_GET['affid']){
 	exit();
 }
 
-if($_GET['px']){
+if($_GET['px']!=""){
 	$_SESSION['px'] = $_GET['px'];
 	exit();
 }
@@ -308,7 +308,8 @@ if($_GET['px']){
 	function setSessionPrice(p){
 		jQuery.ajax({
 			dataType: "html",
-			url: "/index.php/?px="+p,
+			async: false,
+			url: "?px="+p,
 			success: function(data){
 			}
 		});
@@ -344,25 +345,7 @@ if($_GET['px']){
 			dataType: "json",
 			url: url,
 			success: function(data){
-				//consoleX(data);
-				//data = JSON.parse(data);
-				/*
 				try{
-					if(data['results'][1]){
-						ix = 1;
-					}
-					else{
-						ix = 0;
-					}
-				}
-				catch(e){
-					ix = 0;
-				}
-				*/
-				
-				//alert(ix);
-				try{
-					
 					ixt = data['results'].length;
 					for(ix=0; ix<ixt; ix++){
 						length = data['results'][ix]['address_components'].length;
@@ -385,10 +368,7 @@ if($_GET['px']){
 							}
 						}
 						jQuery("#info-city").html(city+": ");
-					}
-					
-					
-					
+					}					
 					jQuery("#dcity").html("");
 					jQuery("#dregion").html("");
 					jQuery("#dcountry").html("");
@@ -397,6 +377,7 @@ if($_GET['px']){
 					country = "";
 					if(box){
 						for(ix=0; ix<ixt; ix++){
+							length = data['results'][ix]['address_components'].length;
 							for(i=0; i<length; i++){
 								type = data['results'][ix]['address_components'][i]['types'][0];
 								if(type=='locality'&&!city){
@@ -422,7 +403,6 @@ if($_GET['px']){
 						else{
 							price = 0.90;
 						}
-						
 						if(numblocks){
 							amount = numblocks * price;
 							amount = amount.toFixed(2);
@@ -601,7 +581,7 @@ if($_GET['px']){
 	var numblocks = 0;
 	
 	function onDraggableRectangleChanged(bounds) {
-		//consoleX("onDraggableRectangleChanged");
+		consoleX("onDraggableRectangleChanged");
 		//alert(blocksAvailableInDraggableRect);
 		if (bounds||(lastEvent.getTime() + 250 <= new Date().getTime())) {
 			//consoleX(bounds);
@@ -675,7 +655,7 @@ if($_GET['px']){
 			var matrix = [];
 			var row = null;
 			var currentPlotType = 0;
-			//alert(rectangles.length);
+			alert(rectangles.length);
 			for (var i = 0; i < rectangles.length; i++) {
 				var plot = getBlockInfo(rectangles[i].getBounds().getCenter());
 				//alert(' ( ' + plot[2].x + ' > ' + WcSW.x + ' && ' + plot[2].x + ' <= ' + WcNE.x + ' ) ' + ' ( ' + plot[2].y + ' > ' + WcNE.y + ' && ' + plot[2].y + ' <= ' + WcSW.y + ' ) ');
@@ -933,16 +913,12 @@ if($_GET['px']){
 	
 	//click
 	function onRectangleClick(event) {
-		
 		//consoleX("onRectangleClick");
-		
-		
 		if (draggableRect != null) {
 			draggableRect.setMap(null);
 			draggableRect = null;
 		}
-		blocksAvailableInDraggableRect = "";
-				
+		blocksAvailableInDraggableRect = "";		
 		var projection = new MercatorProjection();
 		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
 		worldCoordinate.x = Math.floor(worldCoordinate.x);
@@ -952,28 +928,20 @@ if($_GET['px']){
 			new google.maps.LatLng(block[0].lat(),block[0].lng()),
 			new google.maps.LatLng(block[1].lat(),block[1].lng())
 		);
-		
-		
 		var LtLgNE = bounds.getNorthEast();
 		var strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
-		
-		
 		//var p = projection.fromLatLngToContainerPixel(new google.maps.LatLng(block[0].lat(),block[0].lng()));
-		
-		
+		/*
 		draggableRect = new google.maps.Rectangle({
 			bounds: bounds,
 			editable: true
 		});
 		draggableRect.setMap(map);
 		blocksAvailableInDraggableRect = block[2].x+"-"+block[2].y;
-		
 		google.maps.event.addListener(draggableRect, 'bounds_changed', scheduleDelayedCallback);
-
+		*/
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",4);
-		
-		scheduleDelayedCallback();	// To update rect according to selected area
-	
+		//scheduleDelayedCallback();	// To update rect according to selected area
 		updatePopupWindowTabInfo(event.latLng, strlatlong);
 	}
 
@@ -999,23 +967,24 @@ if($_GET['px']){
 		
 		var LtLgNE = bounds.getNorthEast();
 		var strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
-		
-		updatePopupWindowTabInfo(event.latLng, strlatlong);
-		
+
+		/*
 		draggableRect = new google.maps.Rectangle({
 			bounds: bounds,
 			editable: true
 		});
 		draggableRect.setMap(map);
 		blocksAvailableInDraggableRect = block[2].x+"-"+block[2].y;
-		
 		google.maps.event.addListener(draggableRect, 'bounds_changed', scheduleDelayedCallback);
-
+		*/
+		
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",4);
 
 		
 		//consoleX("Here");
-		scheduleDelayedCallback();	// To update rect according to selected area
+		//scheduleDelayedCallback();	// To update rect according to selected area
+		
+		updatePopupWindowTabInfo(event.latLng, strlatlong);
 	}
 
 	var disableZoomChange = false;
@@ -1033,26 +1002,29 @@ if($_GET['px']){
 		
 		
 		if (map == null) { return; }
-		//consoleX(ZOOM_LEVEL_CITY+" - "+map.getZoom());
 		if (map.getZoom() >= 17) {
+			consoleX("show blocks");
 			if (markers_loaded == true) {
 				markers_loaded = false;
 				while (markers.length > 0) {
 					markers.pop().setMap(null);
 				}
 			}
-			if (getCookie("config_showgrid") != "false") {
+			//if (getCookie("config_showgrid") != "false") {
 				drawBlocks(map);
 				blocksHidden = false;
-			}
+			//}
 		}
 		else {
+			unsetGZones();
 			if(!blocksHidden){
+				consoleX("hide blocks");
 				var i = 0;
 				process = function(){
 					for(; i<window.rectangles.length; i++){
 						//window.rectangles[i].setOptions({strokeColor: "#ff0000"});
 						window.rectangles[i].setOptions({strokeOpacity: 0});
+						window.rectangles[i].setVisible(false);
 					}
 					if (i + 1 <= window.rectangles.length && i % 20 == 0) {
 						setTimeout(process, 5);
@@ -1072,11 +1044,16 @@ if($_GET['px']){
 				}
 			}
 			// Load markers for world view and regional view if not exist
-			if (markers_loaded == false) { markers = ajaxAddMarkers(map); }
+			if (markers_loaded == false) { 
+				consoleX("show markers");
+				markers = ajaxAddMarkers(map); 
+			
+			}
 		}
 	}
 	
 	function onZoomChanged() {
+		return 0;
 		if (disableZoomChange == true) {
 			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
 			disableZoomChange = false;
@@ -1108,11 +1085,6 @@ if($_GET['px']){
 			//map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
 			//$('input:radio[name=radio]')[2].checked = true;
 			//$("#radio3").button("refresh");
-		}
-		if (map.getZoom() < ZOOM_LEVEL_CITY) {
-			document.getElementById('buy-button').value = 'Buy';
-			//document.getElementById('buy-button').disabled = true;
-			showPopupWindowTabInfo(false);
 		}
 	}
 	
@@ -1162,6 +1134,366 @@ if($_GET['px']){
 		result.push(worldCoordinate);
 		return result;
 	}
+	var blockmoreinfocache = {};
+	function getBlockMoreInfo(LatLng){
+		if(blockmoreinfocache[LatLng]){
+			return blockmoreinfocache[LatLng];
+		}
+		ret = {};
+		url = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+LatLng+"&sensor=true";
+		var price = 0;
+		var city = "";
+		var region = "";
+		var country = "";
+		var areatype = "";
+		jQuery.ajax({
+			dataType: "json",
+			url: url,
+			async:false,
+			success: function(data){
+				try{
+					ixt = data['results'].length;			
+					for(ix=0; ix<ixt; ix++){
+						length = data['results'][ix]['address_components'].length;
+						for(i=0; i<length; i++){
+							type = data['results'][ix]['address_components'][i]['types'][0];
+							if(type=='locality'&&!city){
+								city = data['results'][ix]['address_components'][i].long_name;
+							}
+							else if(type.indexOf("administrative_area_level_1")==0&&!region){
+								region = data['results'][ix]['address_components'][i].long_name;
+							}
+							else if(type.indexOf("country")==0&&!country){
+								country = data['results'][ix]['address_components'][i].long_name;
+							}
+						}
+					}
+					if(city){
+						price = 9.90;
+					}
+					else if(region||country){
+						price = 5.90;
+					}
+					else{
+						url = "/checkwater.php/?latlong="+LatLng;
+						jQuery.ajax({
+							dataType: "html",
+							url: url,
+							async:false,
+							success: function(data){
+								areatype = data;
+								if(areatype=="water"){
+									price = 0.90;
+								}
+								else{
+									price = 10.90;
+								}
+							}
+						});
+					}
+					
+					//consoleX(city); //address_components[0].long_name+"<---");
+					//consoleX(data.results.address_components[0].types[0]+"<---");
+					
+				}
+				catch(e){
+					url = "/checkwater.php/?latlong="+LatLng;
+					jQuery.ajax({
+						dataType: "html",
+						url: url,
+						async:false,
+						success: function(data){
+							areatype = data;
+							if(areatype=="water"){
+								price = 0.90;
+							}
+							else{
+								price = 10.90;
+							}
+						}
+					});
+				}
+				
+			}
+		});
+		ret.city = city;
+		ret.region = region;
+		ret.country = country;
+		ret.areatype = areatype;
+		ret.price = price;
+		blockmoreinfocache[LatLng] = ret;
+		return ret;
+	}
+	
+	function getBlockInfoNew(inLatLng, strlatlong){
+		var ret = {};
+		ret.inLatLng = inLatLng;
+		ret.detail = "";
+		ret.title = "";
+		ret.points = "";
+		ret.json = "";
+		var blockInfo = getBlockInfo(inLatLng);
+		var returnText = ajaxGetMarker(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
+		var markerJSON = JSON.parse(returnText);
+		if (returnText != '[[]]') {
+			if(markerJSON[0].email){ //if special land unpaid
+				consoleX(markerJSON[0].land_special_id);
+				//ret.price = 0;
+			}
+			else{ //for bidding only
+				consoleX("for bidding");
+				ret.price = 0;
+			}
+			ret.colored = 1;
+			//set the points
+			ret.points = "";
+			ret.title = markerJSON[0].title;
+			ret.detail = markerJSON[0].detail;
+			ret.json = markerJSON[0];
+			rtemp = getBlockMoreInfo(strlatlong);
+			ret.city = rtemp.city;
+			ret.region = rtemp.region;
+			ret.country = rtemp.country;
+			ret.areatype = rtemp.areatype;
+			
+		}
+		else{
+			rtemp = getBlockMoreInfo(strlatlong);
+			ret.price = rtemp.price;
+			ret.city = rtemp.city;
+			ret.region = rtemp.region;
+			ret.country = rtemp.country;
+			ret.areatype = rtemp.areatype;
+			ret.colored = 0;
+			//set the points
+			ret.points = "";
+		}
+		return ret; //returns ret object
+	}
+	
+	function unsetGZones(){
+		consoleX("unset gzones");
+		for(i=0; i<gzones.length; i++){
+			gzones[i].ret.active = 0;
+			gzones[i].setVisible(false);
+			gzones[i].setMap(null);
+		}
+		gzones = [];
+		updatePopupWindowTabInfoNew();
+	}
+	
+	function calculateTotal(){
+		total = 0;
+		for(i=0; i<gzones.length; i++){
+			if(gzones[i].ret.active){
+				total += gzones[i].ret.price*1;
+			}
+		}
+		setSessionPrice(total);
+		consoleX("Calculated total = "+total);
+	}
+	
+	function updatePopupWindowTabInfoNew(){
+		consoleX("updatePopupWindowTabInfoNew");
+		
+		if(!gzones.length){
+			showPopupWindowTabInfo(false);
+			return false;
+		}
+		
+		shareowner = "";
+		sharetitle = "";
+		sharedetail = "";
+		sharetext = "";
+		
+		jQuery("#fbsharelink").hide();
+		jQuery("#sharethisloc").hide();
+		showPopupWindowTabInfo(false);
+		
+		/*
+		info-city
+		info-img
+		info-lightbox
+		info-land_owner_container
+		info-land_owner
+		info-title
+		info-detail
+		buy-button
+		*/
+		//initialize
+		jQuery("#info-land_owner_container").hide();
+		jQuery("#info-land_owner").html("");
+		jQuery("#info-city").hide();
+		jQuery("#info-title").html("");
+		jQuery("#info-detail").html("");
+		
+		
+		//set first active index to get the 1st lat and long of selected boxes
+		firstindex = "";
+		
+		//write in details
+		details = "";
+		total = 0;
+		blankblocks = false;
+		specialbought = false;
+		for(i=0; i<gzones.length; i++){
+			if(gzones[i].ret.active){
+				if(gzones[i].ret.json){ //if a special land or a bought land
+					jQuery("#info-title").html(gzones[i].ret.json.title);
+					jQuery("#info-detail").html(gzones[i].ret.json.detail);
+					jQuery("#info-city").show();
+					if(gzones[i].ret.city){
+						jQuery("#info-city").html(gzones[i].ret.city);
+					}
+					else if(gzones[i].ret.region){
+						jQuery("#info-city").html(gzones[i].ret.region);
+					}
+					else if(gzones[i].ret.country){
+						jQuery("#info-city").html(gzones[i].ret.country);
+					}
+					else if(gzones[i].ret.areatype=='water'){
+						jQuery("#info-city").html("Water Area");
+					}
+					else {
+						jQuery("#info-city").html("Land Area");
+					}
+					xx = jQuery("#info-city").html();
+					jQuery("#info-city").html(xx+": ");
+					
+					if(gzones[i].ret.json.land_owner){
+						jQuery("#info-land_owner_container").show();
+						jQuery("#info-land_owner").html(gzones[i].ret.json.land_owner);
+					}
+					if(firstindex==""){
+						firstindex = i;
+					}
+					specialbought = true;
+					break;
+				}
+				else{ //selected blank blocks
+					blankblocks = true;
+					if(firstindex==""){
+						firstindex = i;
+					}
+					if(gzones[i].ret.city){
+						details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+					}
+					else if(gzones[i].ret.region){
+						details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+					}
+					else if(gzones[i].ret.country){
+						details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+					}
+					else if(gzones[i].ret.areatype=='water'){
+						details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+					}
+					else {
+						details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+					}
+				}
+			}
+			total += gzones[i].ret.price*1;
+		}
+		if(blankblocks){
+			showPopupWindowTabInfo(true);
+			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
+			jQuery("#buy-button").val("Buy");
+			jQuery("#buy-button").hide();
+			details += "<hr />Total: USD "+total.toFixed(2);
+			jQuery("#info-title").html("Buy Land");
+			jQuery("#info-detail").html(details);
+		}
+		else if(specialbought){
+			showPopupWindowTabInfo(true);
+		}
+		else{
+			showPopupWindowTabInfo(false);
+			return false;
+		}
+		
+		if(!sharetitle){
+			sharetitle = "Mark your very own Piece of the World!";
+		}
+		if(!sharetext){
+			sharetext = "Get your own piece of the world at pieceoftheworld.com";
+		}
+		link = "http://www.pieceoftheworld.co/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[firstindex].ret.inLatLng.lng();
+		
+		globallink = link;
+		//link = encodeURIComponent(link);
+		sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+		
+		jQuery("#fbsharelink").attr("href", sharelink);
+		jQuery("#fbsharelink").show();
+		jQuery("#sharethisloc").show();
+	}
+	
+	var gzones = [];
+	function putBox(event){
+		//disable block clicking when zoomed out
+		if(map.getZoom()<17){
+			unsetGZones();
+			return 0;
+		}
+		var projection = new MercatorProjection();
+		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
+		worldCoordinate.x = Math.floor(worldCoordinate.x);
+		worldCoordinate.y = Math.floor(worldCoordinate.y);
+		var block = getBlockLTRB(worldCoordinate);
+		var bounds = new google.maps.LatLngBounds(
+			new google.maps.LatLng(block[0].lat(),block[0].lng()),
+			new google.maps.LatLng(block[1].lat(),block[1].lng())
+		);
+		var LtLgNE = bounds.getNorthEast();
+		var LtLgSW = bounds.getSouthWest();
+		
+		strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+		jQuery("#tabs").tabs("select",0);
+		//new update popup info
+		ret = getBlockInfoNew(event.latLng, strlatlong);
+		if(ret.colored){
+			unsetGZones();
+		}
+		else{
+			//remove all colored selections
+			for(i=0; i<gzones.length; i++){
+				if(gzones[i].ret.colored==1){
+					gzones[i].ret.active = 0;
+					gzones[i].setMap();
+				}
+			}
+		}
+		
+		//put in the box
+		var zoneCoords = [
+			new google.maps.LatLng(LtLgNE.lat(), LtLgNE.lng()),
+			new google.maps.LatLng(LtLgNE.lat(), LtLgSW.lng()),
+			new google.maps.LatLng(LtLgSW.lat(), LtLgSW.lng()),
+			new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
+		];
+		ret.active = 1;
+		zone = new google.maps.Polygon({
+			paths: zoneCoords,
+			strokeColor: "#40E0D0",
+			strokeOpacity: 1,
+			strokeWeight: 3,
+			fillColor: "#40E0D0",
+			fillOpacity: 0.2,
+			zIndex: 10000,
+			ret: ret //just extra 'ret' object variable
+		});
+		google.maps.event.addListener(zone, 'click', function(event){
+			this.ret.price = 0;
+			this.ret.active = 0;
+			this.setMap(); //remove the box
+			calculateTotal(); //calculate total of 
+			updatePopupWindowTabInfoNew();
+		});
+		zone.setMap(window.map);
+		gzones.push(zone);
+		calculateTotal();
+		updatePopupWindowTabInfoNew();
+	}
 	
 	function drawRect(lt, rb, color, opacity) {
 		if (getCookie("config_showownedland") == "false" && color == fillColorAcquiredPlot) {
@@ -1184,12 +1516,10 @@ if($_GET['px']){
 			map: window.map,
 			bounds: new google.maps.LatLngBounds(lt, rb)
 		});
-		google.maps.event.addListener(rectangle, 'click', function(event) { (opacity == 0) ? onRectangleClick(event) :  onColoredRectangleClick(event); });
-		
-		
-		
-		
-
+		google.maps.event.addListener(rectangle, 'click', function(event) 
+		{ 
+			putBox(event);
+		});
 
 
 		window.rectangles.push(rectangle);
@@ -1305,11 +1635,13 @@ if($_GET['px']){
 							<?php if($_GET['norec']){ echo "//";};?>drawRect(result[0], result[1], color, opacity);
 							window.rectanglesxy[window.rectangles.length-1]= result[0]+"-"+result[1];
 						}
-						else{
+						else{ //in cache
 							ndexx = window.rectanglesxy.indexOf(result[0]+"-"+result[1]);
 							//window.rectanglesxy[ndexx].setOptions();
 							//window.rectangles[ndexx].setOptions({strokeColor: "#ff0000"});
 							window.rectangles[ndexx].setOptions({strokeOpacity: 0.9});
+							window.rectangles[ndexx].setMap(window.map);
+							window.rectangles[ndexx].setVisible(true);
 						}
 						if (cnt2 + 1 <= hEnd && cnt2 % 20 == 0) {
 							//consoleX("cnt2 setTimeout "+cnt2);
@@ -1415,6 +1747,29 @@ if($_GET['px']){
 	
 	var globallink;
 	function updatePopupWindowTabInfo(inLatLng, strlatlong) {
+		consoleX("updatePopupWindowTabInfo");
+		shareowner = "";
+		sharetitle = "";
+		sharedetail = "";
+		sharetext = "";
+		
+		/*
+		info-city
+		info-img
+		info-lightbox
+		info-land_owner_container
+		info-land_owner
+		info-title
+		info-detail
+		buy-button
+		*/
+		//initialize
+		jQuery("#info-land_owner_container").hide();
+		jQuery("#info-land_owner").html("");
+		jQuery("#info-city").hide();
+		jQuery("#info-title").html("");
+		jQuery("#info-detail").html("");
+		
 		
 		jQuery("#fbsharelink").hide();
 		jQuery("#sharethisloc").hide();
@@ -1471,9 +1826,7 @@ if($_GET['px']){
 				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			}
 			
-			shareowner = "";
-			sharetitle = "";
-			sharedetail = "";
+			
 			
 			shareowner = jQuery('#info-land_owner').text();
 			sharetitle = jQuery('#info-title').text();	
@@ -1485,7 +1838,8 @@ if($_GET['px']){
 			else{
 				sharetext = sharedetail;
 			}
-			
+			consoleX(markerJSON[0]);
+			consoleX(markerJSON[0].email+"="+masterUser);
 			if (markerJSON[0].email == masterUser) {
 				if(markerJSON[0].land_special_id){
 					price = 499;
@@ -1504,16 +1858,11 @@ if($_GET['px']){
 				document.getElementById('buy-button').value = "Bid";
 				setCity(strlatlong);
 			}
-			
-			
-			
 			//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 		}
 		else {
 			//alert(updatePopupWindowTabInfo);
 			document.getElementById('info-title').innerHTML = 'Your title here.';
-			
-			
 			document.getElementById('info-detail').innerHTML = 'Your description here.';
 			
 			if(markerJSON[0].land_special_id){
@@ -1788,7 +2137,7 @@ if($_GET['px']){
 				var marker = new google.maps.Marker({
 					position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
 					map: map,
-					icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/rmarker.png' //'images/dgmarker.png'
+					icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/gmarker.png' //'images/dgmarker.png'
 				});
 				google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, "special"); });
 				markers.push(marker);
@@ -1799,7 +2148,7 @@ if($_GET['px']){
 	}
 	
 	var globalRedMarkersResponseTextCacheJSON = "";
-	function ajaxAddRedMarkers(map, gMarkers, force) {
+	function ajaxAddRedMarkers(map, gMarkers, force) { //really they are green
 		if(globalRedMarkersResponseTextCacheJSON!=""&&!force){
 			setRedMarkers(map, gMarkers, globalRedMarkersResponseTextCacheJSON);
 		}
@@ -1807,7 +2156,6 @@ if($_GET['px']){
 			var jqxhr = $.ajax('ajax/get_markers.php?type=special'+"&_=<?php echo time(); ?>")
 			.done(function() { 
 				if (jqxhr.status == 200) {
-					
 					var markers = [];
 					var markersJSON = JSON.parse(jqxhr.responseText);
 					globalRedMarkersResponseTextCacheJSON = markersJSON;
@@ -2122,13 +2470,13 @@ if($_GET['px']){
 			<td style='vertical-align:middle; width:250px; padding-left:30px;'>
 				<a href='/'><img src='images/logo.png' style='border:0px'></a>
 			</td>
-			<td style='vertical-align:middle; padding-top"'>
+			<td style='vertical-align:middle; display:none'>
 			<div id="trends" style="position:absolute; top:0px; height:55px; width:100%;">
 				<div class="inner" style="height:55px; width:100%; top:15px; font-size:14px;">
 							<?php
 								
 								echo '<ul class="trendscontent">';
-								$sql = "SELECT x, y, title, detail FROM land ORDER BY id DESC LIMIT 30";
+								$sql = "SELECT `a`.`x`, `a`.`y`, `b`.`title`, `b`.`detail` FROM `land` as  `a` left join `land_detail` as `b` on (`a`.`land_detail_id`=`b`.`id`) ORDER BY `a`.`id` DESC LIMIT 30";
 								$results = dbQuery($sql);
 								$t = count($results);
 								$titles = array();

@@ -1,4 +1,4 @@
-<?
+<?php
 /*
 $from = "jairus@nmgresources.ph";
 $fromname = "Jairus Bondoc";
