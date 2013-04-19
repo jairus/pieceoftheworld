@@ -155,8 +155,33 @@ class land extends CI_Controller {
 			$sql = "delete from `pictures` where `land_id`=".$this->db->escape($landId);
 			$this->db->query($sql);
 			if(is_array($_POST['pictures'])){
-				
+
+				$rootFolder = str_replace("\\",'/',dirname(dirname(dirname(dirname(__FILE__))))) .'/';
+				$folder = $rootFolder."_uploads2/";
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+				$folder = $folder ."land/";
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+				$folder = $folder ."$landId/";				
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+				$folder = $folder ."images/";				
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+			
 				foreach($_POST['pictures'] as $key=>$value){
+					$value = str_replace("admin2/media/", '', $value); 
+					//move files
+					$fileName = urldecode(basename($value));
+					$from = $rootFolder ."admin2/media/_uploads2/land/$landId/images/". $fileName;
+					$to = $folder . $fileName;
+					@rename($from, $to);
+					
 					$isMain = ($_POST['isMainPix'] == $value)? 1 : 0;
 					$sql = "insert into `pictures` set 
 					`land_id`=".$this->db->escape($landId).", 

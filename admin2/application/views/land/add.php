@@ -81,20 +81,20 @@ jQuery(function(){
 		'script'    : '<?php echo site_url(); ?>media/js/uploadify/uploadify.php',
 		'cancelImg' : '<?php echo site_url(); ?>media/js/uploadify/cancel.png',
 		'folder'    : '<?php
-			$folder = dirname(__FILE__)."/../../../media/uploads2/";
+			$folder = dirname(__FILE__)."/../../../media/_uploads2/";
 			if(!is_dir($folder)){
 				mkdir($folder, 0777);
 			}
-			$folder = dirname(__FILE__)."/../../../media/uploads2/land/";
+			$folder = dirname(__FILE__)."/../../../media/_uploads2/land/";
 			if(!is_dir($folder)){
 				mkdir($folder, 0777);
 			}
 			if($record['id']){
-				$folder = dirname(__FILE__)."/../../../media/uploads2/land/".$record['id'];
+				$folder = dirname(__FILE__)."/../../../media/_uploads2/land/".$record['id'];
 				if(!is_dir($folder)){
 					mkdir($folder, 0777);
 				}
-				$folder = dirname(__FILE__)."/../../../media/uploads2/land/".$record['id']."/images";
+				$folder = dirname(__FILE__)."/../../../media/_uploads2/land/".$record['id']."/images";
 				if(!is_dir($folder)){
 					mkdir($folder, 0777);
 				}
