@@ -25,13 +25,27 @@ function GetGlobalConnectionOptions()
 	'password' => '8VnNhDQw',
 	'database' => 's15331327_gmm'
 	*/
-	return array(
-	'server' => 'localhost',
-	'port' => '3306',
-	'username' => 'pieceoft_db3',
-	'password' => '1litervand',
-	'database' => 'pieceoft_db3'
-);
+	
+	
+	if($_SERVER['HTTP_HOST']=='localhost'){
+		
+		return array(
+		'server' => 'localhost',
+		'port' => '3306',
+		'username' => 'root',
+		'password' => '',
+		'database' => 'pieceoft_db3'
+		);
+	}
+	else{
+		return array(
+		'server' => 'localhost',
+		'port' => '3306',
+		'username' => 'pieceoft_db3',
+		'password' => '1litervand',
+		'database' => 'pieceoft_db3'
+		);
+	}
 }
 
 //get a connection
