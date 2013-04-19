@@ -13,7 +13,47 @@ mysql_select_db($conOptions['database'], $con);
 $sql = "";
 $keys = array_keys($_GET);
 if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ anti cache timestamp variable is always gonna be there
-	if ($type == 'special') {
+	if($type=='exact'){
+		
+		$sql = "SELECT 
+			if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
+			`id` AS `id`, 
+			`x`, 
+			`y`, 
+			`land_special_id`, 
+			`web_user_id`
+			FROM `land` as `a` 
+			where 
+			`x`=$x1 and `y`=$y1 
+			";
+		$markers = dbQuery($sql, $_dblink);
+		if($markers[0]['web_user_id']||$markers[0]['land_special_id']){
+			$sql = "SELECT 
+				if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
+				`a`.`id` AS `id`, 
+				`a`.`x`, 
+				`a`.`y`, 
+				`a`.`land_special_id`, 
+				`a`.`web_user_id` as `owner_user_id`, 
+				`b`.`title`, 
+				`b`.`land_owner`, 
+				`b`.`detail`, 
+				`b`.`folder`,
+				`c`.`useremail` 
+				FROM `land` as `a` 
+				LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
+				LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+				where 
+				`a`.`x`=$x1 and `a`.`y`=$y1 
+				";
+		}
+		else{
+			//return blank
+			echo "[[]]";
+			exit();
+		}
+	}
+	else if ($type == 'special') {
 		$sql = "SELECT 
 				land_special.id as id, 
 				owner_user_id, 
@@ -48,7 +88,11 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`) 
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2";
+			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
+			and 
+			(web_user_id <> 0 or land_special_id <> 0)
+			
+			";
 			
 		}
 		else{
@@ -67,7 +111,11 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2";
+			where 
+			`a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
+			and 
+			(web_user_id <> 0 or land_special_id <> 0)
+			";
 		}
 	}
 }

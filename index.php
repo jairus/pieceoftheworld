@@ -53,16 +53,14 @@ if($_GET['px']!=""){
 <?php
 	require_once 'ajax/global.php';
 	$masterUser = GetMasterUser();
-	$conOptions = GetGlobalConnectionOptions();
-	$con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions['password']);
-	if (!$con) { die('Database connection error.'); }
-	mysql_select_db($conOptions['database'], $con);
 	$sql = "SELECT * FROM settings WHERE 1";
-	$result = mysql_query($sql);
-	while ($row = mysql_fetch_array($result)) {
+	$rows = dbQuery($sql, $_dblink);
+	$i=0; 
+	while ($rows[$i]) {
+		$row = $rows[$i];
 		echo 'var '.$row["name"].' = "'.$row["value"].'";';
+		$i++;
 	}
-	mysql_close($con);
 	echo "var masterUser = '".$masterUser."';";
 ?>
 <?php 
@@ -200,6 +198,12 @@ if($_GET['px']!=""){
 		else {
 			map.setCenter(SAVED_POSITION);
 		}
+		
+		//add click event
+		google.maps.event.addListener(map, 'click', function(event) {
+			putBox(event);
+		});
+
 
 		// Add markers
 		//markers = ajaxAddMarkers(map);
@@ -208,7 +212,7 @@ if($_GET['px']!=""){
 		
 		google.maps.event.addListener(map, 'click', function(event) { onClick(event); });
 		google.maps.event.addListener(map, 'idle', function(event) { onIdle(false); });
-		google.maps.event.addListener(map, 'zoom_changed', function() { onZoomChanged(); });
+		//google.maps.event.addListener(map, 'zoom_changed', function() { onZoomChanged(); });
 		
 		
 		
@@ -308,7 +312,7 @@ if($_GET['px']!=""){
 	function setSessionPrice(p){
 		jQuery.ajax({
 			dataType: "html",
-			async: false,
+			//async: false,
 			url: "?px="+p,
 			success: function(data){
 			}
@@ -1010,10 +1014,8 @@ if($_GET['px']!=""){
 					markers.pop().setMap(null);
 				}
 			}
-			//if (getCookie("config_showgrid") != "false") {
-				drawBlocks(map);
-				blocksHidden = false;
-			//}
+			drawBlocks(map);
+			blocksHidden = false;
 		}
 		else {
 			unsetGZones();
@@ -1052,41 +1054,6 @@ if($_GET['px']!=""){
 		}
 	}
 	
-	function onZoomChanged() {
-		return 0;
-		if (disableZoomChange == true) {
-			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
-			disableZoomChange = false;
-			disableOnIdle = true;
-			return;
-		}
-		// Select tab according to current zoom level
-		if (map.getZoom() < ZOOM_LEVEL_REGION) {
-			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
-			//$('input:radio[name=radio]')[0].checked = true;
-			//$("#radio1").button("refresh");
-			if (draggableRect != null) {
-				draggableRect.setMap(null);
-				draggableRect = null;
-				blocksAvailableInDraggableRect = "";
-			}
-		}
-		else if (map.getZoom() < ZOOM_LEVEL_CITY) {
-			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
-			//$('input:radio[name=radio]')[1].checked = true;
-			//$("#radio2").button("refresh");
-			if (draggableRect != null) {
-				draggableRect.setMap(null);
-				draggableRect = null;
-				blocksAvailableInDraggableRect = "";
-			}
-		}
-		else {
-			//map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
-			//$('input:radio[name=radio]')[2].checked = true;
-			//$("#radio3").button("refresh");
-		}
-	}
 	
 	function getBlockLTRB(worldCoordinate) {
 		var projection = new MercatorProjection();
@@ -1225,6 +1192,22 @@ if($_GET['px']!=""){
 		return ret;
 	}
 	
+	
+	function ajaxGetMarker2(map, x1, y1, x2, y2, multi) {
+		var markersJSON = null;
+		$.ajax({
+			url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+"&type=exact&_=<?php echo time(); ?>",
+			dataType:'html',
+			async:false,
+			success:function(data, textStatus, jqXHR){
+				markersJSON = data;
+			}
+		});
+		return markersJSON;
+	}
+	
+	
+	
 	function getBlockInfoNew(inLatLng, strlatlong){
 		var ret = {};
 		ret.inLatLng = inLatLng;
@@ -1233,8 +1216,9 @@ if($_GET['px']!=""){
 		ret.points = "";
 		ret.json = "";
 		var blockInfo = getBlockInfo(inLatLng);
-		var returnText = ajaxGetMarker(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
+		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
+		//returnText = '[[]]';
 		if (returnText != '[[]]') {
 			if(markerJSON[0].email){ //if special land unpaid
 				consoleX(markerJSON[0].land_special_id);
@@ -1291,6 +1275,14 @@ if($_GET['px']!=""){
 		}
 		setSessionPrice(total);
 		consoleX("Calculated total = "+total);
+	}
+	
+	function cancelBox(i){
+		gzones[i].ret.price = 0;
+		gzones[i].ret.active = 0;
+		gzones[i].setMap(); //remove the box
+		calculateTotal(); //calculate total of 
+		updatePopupWindowTabInfoNew();
 	}
 	
 	function updatePopupWindowTabInfoNew(){
@@ -1376,25 +1368,26 @@ if($_GET['px']!=""){
 						firstindex = i;
 					}
 					if(gzones[i].ret.city){
-						details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+						details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png' onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else if(gzones[i].ret.region){
-						details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+						details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else if(gzones[i].ret.country){
-						details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+						details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else if(gzones[i].ret.areatype=='water'){
-						details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+						details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else {
-						details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+"<br />";
+						details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 				}
 			}
 			total += gzones[i].ret.price*1;
 		}
 		if(blankblocks){
+			consoleX("blankblocks");
 			showPopupWindowTabInfo(true);
 			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 			jQuery("#buy-button").val("Buy");
@@ -1404,6 +1397,7 @@ if($_GET['px']!=""){
 			jQuery("#info-detail").html(details);
 		}
 		else if(specialbought){
+			consoleX("specialbought");
 			showPopupWindowTabInfo(true);
 		}
 		else{
@@ -1451,6 +1445,7 @@ if($_GET['px']!=""){
 		jQuery("#tabs").tabs("select",0);
 		//new update popup info
 		ret = getBlockInfoNew(event.latLng, strlatlong);
+		
 		if(ret.colored){
 			unsetGZones();
 		}
@@ -1520,8 +1515,6 @@ if($_GET['px']!=""){
 		{ 
 			putBox(event);
 		});
-
-
 		window.rectangles.push(rectangle);
 	}
 	
@@ -1622,23 +1615,24 @@ if($_GET['px']!=""){
 									if (markersJSON[i].x == result[2].x && markersJSON[i].y == result[2].y) {
 										color = (markersJSON[i].land_special_id == null) ? fillColorAcquiredPlot : fillColorAcquiredSpecialArea;
 										if (email == masterUser) { color = fillColorSpecialArea; }
-										opacity = parseFloat(fillOpacity);
+											opacity = parseFloat(fillOpacity);
 										break;
 									}
 								}
+								
 							}
-							if (config_showownedland == "false" && color != fillColorSpecialArea && masterUser != email && user_email != email) { opacity = 0; }
-							if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
-							if (config_showownland == "false" && user_email == email) { opacity = 0; }
-						
-						
-							<?php if($_GET['norec']){ echo "//";};?>drawRect(result[0], result[1], color, opacity);
-							window.rectanglesxy[window.rectangles.length-1]= result[0]+"-"+result[1];
+							if(color!=""||1){
+								//draw rect
+								if (config_showownedland == "false" && color != fillColorSpecialArea && masterUser != email && user_email != email) { opacity = 0; }
+								if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
+								if (config_showownland == "false" && user_email == email) { opacity = 0; }
+								drawRect(result[0], result[1], color, opacity);
+								window.rectanglesxy[window.rectangles.length-1]= result[0]+"-"+result[1];
+							}
+							
 						}
 						else{ //in cache
 							ndexx = window.rectanglesxy.indexOf(result[0]+"-"+result[1]);
-							//window.rectanglesxy[ndexx].setOptions();
-							//window.rectangles[ndexx].setOptions({strokeColor: "#ff0000"});
 							window.rectangles[ndexx].setOptions({strokeOpacity: 0.9});
 							window.rectangles[ndexx].setMap(window.map);
 							window.rectangles[ndexx].setVisible(true);
@@ -1650,29 +1644,6 @@ if($_GET['px']!=""){
 					}
 				};
 				process();
-				
-				/*
-				for (var cnt2 = hStart; cnt2 <= hEnd; cnt2++) {
-					color = "";
-					opacity = 0;
-					var result = getBlockLTRB(new google.maps.Point(cnt2, cnt1));
-					if (returnText != '[[]]') {
-						for (var i = 0, len = markersJSON.length; i < len; i++) {
-							email = markersJSON[i].email;
-							if (markersJSON[i].x == result[2].x && markersJSON[i].y == result[2].y) {
-								color = (markersJSON[i].land_special_id == null) ? fillColorAcquiredPlot : fillColorAcquiredSpecialArea;
-								if (email == masterUser) { color = fillColorSpecialArea; }
-								opacity = parseFloat(fillOpacity);
-								break;
-							}
-						}
-					}
-					if (config_showownedland == "false" && color != fillColorSpecialArea && masterUser != email && user_email != email) { opacity = 0; }
-					if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
-					if (config_showownland == "false" && user_email == email) { opacity = 0; }
-					drawRect(result[0], result[1], color, opacity);
-				}
-				*/
 				if (cnt1 + 1 <= vEnd && cnt1 % 20 == 0) {
 					//consoleX("cnt1 setTimeout "+cnt1);
 					setTimeout(process0, 5);
@@ -1686,10 +1657,7 @@ if($_GET['px']!=""){
 				}
 			}
 		}
-		<?php if($_GET['noprocess']){ echo "//";};?>process0();
-		//consoleX("process "+(new Date()).getTime());
-		//jQuery("#loadinggrid").hide();
-		
+		<?php if($_GET['noprocess']){ echo "//";};?>process0();		
 	}
 	/*
 	function trimString(id, title, str, noOfCharactersToRestrict) {
