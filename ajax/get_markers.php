@@ -142,6 +142,7 @@ $markers = dbQuery($sql, $_dblink);
 if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$markers[0]['land_special_id']>0){
 	$sql = "select 
 		if(`web_user_id`=0, 'masteruser@gmail.com', '') as `email`, 
+		`id` as `land_special_id`,
 		`land_special`.* 
 		from 
 		`land_special` where 

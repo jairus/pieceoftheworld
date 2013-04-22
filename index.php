@@ -1222,7 +1222,7 @@ if($_GET['px']!=""){
 		if (returnText != '[[]]') {
 			if(markerJSON[0].email){ //if special land unpaid
 				consoleX(markerJSON[0].land_special_id);
-				//ret.price = 0;
+				ret.price = markerJSON[0].price;
 			}
 			else{ //for bidding only
 				consoleX("for bidding");
@@ -1805,7 +1805,7 @@ if($_GET['px']!=""){
 			consoleX(markerJSON[0].email+"="+masterUser);
 			if (markerJSON[0].email == masterUser) {
 				if(markerJSON[0].land_special_id){
-					price = 499;
+					price = markerJSON[0].price;
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
 				else if(numblocks > 0){
@@ -1829,7 +1829,7 @@ if($_GET['px']!=""){
 			document.getElementById('info-detail').innerHTML = 'Your description here.';
 			
 			if(markerJSON[0].land_special_id){
-				price = 499;
+				price = markerJSON[0].price;
 				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 			}
 			else if(numblocks > 0){
@@ -1861,6 +1861,9 @@ if($_GET['px']!=""){
 		jQuery("#fbsharelink").attr("href", sharelink);
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
+		
+		//temporarily hide buy button
+		jQuery("#buy-button").hide();
 	}
 	
 	function updatePopupWindowTabConfig(update) {
