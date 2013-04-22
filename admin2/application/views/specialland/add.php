@@ -1,42 +1,7 @@
 <?php
+$controller = "specialland";
 @session_start();
 $sid = session_id()."_".time();
-//changed for revisions
-if(!$changed){
-	$changed = array();
-}
-
-$post = array();
-$imageurl = "";
-$absfolder = dirname(__FILE__)."/../../../../_uploads/".trim($record['folder']);
-$filename = $absfolder."/post.txt";
-if(file_exists($filename)){
-	$post = (file_get_contents($filename));
-	$post = unserialize($post);
-	$record['title'] = $post['title_name'];
-	$record['detail'] = $post['detail_name'];
-	$record['land_owner'] = $post['land_owner'];
-	$record['useremail'] = $post['useremail'];
-	/*
-	Array
-	(
-		[save] => 1
-		[step] => 2
-		[pass] => A631CD74-1D21-40b1-8602-346611127127
-		[land] => 101130-220106_101131-220106
-		[useremail] => melissa.birdvogel@gmail.com
-		[title_name] => Home is where the heart is
-		[land_owner] => Melissa
-		[detail_name] => 
-		[button_name] =>   Submit  
-	)
-	*/
-	$imageurl = basename($post['filename']);
-}
-
-//echo "<pre>";
-//print_r($record);
-//echo "</pre>";
 ?>
 <script>
 function saveRecord(approve){
@@ -47,10 +12,10 @@ function saveRecord(approve){
 	jQuery.ajax({
 		<?php
 		if($record['id']){
-			?>url: "<?php echo site_url(); ?>packages/ajax_edit"+extra,<?php
+			?>url: "<?php  echo site_url(); echo $controller ?>/ajax_edit"+extra,<?php
 		}
 		else{
-			?>url: "<?php echo site_url(); ?>packages/ajax_add"+extra,<?php
+			?>url: "<?php echo site_url(); echo $controller ?>/ajax_add"+extra,<?php
 		}
 		?>
 		type: "POST",
@@ -66,13 +31,13 @@ function deleteRecord(co_id){
 	if(confirm("Are you sure you want to delete this record?")){
 		formdata = "id="+co_id;
 		jQuery.ajax({
-			url: "<?php echo site_url(); ?>packages/ajax_delete/"+co_id,
+			url: "<?php echo site_url(); echo $controller ?>/ajax_delete/"+co_id,
 			type: "POST",
 			data: formdata,
 			dataType: "script",
 			success: function(){
 				jQuery("#tr"+co_id).fadeOut(200);
-				self.location = "<?php echo site_url(); ?>products";
+				self.location = "<?php echo site_url(); echo $controller ?>";
 			}
 		});
 		
@@ -85,11 +50,6 @@ function showConfig(val){
 }
 
 
-function refreshLogo(logopath){
-	logopath = escape(logopath);
-	jQuery("#logopathhtml").html("<img src='<?php echo site_url(); ?>media/image.php?p="+logopath+"&mx=220&_="+(new Date().getTime())+"' />");
-	jQuery("#logopath").val(logopath);
-}
 function defaultHTML(){
 	jQuery('#htmlpage').val(jQuery('#defaulthtml').html());
 	//jQuery('#htmlpage').tinymce().setContent("");
@@ -101,51 +61,62 @@ function setHTML(html){
 	jQuery('#htmlpage').tinymce().setContent(html);
 }
 
-
+var ss = [];
+function refreshPictures(filepath){
+	file = filepath.split(/\//g);
+	file = file[file.length-1];
+	filepath = escape(filepath);
+	if(ss.indexOf(filepath)==-1){
+		ss.push(filepath);
+		html = jQuery("#sspathhtml").html();	
+		html += "<div><a target='_blank' href='<?php echo site_url(); ?>media/image.php?p="+filepath+"'>"+file+"</a> <label><input type='radio' name='isMainPix' value='"+filepath+"' /> Set as Main Image</label>" +
+				"<br/><input type='text' name='picture_titles[]' /><input type='hidden' name='pictures[]' value='"+filepath+"' /><div class='hint'>Description</div>&nbsp;&nbsp;&nbsp;<a style='cursor:pointer; text-decoration:underline' class='red delete' onclick='delSS(this, \""+filepath+"\")' >Delete</a></div><br/>";
+		jQuery("#sspathhtml").html(html);
+	}
+	//jQuery("#logopath").val(filepath);
+}
 jQuery(function(){
-	<?php
-	/*
-	jQuery('#rec_logo').uploadify({
+	jQuery('#co_pictures').uploadify({
 		'uploader'  : '<?php echo site_url(); ?>media/js/uploadify/uploadify.swf',
 		'script'    : '<?php echo site_url(); ?>media/js/uploadify/uploadify.php',
 		'cancelImg' : '<?php echo site_url(); ?>media/js/uploadify/cancel.png',
 		'folder'    : '<?php
-			$folder = dirname(__FILE__)."/../../../media/uploads/";
+			$folder = dirname(__FILE__)."/../../../../_uploads2/";
 			if(!is_dir($folder)){
 				mkdir($folder, 0777);
 			}
-			$folder = dirname(__FILE__)."/../../../media/uploads/packages";
+			$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/";
 			if(!is_dir($folder)){
 				mkdir($folder, 0777);
 			}
 			if($record['id']){
-				$folder = dirname(__FILE__)."/../../../media/uploads/packages/".$record['id'];
+				$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/".$record['id'];
 				if(!is_dir($folder)){
 					mkdir($folder, 0777);
 				}
-				$folder = dirname(__FILE__)."/../../../media/uploads/packages/".$record['id']."/logo";
-				if(!is_dir($folder)){
-					mkdir($folder, 0777);
-				}
-			}
-			else{
-				$folder = dirname(__FILE__)."/../../../media/uploads/temp";
-				if(!is_dir($folder)){
-					mkdir($folder, 0777);
-				}
-				$folder = dirname(__FILE__)."/../../../media/uploads/temp/".$sid ;
-				if(!is_dir($folder)){
-					mkdir($folder, 0777);
-				}
-				$folder = dirname(__FILE__)."/../../../media/uploads/temp/".$sid."/logo";
+				$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/".$record['id']."/images";
 				if(!is_dir($folder)){
 					mkdir($folder, 0777);
 				}
 			}
-			echo str_replace(dirname(__FILE__)."/../../..", "", $folder);
+			// else{
+				// $folder = dirname(__FILE__)."/../../../media/uploads/temp";
+				// if(!is_dir($folder)){
+					// mkdir($folder, 0777);
+				// }
+				// $folder = dirname(__FILE__)."/../../../media/uploads/temp/".$sid;
+				// if(!is_dir($folder)){
+					// mkdir($folder, 0777);
+				// }
+				// $folder = dirname(__FILE__)."/../../../media/uploads/temp/".$sid."/images";
+				// if(!is_dir($folder)){
+					// mkdir($folder, 0777);
+				// }
+			// }
+			echo str_replace(dirname(__FILE__)."/../../..", "", $folder);			
 		?>',
 		'auto'      : true,
-		'multi'       : false,
+		'multi'       : true,
 		'onComplete'  : function(event, ID, fileObj, response, data) {
 		  //alert('There are ' + data.fileCount + ' files remaining in the queue.');
 		  str = "";
@@ -154,12 +125,16 @@ jQuery(function(){
 		  }
 		  //alert(str);
 		  //alert(fileObj.filePath);		  
-		  logopath = "<?php echo trim(site_url(),"/"); ?>"+fileObj.filePath;
-		  refreshLogo(logopath);
+		  fp = fileObj.filePath;
+		  //remove slash at fron of path
+		  while(fp[0]=='/'){
+		  	fp = fp.substring(1);
+		  }
+		  
+		  filepath = "<?php echo site_url(); ?>"+fp;
+		  refreshPictures(filepath);
 		}	
-	});
-	*/
-	?>
+	});	
 });
 
 
@@ -171,7 +146,9 @@ jQuery(function(){
 <?php
 if($record['id']){
 	?>
-	<input type='hidden' name='id' id='co_id' >
+	<input type='hidden' name='id' id='co_id'  value="" />
+	<input type='hidden' name='land_detail_id' id=''  value="" />
+	<input type='hidden' name='land_special_id' id=''  value="" />
 	<?php
 }
 else{
@@ -187,7 +164,7 @@ else{
 if(!$record['id']){
 	?>
 	<tr>
-	<td class='font18 bold'>Add a New Special Land</td>
+	<td class='font18 bold'>Add a New Land </td>
 	<td></td>
 	</tr>
 	<?php
@@ -195,7 +172,7 @@ if(!$record['id']){
 else{
 	?>
 	<tr>
-	<td class='font18 bold'>Edit Special Land</td>
+	<td class='font18 bold'>Edit Land</td>
 	<td></td>
 	</tr>
 	<?php
@@ -204,36 +181,45 @@ else{
 ?>
 <tr>
 <td width='50%'> 
-  <table width="100%">
-
-    <tr class="odd required">
-      <td>* Title:</td>
-      <td><input type="text" name="title" size="40"></td>
-    </tr>
-    <tr class="even required">
-      <td>* Detail:</td>
-      <td><textarea name="detail"></textarea></td>
-    </tr>
-  </table>
+	<table width="100%">
+		<tr class="even required">
+		  <td>* X:</td>
+		  <td><input type="text" name="x" size="40" readonly="readonly" /></td>
+		</tr>
+		<tr class="odd required">
+		  <td>* Y:</td>
+		  <td><input type="text" name="y" size="40" readonly="readonly" /></td>
+		</tr>
+		<tr class="even required">
+		  <td>* Title:</td>
+		  <td><input type="text" name="title" size="40"></td>
+		</tr>
+		<tr class="odd required">
+		  <td>* Detail:</td>
+		  <td><textarea name="detail"></textarea></td>
+		</tr>		
+		<tr class="even required">
+		  <td>* Price:</td>
+		  <td><input type="text" name="price" size="40"></td>
+		</tr>		
+		<tr class="even required">
+		  <td>* Land Owner:</td>
+		  <td><input type="text" name="land_owner" size="40"></td>
+		</tr>	
+		
+	</table>
 </td>
 <td width='50%'>
 	<table width="100%">
-		<tr class="odd" >
-		  <td>Image:</td>
+		<tr class="even required">
+		  <td>* Picture:</td>
 		  <td>
-			<?php
-			if($imageurl){
-				?><a href="<?php echo "/_uploads/".$record['folder']."/".$imageurl;	?>" target='_blank'>IMG</a><?php
-			}
-			else if(trim($record['picture'])){
-				?><a href="/theimage.php?id=<?php echo $record['id']; ?>" target='_blank'>IMG (old&nbsp;system)</a><?php
-			}
-			else{
-				echo "3";
-			}
-			?></td>
-		</tr>	
-	</table>
+			  <div id='sspathhtml' style='padding-bottom:10px;'></div>
+			  <input type='text' id="co_pictures" />
+			  <input type='button' class='button normal' value='Upload' onclick="jQuery('#co_pictures').uploadifyUpload();" >			  
+		  </td>
+		</tr>
+  </table>
 </td>
 </tr>
 
@@ -256,8 +242,28 @@ else{
 </td>
 </table>
 </form>
+
 <script>
 <?php
+
+if(is_array($pictures)){
+	?>
+	html = "";
+	<?php
+	foreach($pictures as $value){
+		?>
+		filepath = "<?php echo sanitizeX($value['picture']); ?>";
+		ss.push(filepath);
+		file = "<?php echo sanitizeX(urldecode(basename($value['picture']))); ?>";
+		title = "<?php echo sanitizeX($value['title']); ?>";
+		html += "<div><a target='_blank' href='<?php echo site_url(); ?>media/image.php?p="+filepath+"'>"+file+"</a> <label><input type='radio' name='isMainPix' value='"+filepath+"' <?php if($value['isMain']) echo 'checked'?> /> Set as Main Image</label>" +
+				"<br><input type='text' name='picture_titles[]' value='"+title+"' /><div class='hint'>Description</div><input type='hidden' name='pictures[]' value='"+filepath+"' />&nbsp;&nbsp;&nbsp;<a onclick='this.parentElement.outerHTML=\"\"' style='cursor:pointer; text-decoration:underline' >Delete</a></div><br/>";
+		<?php
+	}
+	?>
+	jQuery("#sspathhtml").html(html);
+	<?php
+}
 if($record){
 	foreach($record as $key=>$value){
 		if($key=="active"){
@@ -272,37 +278,13 @@ if($record){
 				<?php
 			}
 		}
-		else if($key=="ultimate"){
-			if($value=="1"){
-				?>
-				jQuery('[name="<?php echo $key; ?>"]').attr("checked", true);
-				<?php
-			}
-			else{
-				?>
-				jQuery('[name="<?php echo $key; ?>"]').attr("checked", false);
-				<?php
-			}
-		}
-		else if($key=="products"){
-			$t = count($value);
-			for($i=0; $i<$t; $i++){
-				?>
-				addProduct(<?php echo sanitizeX($value[$i]['id']); ?>, "<?php echo sanitizeX($value[$i]['name']); ?>");
-				<?php
-			}
-		}
-		else if($key=="logo"&&trim($value)){
-			?>
-			jQuery('#logopath').val("<?php echo sanitizeX($value); ?>");
-			jQuery("#logopathhtml").html("<img src='<?php echo site_url(); ?>media/image.php?p=<?php echo $value ?>&mx=220' />");
-			<?php
-		}
+		
 		else if(trim($value)||1){
 			?>
 			jQuery('[name="<?php echo $key; ?>"]').val("<?php echo sanitizeX($value); ?>");
 			<?php
 		}
+		
 	}
 }
 ?>	
