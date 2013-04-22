@@ -9,14 +9,22 @@ class specialland extends CI_Controller {
 		$start = $_GET['start'];
 		$start += 0;
 		$limit = 50;
-		
-		$sql = "select `x`, `y`, `id`, `title`, `detail`, `folder`, `picture`, `email_resent`, `land_special_id` from `land` where `land_special_id` is not NULL group by `land_special_id` order by `folder` desc limit $start, $limit" ;
+				
+		$sql = "select L.`x`, L.`y`, L.`id`, WU.useremail,  LD.`land_owner` , format(LS.price,2) as price,
+				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
+				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
+				from `land` L
+				left join land_detail LD on LD.id = L.land_detail_id				
+				left join land_special LS on LS.id = L.land_special_id
+				left join web_users WU on WU.id = L.web_user_id
+				where L.`land_special_id` is not NULL limit $start, $limit" ;
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
 		$records = $q->result_array();
 		
-		$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is not NULL group by `land_special_id` order by `folder` desc" ;
+		//$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is NULL order by `folder` desc" ;
+		$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is not NULL " ;
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
@@ -41,61 +49,50 @@ class specialland extends CI_Controller {
 		$search = strtolower(trim($_GET['search']));
 		$searchx = trim($_GET['search']);
 		
-		$sql = "select * from `land` where ";
-		if($filter=='all' || !trim($filter)){
-			$sql .= "
-				LOWER(`name`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`email_address`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`twitter_username`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`website`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`blog_url`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`facebook`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`linkedin`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`description`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`tags`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`country`) like '%".mysql_real_escape_string($search)."%'
-			";
+		$sql = "select L.`x`, L.`y`, L.`id`, WU.useremail,  LD.`land_owner` , format(LS.price,2) as price,
+				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
+				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
+				from `land` L
+				left join land_detail LD on LD.id = L.land_detail_id				
+				left join land_special LS on LS.id = L.land_special_id
+				left join web_users WU on WU.id = L.web_user_id
+				where L.`land_special_id` is not NULL " ;					
+				
+		if($filter=='id'){
+			$sql .= "and L.id = '".mysql_real_escape_string($search)."' ";
+		} elseif ($filter == 'title' || $filter =='detail' ) {
+			$sql .= "and if(L.`web_user_id` = 0, LOWER(LS.".$filter."), LOWER(LD.".$filter.") ) like '%".mysql_real_escape_string($search)."%' ";			
+		} elseif($search != ''){
+			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
-		else if($filter=='status'){
-			$sql .= "
-				LOWER(`status`) like '%".mysql_real_escape_string($search)."%'
-			";
-		}
-		else{
-			$sql .= "LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
-		}
-		$sql .= "order by `name` asc limit $start, $limit" ;
+		$sql .= " limit $start, $limit" ;
+
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
-		$companies = $q->result_array();
+		$records = $q->result_array();
 		
-		$sql = "select count(id) as `cnt` from `companies` where ";
-		if($filter=='all' || !trim($filter)){
-			$sql .= "
-				LOWER(`name`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`email_address`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`twitter_username`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`website`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`blog_url`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`facebook`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`linkedin`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`description`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`tags`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`country`) like '%".mysql_real_escape_string($search)."%'
-			";
+		$sql = "select count(L.id) as `cnt` 
+				from `land` L
+				left join land_detail LD on LD.id = L.land_detail_id				
+				left join land_special LS on LS.id = L.land_special_id
+				left join web_users WU on WU.id = L.web_user_id
+				where L.`land_special_id` is not NULL  ";
+		if($filter=='id'){
+			$sql .= "and L.id = '".mysql_real_escape_string($search)."' ";
+		} elseif ($filter == 'title' || $filter =='detail' ) {
+			$sql .= "and if(L.`web_user_id` = 0, LOWER(LS.".$filter."), LOWER(LD.".$filter.") ) like '%".mysql_real_escape_string($search)."%' ";			
+		} elseif($search != ''){
+			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
-		else{
-			$sql .= "LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
-		}
-		$sql .= "order by `name` asc" ;
+		
 		
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
 		
 		$data = array();
-		$data['companies'] = $companies;
+		$data['records'] = $records;		
 		$data['export_sql'] = $export_sql;
 		$data['pages'] = $pages;
 		$data['start'] = $start;
@@ -103,20 +100,110 @@ class specialland extends CI_Controller {
 		$data['search'] = $searchx;
 		$data['filter'] = $filter;
 		$data['cnt'] = $cnt[0]['cnt'];
-		$data['content'] = $this->load->view('companies/main', $data, true);
-		$this->load->view('layout/main', $data);
+		$data['content'] = $this->load->view('specialland/main', $data, true);
+		$this->load->view('layout/main', $data);		
+	}
+	
+	function ajax_edit(){
+		$table = "specialland";
+		$controller = $table;
+		$error = false;
+		$_POST['price'] = str_replace(',','',trim($_POST['price']));
+		
+		if(!trim($_POST['title'])){
+			?>alertX("Please input land title!");<?php
+			$error = true;
+		}
+		if(!is_numeric($_POST['price']))
+		{
+			?>alertX("Please enter valid price!");<?php
+			$error = true;
+		}
+		
+		if(!$error){
+			// check if there are other lands that are connected to the same land detail
+			$landDetailId = $_POST['land_detail_id'];
+			$landSpecialId = $_POST['land_special_id'];
+			$landId = $_POST['id'];						
+			
+			$fieldUpdateSql = 
+				"`title` = '".mysql_real_escape_string($_POST['title'])."',
+				`detail` = '".mysql_real_escape_string($_POST['detail'])."',				
+				`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'";
+			
+			$sql = "select id from land where land_detail_id = '$landDetailId' and id != '$landId' limit 1";
+			if($this->db->query($sql)->num_rows())
+			{
+				// create new land detail if there exist lands that depend on this one
+				$sql = "insert into land_detail set $fieldUpdateSql";
+				$this->db->query($sql);
+				$landDetailId = $this->db->insert_id();
+				$sql = "update `land` set land_detail_id = '$landDetailId' where `id` = '$landId' limit 1";
+				$this->db->query($sql);
+			}
+			else
+			{
+				$sql = "update `land_detail` set $fieldUpdateSql where `id` = '$landDetailId' limit 1";
+				$this->db->query($sql);					
+			}			
+			
+			$sql = "update `land_special` set 
+					`title` = '".mysql_real_escape_string($_POST['title'])."',
+					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
+					`price` = '".mysql_real_escape_string($_POST['price'])."'
+					where `id` = '$landSpecialId' limit 1";			
+			$this->db->query($sql);										
+
+			$sql = "delete from `pictures_special` where `land_id`=".$this->db->escape($landId);
+			$this->db->query($sql);
+			if(is_array($_POST['pictures'])){
+
+				$mainPix = str_replace("admin2/../", '', $_POST['isMainPix']); 
+				foreach($_POST['pictures'] as $key=>$value){
+					$value = str_replace("admin2/../", '', $value); 
+					
+					$isMain = ($mainPix == $value)? 1 : 0;
+					$sql = "insert into `pictures_special` set 
+					`land_id`=".$this->db->escape($landId).", 
+					`title`=".$this->db->escape($_POST['picture_titles'][$key]).",
+					`isMain`='$isMain', 
+					`picture`=".$this->db->escape($value);
+					$this->db->query($sql);
+				}
+			}
+			?>
+			alertX("Successfully Updated Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
+			// self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
+			<?php
+		}
+		?>jQuery("#record_form *").attr("disabled", false);<?php
 	}
 	
 	public function edit($id){
-		$sql = "select `id`, `x`, `y`, `land_special_id`, `owner_user_id`, `title`, `detail`, `folder`, `picture` from `land` where `land_special_id` = '".mysql_real_escape_string($id)."' order by `folder` desc limit 1" ;
+		$table = "specialland";
+		$controller = $table;
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`land_owner` , L.land_detail_id, L.land_special_id, format(LS.price,2) as price,
+				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
+				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
+				from `land` L
+				left join land_detail LD on LD.id = L.land_detail_id				
+				left join land_special LS on LS.id = L.land_special_id				
+				where L.`id` = '".mysql_real_escape_string($id)."' limit 1";
 		$q = $this->db->query($sql);
 		$record = $q->result_array();
 		$record = $record[0];
+		
+		$sql = "select * from `pictures_special` where `land_id`=".$this->db->escape($id)." order by id asc";
+		$q = $this->db->query($sql);
+		$pictures = $q->result_array();	
+		
+		$data['pictures'] = $pictures;			
 		$data['record'] = $record;
-		$data['content'] = $this->load->view('specialland/add', $data, true);
+		$data['content'] = $this->load->view($controller.'/add', $data, true);
+
+		
 		$this->load->view('layout/main', $data);;
-	}
-	
+	}	
 }
 
 /* End of file welcome.php */

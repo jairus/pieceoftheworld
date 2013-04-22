@@ -9,12 +9,12 @@ class land extends CI_Controller {
 		$start = $_GET['start'];
 		$start += 0;
 		$limit = 50;
-		
-		//$sql = "select `x`, `y`, `id`, `title`, `detail`, `folder`, `picture`, `email_resent` from `land` where `land_special_id`  is NULL order by `folder` desc limit $start, $limit" ;
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` 
+				
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
-				where L.`land_special_id`  is NULL order by LD.`folder` desc limit $start, $limit" ;
+				left join web_users WU on WU.id = L.web_user_id
+				where L.`land_special_id` is NULL order by LD.`folder` desc limit $start, $limit" ;
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -47,65 +47,41 @@ class land extends CI_Controller {
 		$searchx = trim($_GET['search']);
 		
 		//$sql = "select * from `land` where ";
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` 
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
-				where " ;
+				left join web_users WU on WU.id = L.web_user_id
+				where L.`land_special_id` is NULL and " ;
 		
-		if($filter=='all' || !trim($filter)){
-			$sql .= "
-				LOWER(`name`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`email_address`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`twitter_username`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`website`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`blog_url`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`facebook`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`linkedin`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`description`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`tags`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`country`) like '%".mysql_real_escape_string($search)."%'
-			";
-		}
-		else if($filter=='status'){
-			$sql .= "
-				LOWER(`status`) like '%".mysql_real_escape_string($search)."%'
-			";
+		if($filter=='id'){
+			$sql .= "L.id = '".mysql_real_escape_string($search)."' ";
 		}
 		else{
 			$sql .= "LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
-		$sql .= "order by `name` asc limit $start, $limit" ;
+		$sql .= " limit $start, $limit" ;
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
-		$companies = $q->result_array();
+		$records = $q->result_array();
 		
-		$sql = "select count(id) as `cnt` from `companies` where ";
-		if($filter=='all' || !trim($filter)){
-			$sql .= "
-				LOWER(`name`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`email_address`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`twitter_username`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`website`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`blog_url`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`facebook`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`linkedin`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`description`) like '%".mysql_real_escape_string($search)."%' or 
-				LOWER(`tags`) like '%".mysql_real_escape_string($search)."%' or
-				LOWER(`country`) like '%".mysql_real_escape_string($search)."%'
-			";
+		$sql = "select count(L.id) as `cnt` from `land` L
+				left join land_detail LD on LD.id = L.land_detail_id
+				left join web_users WU on WU.id = L.web_user_id
+				where L.`land_special_id` is NULL and ";
+		if($filter=='id'){
+			$sql .= "L.id = '".mysql_real_escape_string($search)."' ";
 		}
 		else{
 			$sql .= "LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
-		$sql .= "order by `name` asc" ;
 		
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
 		
 		$data = array();
-		$data['companies'] = $companies;
+		$data['records'] = $records;		
 		$data['export_sql'] = $export_sql;
 		$data['pages'] = $pages;
 		$data['start'] = $start;
@@ -113,8 +89,8 @@ class land extends CI_Controller {
 		$data['search'] = $searchx;
 		$data['filter'] = $filter;
 		$data['cnt'] = $cnt[0]['cnt'];
-		$data['content'] = $this->load->view('companies/main', $data, true);
-		$this->load->view('layout/main', $data);
+		$data['content'] = $this->load->view('land/main', $data, true);
+		$this->load->view('layout/main', $data);		
 	}
 	
 	function ajax_edit(){
@@ -130,7 +106,7 @@ class land extends CI_Controller {
 			// check if there are other lands that are connected to the same land detail
 			$landDetailId = $_POST['land_detail_id'];
 			$landId = $_POST['id'];						
-			$picture = str_replace('//media','/media',urldecode($_POST['picture']));
+			
 			$fieldUpdateSql = 
 				"`title` = '".mysql_real_escape_string($_POST['title'])."',
 				`detail` = '".mysql_real_escape_string($_POST['detail'])."',				

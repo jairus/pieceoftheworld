@@ -66,7 +66,7 @@ function searchCompany(){
 	Filter: <select name='filter' id='sfilter'>
 	<option value="id">ID</option>
 	<option value="land_owner">Land Owner</option>
-	<option value="email">E-mail</option>
+	<option value="useremail">E-mail</option>
 	<option value="title">Title</option>
 	<option value="detail">Detail</option>
 	</select>
@@ -240,7 +240,7 @@ $t = count($records);
 	if($pages>0){
 		?>
 		<tr>
-			<td colspan="10" class='center font12' >
+			<td colspan="11" class='center font12' >
 				There is a total of <?php echo $cnt; ?> <?php if($cnt>1) { echo "records"; } else{ echo "record"; }?> in the database. 
 				Go to Page:
 				<?php

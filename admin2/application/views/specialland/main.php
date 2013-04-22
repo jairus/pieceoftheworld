@@ -10,7 +10,7 @@ jQuery(function(){
 		//define callback to format results
 		source: function(req, add){
 			//pass request to server
-			jQuery.getJSON("<?php echo site_url(); ?>land/ajax_search", req, function(data) {
+			jQuery.getJSON("<?php echo site_url(); ?>specialland/ajax_search", req, function(data) {
 				//create array for response objects
 				var suggestions = [];
 				//process response
@@ -44,29 +44,29 @@ function deleteCompany(co_id){
 	if(confirm("Are you sure you want to delete this company?")){
 		formdata = "id="+co_id;
 		jQuery.ajax({
-			url: "<?php echo site_url(); ?>land/ajax_delete/"+co_id,
+			url: "<?php echo site_url(); ?>specialland/ajax_delete/"+co_id,
 			type: "POST",
 			data: formdata,
 			dataType: "script",
 			success: function(){
 				jQuery("#tr"+co_id).fadeOut(200);
-				self.location = "<?php echo site_url(); ?>land";
+				self.location = "<?php echo site_url(); ?>specialland";
 			}
 		});
 		
 	}
 }
 function searchCompany(){
-	self.location = "<?php echo site_url(); ?>land/search/?search="+jQuery("#search").val()+"&filter="+jQuery("#sfilter").val();
+	self.location = "<?php echo site_url(); ?>specialland/search/?search="+jQuery("#search").val()+"&filter="+jQuery("#sfilter").val();
 }
 </script>
 <center>
 <div class='pad10' >
-<form action="<?php echo site_url(); ?>land/search/" class='inline' >
+<form action="<?php echo site_url(); ?>specialland/search/" class='inline' >
 	Filter: <select name='filter' id='sfilter'>
 	<option value="id">ID</option>
 	<option value="land_owner">Land Owner</option>
-	<option value="email">E-mail</option>
+	<option value="useremail">E-mail</option>
 	<option value="title">Title</option>
 	<option value="detail">Detail</option>
 	</select>
@@ -92,10 +92,10 @@ $t = count($records);
 		?>
 		<tr>
 			<td colspan=6 style='border:0px;'>
-			[ <a href='<?php echo site_url(); ?>land/export/<?php echo $export_sql?>/xls' >EXPORT TO EXCEL</a> ]
-			[ <a href='<?php echo site_url(); ?>land/export/<?php echo $export_sql?>/csv' >EXPORT TO CSV</a> ]
-			[ <a href='<?php echo site_url(); ?>land/import' >IMPORT CSV FILE</a> ]
-			[ <a href='<?php echo site_url(); ?>land/import/old' >IMPORT CSV FILE (OLD)</a> ]
+			[ <a href='<?php echo site_url(); ?>specialland/export/<?php echo $export_sql?>/xls' >EXPORT TO EXCEL</a> ]
+			[ <a href='<?php echo site_url(); ?>specialland/export/<?php echo $export_sql?>/csv' >EXPORT TO CSV</a> ]
+			[ <a href='<?php echo site_url(); ?>specialland/import' >IMPORT CSV FILE</a> ]
+			[ <a href='<?php echo site_url(); ?>specialland/import/old' >IMPORT CSV FILE (OLD)</a> ]
 			</th>
 		</tr>
 		<?php
@@ -104,8 +104,8 @@ $t = count($records);
 		?>
 		<tr>
 			<td colspan=6 style='border:0px;'>
-			[ <a href='<?php echo site_url(); ?>land/import' >IMPORT CSV FILE</a> ]
-			[ <a href='<?php echo site_url(); ?>land/import/old' >IMPORT CSV FILE (OLD)</a> ]
+			[ <a href='<?php echo site_url(); ?>specialland/import' >IMPORT CSV FILE</a> ]
+			[ <a href='<?php echo site_url(); ?>specialland/import/old' >IMPORT CSV FILE (OLD)</a> ]
 			</th>
 		</tr>
 		<?php
@@ -117,6 +117,7 @@ $t = count($records);
 		<!--<th style="width:20px"></th>-->
 		<th>Land&nbsp;ID</th>
 		<th>Plot (X-Y)</th>
+		<th>Price</th>
 		<th>Land Owner</th>
 		<th>E-mail</th>
 		<th>Title</th>
@@ -169,6 +170,7 @@ $t = count($records);
 			<td align='center'>
 			<?php echo $records[$i]['x']."-".$records[$i]['y']?>
 			</td>
+			<td><?php echo $records[$i]['price'];?></td>
 			<td><?php 
 			echo $records[$i]['land_owner'];	
 			?></td>
@@ -220,7 +222,7 @@ $t = count($records);
 				}
 			}
 			?>
-			</td>
+			</td>			
 			<td width='300px'>
 			<?php
 			if(trim($records[$i]['folder'])){
@@ -229,9 +231,9 @@ $t = count($records);
 				[ <a href="<?php echo "/gencert.php?f=".$records[$i]['folder'];	?>&email=1" target='_blank' onclick='return confirm("Are you sure you want to resend certificate?");' >Resend Cert</a> ] 
 				<?php
 			}
-			?>
-			[ <a href="<?php echo site_url(); ?>specialland/edit/<?php echo $records[$i]['land_special_id']?>" >Edit</a> ] 
-			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['land_special_id']) ?>"); ' >Delete</a> ]
+			?><?php echo $records[$i]['id']?>
+			[ <a href="<?php echo site_url(); ?>specialland/edit/<?php echo $records[$i]['id']?>" >Edit</a> ] 
+			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['id']) ?>"); ' >Delete</a> ]
 			
 			</td>
 		</tr>
@@ -240,7 +242,7 @@ $t = count($records);
 	if($pages>0){
 		?>
 		<tr>
-			<td colspan="10" class='center font12' >
+			<td colspan="12" class='center font12' >
 				There is a total of <?php echo $cnt; ?> <?php if($cnt>1) { echo "records"; } else{ echo "record"; }?> in the database. 
 				Go to Page:
 				<?php
