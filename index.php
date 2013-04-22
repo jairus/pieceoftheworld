@@ -1398,12 +1398,25 @@ if($_GET['px']!=""){
 			jQuery("#info-detail").html(details);
 		}
 		else if(specialbought){
-			consoleX("specialbought");
+			consoleX("special or bought");
 			if(gzones[i].ret.json.thumb_url){
 				jQuery("#info-img")[0].src = gzones[i].ret.json.thumb_url;
 			}
 			else{
 				jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
+			}
+			if(gzones[i].ret.json.land_special_id){
+				if (gzones[i].ret.json.email == masterUser) {
+					consoleX("special unbought");
+					price = gzones[i].ret.json.price;
+					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+				}
+				else{
+					consoleX("special bought");
+				}
+			}
+			else{
+				consoleX("not special bought");
 			}
 			showPopupWindowTabInfo(true);
 		}
