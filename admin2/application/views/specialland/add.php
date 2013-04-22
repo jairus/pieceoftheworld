@@ -183,14 +183,6 @@ else{
 <td width='50%'> 
 	<table width="100%">
 		<tr class="even required">
-		  <td>* X:</td>
-		  <td><input type="text" name="x" size="40" readonly="readonly" /></td>
-		</tr>
-		<tr class="odd required">
-		  <td>* Y:</td>
-		  <td><input type="text" name="y" size="40" readonly="readonly" /></td>
-		</tr>
-		<tr class="even required">
 		  <td>* Title:</td>
 		  <td><input type="text" name="title" size="40"></td>
 		</tr>
@@ -202,8 +194,8 @@ else{
 		  <td>* Price:</td>
 		  <td><input type="text" name="price" size="40"></td>
 		</tr>		
-		<tr class="even required">
-		  <td>* Land Owner:</td>
+		<tr class="even">
+		  <td>Land Owner:</td>
 		  <td><input type="text" name="land_owner" size="40"></td>
 		</tr>	
 		

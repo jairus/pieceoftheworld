@@ -137,19 +137,21 @@ else { //getting purchased lands (red)
 	WHERE web_user_id <> 0";
 }
 
-
-
-
 $markers = dbQuery($sql, $_dblink);
-if($markers[0]['id']){
-	$markers[0]['email'] = $markers[0]['useremail'];
-}
-$uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
-
-if($markers[0]['owner_user_id']||!$markers[0]['land_special_id']){ //
-	$sql = "select * from `pictures` where `land_id`='".$markers[0]['id']."' and isMain=1";
+//check if special and unbought
+if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$markers[0]['land_special_id']>0){
+	$sql = "select 
+		if(`web_user_id`=0, 'masteruser@gmail.com', '') as `email`, 
+		`land_special`.* 
+		from 
+		`land_special` where 
+		`id`='".$markers[0]['land_special_id']."'";
+	$markers = dbQuery($sql, $_dblink);
+	
+	$sql = "select * from `pictures_special` where `land_special_id`='".$markers[0]['id']."' and isMain=1";
 	$pictures = dbQuery($sql, $_dblink);
 	$t = count($pictures);
+	
 	if($t){
 		//showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
 		//showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
@@ -157,43 +159,68 @@ if($markers[0]['owner_user_id']||!$markers[0]['land_special_id']){ //
 		//$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
 		$picture = explode("/_uploads2/", $pictures[0]['picture']);
 		$picture = dirname(__FILE__)."/../_uploads2/".$picture[1];
+	
 		showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 		showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-		//if not special land
-		$markers[0]['thumb_url'] = "/_uploads2/land/".$markers[0]['id']."/images/thumb_".basename($picture.".png?_=".time());
-		$markers[0]['img_url'] = "/_uploads2/land/".$markers[0]['id']."/images/450_".basename($picture.".png?_=".time());
+		$markers[0]['thumb_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/thumb_".basename($picture.".png?_=".time());
+		$markers[0]['img_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/450_".basename($picture.".png?_=".time());
 	}
 }
-if(trim($markers[0]['folder'])&&!$t){ //if no picture
-	$post = unserialize(@file_get_contents($uploads_dir."/post.txt"));
-	$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
-	
-	if(!trim($markers[0]['land_owner'])){
-		$markers[0]['land_owner'] = $post['land_owner'];
+else{
+	if($markers[0]['id']){
+		$markers[0]['email'] = $markers[0]['useremail'];
 	}
-	//overide email
-	if(!trim($markers[0]['email'])){
-		$markers[0]['email'] = $post['email'];
-	}
-	//overide title
-	if(!trim($markers[0]['title'])){
-		$markers[0]['title'] = $post['title_name'];
-	}
-	//overide description
-	if(!trim($markers[0]['detail'])){
-		$markers[0]['detail'] = $post['detail_name'];
-	}
-	if(trim($post['filename'])){
-		showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
-		showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
-		$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
-		$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
-		
-		/*
-		if(trim($markers[0]['land_owner'])==""){
-			$markers[0]['land_owner'] = $post['useremail'];
+	$uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
+
+	if($markers[0]['owner_user_id']||!$markers[0]['land_special_id']){ //
+		$sql = "select * from `pictures` where `land_id`='".$markers[0]['id']."' and isMain=1";
+		$pictures = dbQuery($sql, $_dblink);
+		$t = count($pictures);
+		if($t){
+			//showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
+			//showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
+			//$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
+			//$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
+			$picture = explode("/_uploads2/", $pictures[0]['picture']);
+			$picture = dirname(__FILE__)."/../_uploads2/".$picture[1];
+			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
+			//if not special land
+			$markers[0]['thumb_url'] = "/_uploads2/land/".$markers[0]['id']."/images/thumb_".basename($picture.".png?_=".time());
+			$markers[0]['img_url'] = "/_uploads2/land/".$markers[0]['id']."/images/450_".basename($picture.".png?_=".time());
 		}
-		*/
+	}
+	if(trim($markers[0]['folder'])&&!$t){ //if no picture
+		$post = unserialize(@file_get_contents($uploads_dir."/post.txt"));
+		$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
+		
+		if(!trim($markers[0]['land_owner'])){
+			$markers[0]['land_owner'] = $post['land_owner'];
+		}
+		//overide email
+		if(!trim($markers[0]['email'])){
+			$markers[0]['email'] = $post['email'];
+		}
+		//overide title
+		if(!trim($markers[0]['title'])){
+			$markers[0]['title'] = $post['title_name'];
+		}
+		//overide description
+		if(!trim($markers[0]['detail'])){
+			$markers[0]['detail'] = $post['detail_name'];
+		}
+		if(trim($post['filename'])){
+			showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
+			showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
+			$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
+			$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
+			
+			/*
+			if(trim($markers[0]['land_owner'])==""){
+				$markers[0]['land_owner'] = $post['useremail'];
+			}
+			*/
+		}
 	}
 }
 if(isset($_GET['print'])){
@@ -202,7 +229,10 @@ if(isset($_GET['print'])){
 	echo $uploads_dir;
 	print_r($post);
 	echo "<hr>";
+	echo "Pictures<br>";
 	print_r($pictures);
+	echo "<hr>";
+	echo "Markers<br>";
 	print_r($markers);
 	echo $picture;
 	echo "</pre>";
@@ -320,7 +350,7 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 			imagepng( $tmp_img , null, 0);
 		}
 		else{
-			@imagepng ( $tmp_img , $dest, 0);
+			imagepng ( $tmp_img , $dest, 0);
 		}
 	}
 	else{

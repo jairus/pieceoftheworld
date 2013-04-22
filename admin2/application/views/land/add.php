@@ -197,8 +197,8 @@ else{
 		  <td>* Detail:</td>
 		  <td><textarea name="detail"></textarea></td>
 		</tr>		
-		<tr class="even required">
-		  <td>* Land Owner:</td>
+		<tr class="even">
+		  <td>Land Owner:</td>
 		  <td><input type="text" name="land_owner" size="40"></td>
 		</tr>	
 		

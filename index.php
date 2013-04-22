@@ -1776,8 +1776,9 @@ if($_GET['px']!=""){
 			else{
 				document.getElementById('info-land_owner').innerHTML = "";
 			}
-			ajaxExtractLandPicture(markerJSON[0].id);
+			//ajaxExtractLandPicture(markerJSON[0].id);
 			//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
+			//alert(markerJSON[0].thumb_url);
 			if(markerJSON[0].thumb_url){
 				document.getElementById('info-img').src = markerJSON[0].thumb_url;
 				jQuery("#info-lightbox").attr("href", markerJSON[0].img_url );
@@ -1789,20 +1790,7 @@ if($_GET['px']!=""){
 				jQuery("#info-lightbox").attr("title", xtitle );
 				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			}
-			else{
-				document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id+"_thumb?_="+((new Date()).getTime());
-				jQuery("#info-lightbox").attr("href", "images/thumbs/land_id_"+markerJSON[0].id+"?_="+((new Date()).getTime()) );
-				xtitle = "";
-				if(markerJSON[0].land_owner){
-					xtitle = "Land Owner: "+markerJSON[0].land_owner+"<br />";
-				}
-				xtitle += markerJSON[0].detail;
-				jQuery("#info-lightbox").attr("title", xtitle );
-				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
-			}
-			
-			
-			
+	
 			shareowner = jQuery('#info-land_owner').text();
 			sharetitle = jQuery('#info-title').text();	
 			sharedetail = jQuery('#info-detail').text();

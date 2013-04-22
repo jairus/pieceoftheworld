@@ -10,6 +10,7 @@ class specialland extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
+		/*
 		$sql = "select L.`x`, L.`y`, L.`id`, WU.useremail,  LD.`land_owner` , format(LS.price,2) as price,
 				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
 				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
@@ -18,13 +19,15 @@ class specialland extends CI_Controller {
 				left join land_special LS on LS.id = L.land_special_id
 				left join web_users WU on WU.id = L.web_user_id
 				where L.`land_special_id` is not NULL limit $start, $limit" ;
+		*/
+		$sql = "select * from `land_special` where 1 limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
 		$records = $q->result_array();
 		
 		//$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is NULL order by `folder` desc" ;
-		$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is not NULL " ;
+		$sql = "select count(`id`) as `cnt` from `land_special` where 1" ;
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
@@ -119,8 +122,7 @@ class specialland extends CI_Controller {
 		
 		if(!$error){
 			// check if there are other lands that are connected to the same land detail
-			$landDetailId = $_POST['land_detail_id'];
-			$landSpecialId = $_POST['land_special_id'];
+			$landSpecialId = $_POST['id'];
 			$landId = $_POST['id'];						
 			
 			$fieldUpdateSql = 
@@ -128,30 +130,15 @@ class specialland extends CI_Controller {
 				`detail` = '".mysql_real_escape_string($_POST['detail'])."',				
 				`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'";
 			
-			$sql = "select id from land where land_detail_id = '$landDetailId' and id != '$landId' limit 1";
-			if($this->db->query($sql)->num_rows())
-			{
-				// create new land detail if there exist lands that depend on this one
-				$sql = "insert into land_detail set $fieldUpdateSql";
-				$this->db->query($sql);
-				$landDetailId = $this->db->insert_id();
-				$sql = "update `land` set land_detail_id = '$landDetailId' where `id` = '$landId' limit 1";
-				$this->db->query($sql);
-			}
-			else
-			{
-				$sql = "update `land_detail` set $fieldUpdateSql where `id` = '$landDetailId' limit 1";
-				$this->db->query($sql);					
-			}			
-			
 			$sql = "update `land_special` set 
 					`title` = '".mysql_real_escape_string($_POST['title'])."',
 					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
 					`price` = '".mysql_real_escape_string($_POST['price'])."'
-					where `id` = '$landSpecialId' limit 1";			
+					where `id` = '$landSpecialId' limit 1";	
+			
 			$this->db->query($sql);										
 
-			$sql = "delete from `pictures_special` where `land_id`=".$this->db->escape($landId);
+			$sql = "delete from `pictures_special` where `land_special_id`=".$this->db->escape($landSpecialId);
 			$this->db->query($sql);
 			if(is_array($_POST['pictures'])){
 
@@ -161,7 +148,7 @@ class specialland extends CI_Controller {
 					
 					$isMain = ($mainPix == $value)? 1 : 0;
 					$sql = "insert into `pictures_special` set 
-					`land_id`=".$this->db->escape($landId).", 
+					`land_special_id`=".$this->db->escape($landSpecialId).", 
 					`title`=".$this->db->escape($_POST['picture_titles'][$key]).",
 					`isMain`='$isMain', 
 					`picture`=".$this->db->escape($value);
@@ -170,7 +157,7 @@ class specialland extends CI_Controller {
 			}
 			?>
 			alertX("Successfully Updated Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
-			// self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
+			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
 			<?php
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
@@ -178,18 +165,12 @@ class specialland extends CI_Controller {
 	public function edit($id){
 		$table = "specialland";
 		$controller = $table;
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`land_owner` , L.land_detail_id, L.land_special_id, format(LS.price,2) as price,
-				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
-				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
-				from `land` L
-				left join land_detail LD on LD.id = L.land_detail_id				
-				left join land_special LS on LS.id = L.land_special_id				
-				where L.`id` = '".mysql_real_escape_string($id)."' limit 1";
+		$sql = "select * from `land_special` where `id` = '".mysql_real_escape_string($id)."' limit 1";
 		$q = $this->db->query($sql);
 		$record = $q->result_array();
 		$record = $record[0];
 		
-		$sql = "select * from `pictures_special` where `land_id`=".$this->db->escape($id)." order by id asc";
+		$sql = "select * from `pictures_special` where `land_special_id`=".$this->db->escape($id)." order by id asc";
 		$q = $this->db->query($sql);
 		$pictures = $q->result_array();	
 		
