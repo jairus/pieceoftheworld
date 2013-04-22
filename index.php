@@ -1382,9 +1382,10 @@ if($_GET['px']!=""){
 					else {
 						details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
+					total += gzones[i].ret.price*1;
 				}
 			}
-			total += gzones[i].ret.price*1;
+			
 		}
 		if(blankblocks){
 			consoleX("blankblocks");
@@ -1398,6 +1399,12 @@ if($_GET['px']!=""){
 		}
 		else if(specialbought){
 			consoleX("specialbought");
+			if(gzones[i].ret.json.thumb_url){
+				jQuery("#info-img")[0].src = gzones[i].ret.json.thumb_url;
+			}
+			else{
+				jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
+			}
 			showPopupWindowTabInfo(true);
 		}
 		else{
