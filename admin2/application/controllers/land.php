@@ -13,12 +13,8 @@ class land extends CI_Controller {
 		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
-<<<<<<< HEAD
-				where L.`land_special_id`  is NULL order by id desc limit $start, $limit" ;
-=======
 				left join web_users WU on WU.id = L.web_user_id
-				where L.`land_special_id` is NULL order by LD.`folder` desc limit $start, $limit" ;
->>>>>>> c4d96a675f3fa255cb07a3c6791913073d5d3238
+				where L.`land_special_id` is NULL order by L.`id` desc limit $start, $limit"
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
