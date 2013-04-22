@@ -1,5 +1,5 @@
 <?php
-
+$controller = 'specialland';
 ?>
 <script>
 jQuery(function(){
@@ -40,22 +40,23 @@ jQuery(function(){
 	});	
 });
 
-function deleteCompany(co_id){
-	if(confirm("Are you sure you want to delete this company?")){
+function deleteRecord(co_id){
+	if(confirm("Are you sure you want to delete this record?")){
 		formdata = "id="+co_id;
 		jQuery.ajax({
-			url: "<?php echo site_url(); ?>specialland/ajax_delete/"+co_id,
+			url: "<?php echo site_url(); echo $controller ?>/ajax_delete/"+co_id,
 			type: "POST",
 			data: formdata,
 			dataType: "script",
 			success: function(){
 				jQuery("#tr"+co_id).fadeOut(200);
-				self.location = "<?php echo site_url(); ?>specialland";
+				self.location = "<?php echo site_url(); echo $controller ?>";
 			}
 		});
 		
 	}
 }
+
 function searchCompany(){
 	self.location = "<?php echo site_url(); ?>specialland/search/?search="+jQuery("#search").val()+"&filter="+jQuery("#sfilter").val();
 }

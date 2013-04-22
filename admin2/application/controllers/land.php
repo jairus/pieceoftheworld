@@ -174,8 +174,34 @@ class land extends CI_Controller {
 
 		
 		$this->load->view('layout/main', $data);;
+	}
+	public function ajax_delete($landId=""){
+		if(!$_SESSION['user']){
+			return false;
+		}
+		if(!$landId){
+			$landId = $_POST['id'];
+		}
+		$sql = "select id, land_detail_id from `land` where `id`=".$this->db->escape($landId) . " limit 1";
+		$q = $this->db->query($sql);
+		$rs = $q->row_array();
+		if(!empty($rs))
+		{			
+			$sql = "delete from land_detail where id = '".$rs['land_detail_id']."' limit 1";
+			$q = $this->db->query($sql);
+			$sql = "delete from land where id = '".$rs['id']."' limit 1";
+			$q = $this->db->query($sql);
+			?>
+			alertX("Successfully deleted.");
+			<?php		
+		}
+		else
+		{
+			?>
+			alertX("The record is already deleted in the database.");
+			<?php		
+		}
+		exit();
 	}	
 }
-
-/* End of file welcome.php */
-/* Location: ./application/controllers/welcome.php */
+?>

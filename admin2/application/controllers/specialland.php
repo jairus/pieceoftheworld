@@ -38,9 +38,7 @@ class specialland extends CI_Controller {
 		$data['cnt'] = $cnt[0]['cnt'];
 		$data['content'] = $this->load->view('specialland/main', $data, true);
 		$this->load->view('layout/main', $data);
-	}
-	
-	
+	}		
 	public function search(){
 		$start = $_GET['start'];
 		$filter = $_GET['filter'];
@@ -102,8 +100,7 @@ class specialland extends CI_Controller {
 		$data['cnt'] = $cnt[0]['cnt'];
 		$data['content'] = $this->load->view('specialland/main', $data, true);
 		$this->load->view('layout/main', $data);		
-	}
-	
+	}	
 	function ajax_edit(){
 		$table = "specialland";
 		$controller = $table;
@@ -177,8 +174,7 @@ class specialland extends CI_Controller {
 			<?php
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
-	}
-	
+	}	
 	public function edit($id){
 		$table = "specialland";
 		$controller = $table;
@@ -203,8 +199,37 @@ class specialland extends CI_Controller {
 
 		
 		$this->load->view('layout/main', $data);;
+	}
+	public function ajax_delete($landId=""){
+		if(!$_SESSION['user']){
+			return false;
+		}
+		if(!$landId){
+			$landId = $_POST['id'];
+		}
+		$sql = "select id, land_special_id, land_detail_id from `land` where `id`=".$this->db->escape($landId) . " limit 1";
+		$q = $this->db->query($sql);
+		$rs = $q->row_array();
+		if(!empty($rs))
+		{
+			// totally delete
+			$sql = "delete from land_special where id = '".$rs['land_special_id']."' limit 1";
+			$q = $this->db->query($sql);
+			$sql = "delete from land_detail where id = '".$rs['land_detail_id']."' limit 1";
+			$q = $this->db->query($sql);
+			$sql = "delete from land where id = '".$rs['id']."' limit 1";
+			$q = $this->db->query($sql);
+			?>
+			alertX("Successfully deleted.");
+			<?php		
+		}
+		else
+		{
+			?>
+			alertX("The record is already deleted in the database.");
+			<?php		
+		}
+		exit();
 	}	
 }
-
-/* End of file welcome.php */
-/* Location: ./application/controllers/welcome.php */
+?>

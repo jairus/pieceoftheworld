@@ -40,8 +40,8 @@ jQuery(function(){
 	});	
 });
 
-function deleteCompany(co_id){
-	if(confirm("Are you sure you want to delete this company?")){
+function deleteRecord(co_id){
+	if(confirm("Are you sure you want to delete this record?")){
 		formdata = "id="+co_id;
 		jQuery.ajax({
 			url: "<?php echo site_url(); ?>land/ajax_delete/"+co_id,
