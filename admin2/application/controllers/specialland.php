@@ -50,19 +50,13 @@ class specialland extends CI_Controller {
 		$search = strtolower(trim($_GET['search']));
 		$searchx = trim($_GET['search']);
 		
-		$sql = "select L.`x`, L.`y`, L.`id`, WU.useremail,  LD.`land_owner` , format(LS.price,2) as price,
-				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
-				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
-				from `land` L
-				left join land_detail LD on LD.id = L.land_detail_id				
-				left join land_special LS on LS.id = L.land_special_id
-				left join web_users WU on WU.id = L.web_user_id
-				where L.`land_special_id` is not NULL " ;					
-				
+		$sql = "select LS.*, WU.useremail from `land_special` LS
+				left join web_users WU on WU.id = LS.web_user_id
+				where 1 ";
 		if($filter=='id'){
-			$sql .= "and L.id = '".mysql_real_escape_string($search)."' ";
-		} elseif ($filter == 'title' || $filter =='detail' ) {
-			$sql .= "and if(L.`web_user_id` = 0, LOWER(LS.".$filter."), LOWER(LD.".$filter.") ) like '%".mysql_real_escape_string($search)."%' ";			
+			$sql .= "and LS.id = '".mysql_real_escape_string($search)."' ";
+		} elseif($filter == 'useremail'){
+			$sql .= "and LOWER(WU.useremail) like '%".mysql_real_escape_string($search)."%'";			
 		} elseif($search != ''){
 			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
@@ -72,21 +66,17 @@ class specialland extends CI_Controller {
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
 		$records = $q->result_array();
-		
-		$sql = "select count(L.id) as `cnt` 
-				from `land` L
-				left join land_detail LD on LD.id = L.land_detail_id				
-				left join land_special LS on LS.id = L.land_special_id
-				left join web_users WU on WU.id = L.web_user_id
-				where L.`land_special_id` is not NULL  ";
+				
+		$sql = "select count(LS.id) as `cnt`  from `land_special` LS
+				left join web_users WU on WU.id = LS.web_user_id
+				where 1 ";
 		if($filter=='id'){
-			$sql .= "and L.id = '".mysql_real_escape_string($search)."' ";
-		} elseif ($filter == 'title' || $filter =='detail' ) {
-			$sql .= "and if(L.`web_user_id` = 0, LOWER(LS.".$filter."), LOWER(LD.".$filter.") ) like '%".mysql_real_escape_string($search)."%' ";			
+			$sql .= "and LS.id = '".mysql_real_escape_string($search)."' ";
+		} elseif($filter == 'useremail'){
+			$sql .= "and LOWER(WU.useremail) like '%".mysql_real_escape_string($search)."%'";			
 		} elseif($search != ''){
 			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
-		}
-		
+		}		
 		
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
@@ -133,7 +123,8 @@ class specialland extends CI_Controller {
 			$sql = "update `land_special` set 
 					`title` = '".mysql_real_escape_string($_POST['title'])."',
 					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
-					`price` = '".mysql_real_escape_string($_POST['price'])."'
+					`price` = '".mysql_real_escape_string($_POST['price'])."',
+					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'
 					where `id` = '$landSpecialId' limit 1";	
 			
 			$this->db->query($sql);										

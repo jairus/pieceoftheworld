@@ -70,6 +70,7 @@ function searchCompany(){
 	<option value="useremail">E-mail</option>
 	<option value="title">Title</option>
 	<option value="detail">Detail</option>
+	<option value="price">Price</option>
 	</select>
 	Search: <input type='text' id='search' value="<?php echo sanitizeX($search); ?>" name='search' />
 	<input type='button' class='button normal' value='search' onclick='searchCompany()'>
@@ -120,6 +121,7 @@ $t = count($records);
 		<th>Detail</th>
 		<th>Price</th>
 		<th>E-mail</th>
+		<th>Land Owner</th>
 		<th></th>
 	</tr>
 	<?php
@@ -162,6 +164,7 @@ $t = count($records);
 			<td><?php echo $records[$i]['detail']; ?></td>
 			<td><?php echo $records[$i]['price'];?></td>
 			<td><?php echo $records[$i]['useremail'];	?></td>			
+			<td><?php echo $records[$i]['land_owner'];	?></td>			
 			<td width='300px'>
 			<?php
 			/*if(trim($records[$i]['folder'])){
