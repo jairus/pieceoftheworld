@@ -151,7 +151,7 @@ jQuery(function(){
 		},
 	});	
 	jQuery("#webuser_search").blur(function(e){
-		if(jQuery('#webuser_search').val() != jQuery('#web_user_name').val() ){
+		if( jQuery('#webuser_search').val() == '' || (jQuery('#webuser_search').val() != jQuery('#web_user_name').val()) ){
 			jQuery("#web_user_id").val('');
 		}
 	});

@@ -110,17 +110,22 @@ class specialland extends CI_Controller {
 			$error = true;
 		}
 		// check if the web user exists if the autocomplete was not used
-		if($_POST['web_user_id'] == '' && $_POST['useremail'] != '' ){
-			$sql = "select id from web_users where useremail = '".mysql_real_escape_string($_POST['useremail'])."' limit 1";
-			$rs = $this->db->query($sql)->row_array();
-			if(!empty($rs)){
-				$_POST['web_user_id'] = $rs['id'];
+		if($_POST['web_user_id'] == '' ){
+			if($_POST['useremail'] != ''){
+				$sql = "select id from web_users where useremail = '".mysql_real_escape_string($_POST['useremail'])."' limit 1";
+				$rs = $this->db->query($sql)->row_array();
+				if(!empty($rs)){
+					$_POST['web_user_id'] = $rs['id'];
+				}
+				else
+				{
+					?>alertX("Please enter existing web users only");<?php
+					$error = true;			
+				}			
+			} else {
+				$_POST['web_user_id'] = 0;
 			}
-			else
-			{
-				?>alertX("Please enter existing web users only");<?php
-				$error = true;			
-			}
+			
 		}			
 		
 		
@@ -158,7 +163,7 @@ class specialland extends CI_Controller {
 			}
 			?>
 			alertX("Successfully Updated Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
-			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
+			//self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
 			<?php
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
