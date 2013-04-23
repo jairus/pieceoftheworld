@@ -109,22 +109,32 @@ class specialland extends CI_Controller {
 			?>alertX("Please enter valid price!");<?php
 			$error = true;
 		}
+		// check if the web user exists if the autocomplete was not used
+		if($_POST['web_user_id'] == '' && $_POST['useremail'] != '' ){
+			$sql = "select id from web_users where useremail = '".mysql_real_escape_string($_POST['useremail'])."' limit 1";
+			$rs = $this->db->query($sql)->row_array();
+			if(!empty($rs)){
+				$_POST['web_user_id'] = $rs['id'];
+			}
+			else
+			{
+				?>alertX("Please enter existing web users only");<?php
+				$error = true;			
+			}
+		}			
+		
 		
 		if(!$error){
 			// check if there are other lands that are connected to the same land detail
 			$landSpecialId = $_POST['id'];
-			$landId = $_POST['id'];						
-			
-			$fieldUpdateSql = 
-				"`title` = '".mysql_real_escape_string($_POST['title'])."',
-				`detail` = '".mysql_real_escape_string($_POST['detail'])."',				
-				`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'";
-			
+			$landId = $_POST['id'];
+						
 			$sql = "update `land_special` set 
 					`title` = '".mysql_real_escape_string($_POST['title'])."',
 					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
 					`price` = '".mysql_real_escape_string($_POST['price'])."',
-					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'
+					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."',
+					`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."'					
 					where `id` = '$landSpecialId' limit 1";	
 			
 			$this->db->query($sql);										
@@ -156,7 +166,9 @@ class specialland extends CI_Controller {
 	public function edit($id){
 		$table = "specialland";
 		$controller = $table;
-		$sql = "select * from `land_special` where `id` = '".mysql_real_escape_string($id)."' limit 1";
+		$sql = "select LS.*, WU.useremail from `land_special` LS
+				left join web_users WU on WU.id = LS.web_user_id
+				where LS.id = '".mysql_real_escape_string($id)."' limit 1";
 		$q = $this->db->query($sql);
 		$record = $q->result_array();
 		$record = $record[0];

@@ -173,6 +173,16 @@ class webuser extends CI_Controller {
 		alertX("Successfully deleted.");
 		<?php		
 		exit();
-	}	
+	}
+	public function ajax_search(){
+		$name = strtolower($_GET['term'])."%";
+		$sql = "select `id` as `value`, `useremail` as `label` from `web_users` where LOWER(`useremail`) like ".$this->db->escape(trim($name))." limit 10" ;
+		$q = $this->db->query($sql);
+		$records = $q->result_array();
+		header('Content-type: application/json');
+		echo json_encode($records);
+		exit();
+	}
+
 }
 ?>
