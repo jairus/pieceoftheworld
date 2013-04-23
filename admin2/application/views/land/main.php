@@ -117,13 +117,11 @@ $t = count($records);
 		<!--<th style="width:20px"></th>-->
 		<th>Land&nbsp;ID</th>
 		<th>Plot (X-Y)</th>
+		<th>Sold</th>
 		<th>Land Owner</th>
 		<th>E-mail</th>
 		<th>Title</th>
-		<th width="200px">Detail</th>
-		<th>Folder&nbsp;/&nbsp;Date&nbsp;Sold</th>
-		<th>Image</th>
-		<th>PDF</th>
+		<th width="200px">Detail</th>		
 		<th></th>
 	</tr>
 	<?php
@@ -169,6 +167,7 @@ $t = count($records);
 			<td align='center'>
 			<?php echo $records[$i]['x']."-".$records[$i]['y']?>
 			</td>
+			<td><?php echo ($records[$i]['web_user_id'])? '<span style="color: green">Yes</span>' : '<span style="color: red">No</span>' ;	?></td>			
 			<td><?php 
 			echo $records[$i]['land_owner'];	
 			?></td>
@@ -181,46 +180,7 @@ $t = count($records);
 			?></td>
 			<td><?php 
 			echo $records[$i]['detail'];	
-			?></td>
-			<td>
-			<?php
-			
-			if(trim($records[$i]['folder'])){
-				?><a href="<?php echo "/_uploads/".$records[$i]['folder'];	?>" target='_blank'><?php 
-				
-				$date = explode("_", $records[$i]['folder']); 
-				$date = explode(".", $date[1]);
-				echo str_replace(" ", "&nbsp;", date("M d, Y H:i", $date[0]));
-				
-				?></a>
-				<?php
-			}
-			?>
-			</td>
-			<td>
-			<?php
-			if($imageurl){
-				?><a href="<?php echo "/_uploads/".$records[$i]['folder']."/".$imageurl;	?>" target='_blank'>IMG</a><?php
-			}
-			else if(trim($records[$i]['picture'])){
-				?><a href="/theimage.php?id=<?php echo $records[$i]['id']; ?>" target='_blank'>IMG<br />(old&nbsp;system)</a><?php
-			}
-			?></td>
-			<td>
-			<?php
-			if(trim($records[$i]['folder'])){
-				if(file_exists($absfolder."/certificate.pdf")){
-					echo "<a href='/_uploads/".$records[$i]['folder']."/certificate.pdf' target='_blank'>".round(filesize($absfolder."/certificate.pdf")/1000000, 2)."MB</a>";
-				}
-				else{
-					echo "0MB";
-				}
-				if(trim($records[$i]['email_resent'])=='yes'){
-					echo "<br /><a style='color:green'>Cert&nbsp;Resent</a>";
-				}
-			}
-			?>
-			</td>
+			?></td>			
 			<td width='300px'>
 			<?php
 			if(trim($records[$i]['folder'])){

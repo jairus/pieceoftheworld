@@ -10,7 +10,7 @@ class land extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
@@ -47,7 +47,7 @@ class land extends CI_Controller {
 		$searchx = trim($_GET['search']);
 		
 		//$sql = "select * from `land` where ";
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
@@ -101,16 +101,36 @@ class land extends CI_Controller {
 			?>alertX("Please input land title!");<?php
 			$error = true;
 		}
+		// check if the web user exists if the autocomplete was not used
+		if($_POST['web_user_id'] == '' ){
+			if($_POST['useremail'] != ''){
+				$sql = "select id from web_users where useremail = '".mysql_real_escape_string($_POST['useremail'])."' limit 1";
+				$rs = $this->db->query($sql)->row_array();
+				if(!empty($rs)){
+					$_POST['web_user_id'] = $rs['id'];
+				}
+				else
+				{
+					?>alertX("Please enter existing web users only");<?php
+					$error = true;			
+				}			
+			} else {
+				$_POST['web_user_id'] = 0;
+			}
+			
+		}		
 		
 		if(!$error){
 			// check if there are other lands that are connected to the same land detail
 			$landDetailId = $_POST['land_detail_id'];
 			$landId = $_POST['id'];						
+			$sql = "update land set `web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."' where id = '$landId' limit 1";
+			$this->db->query($sql);
 			
 			$fieldUpdateSql = 
 				"`title` = '".mysql_real_escape_string($_POST['title'])."',
 				`detail` = '".mysql_real_escape_string($_POST['detail'])."',				
-				`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'";
+				`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'";									
 			
 			$sql = "select id from land where land_detail_id = '$landDetailId' and id != '$landId' limit 1";
 			if($this->db->query($sql)->num_rows())
@@ -156,9 +176,10 @@ class land extends CI_Controller {
 	public function edit($id){
 		$table = "land";
 		$controller = $table;
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`,  LD.`land_owner`,  LD.`picture`, LD.`email_resent` , LD.`id` as land_detail_id
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`,  LD.`land_owner`,  LD.`picture`, LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
+				left join web_users WU on WU.id = L.web_user_id
 				where L.`id` = '".mysql_real_escape_string($id)."' limit 1";
 		$q = $this->db->query($sql);
 		$record = $q->result_array();

@@ -134,6 +134,40 @@ jQuery(function(){
 		  filepath = "<?php echo site_url(); ?>"+fp;
 		  refreshPictures(filepath);
 		}	
+	});
+	jQuery("#webuser_search").autocomplete({		
+		source: function(req, add){
+			//pass request to server
+			jQuery.getJSON("<?php echo site_url(); ?>webuser/ajax_search", req, function(data) {
+				//create array for response objects
+				var suggestions = [];
+				//process response
+				jQuery.each(data, function(i, val){								
+					suggestions.push(val);
+				});
+				//pass array to callback
+				add(suggestions);
+			});
+		},
+		//define select handler
+		select: function(e, ui) {
+			label = ui.item.label;
+			value = ui.item.value;
+			jQuery("#web_user_id").val(value);
+			jQuery("#web_user_name").val(label);			
+			return false;
+		},
+		focus: function(e, ui) {
+			label = ui.item.label;
+			value = ui.item.value;
+			jQuery("#webuser_search").val(label);
+			return false;
+		},
+	});	
+	jQuery("#webuser_search").blur(function(e){
+		if( jQuery('#webuser_search').val() == '' || (jQuery('#webuser_search').val() != jQuery('#web_user_name').val()) ){
+			jQuery("#web_user_id").val('');
+		}
 	});	
 });
 
@@ -201,6 +235,13 @@ else{
 		  <td>Land Owner:</td>
 		  <td><input type="text" name="land_owner" size="40"></td>
 		</tr>	
+		<tr class="odd">
+		  <td>Web User:</td>
+		  <td><input type="text" id="webuser_search" name="useremail" size="40" />
+				<input type="hidden" id="web_user_id" name="web_user_id" size="40" >
+				<input type="hidden" id="web_user_name" size="40" >
+		  </td>
+		</tr>			
 		
 	</table>
 </td>
