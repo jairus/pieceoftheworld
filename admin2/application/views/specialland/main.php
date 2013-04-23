@@ -66,8 +66,7 @@ function searchCompany(){
 <form action="<?php echo site_url(); ?>specialland/search/" class='inline' >
 	Filter: <select name='filter' id='sfilter'>
 	<option value="id">ID</option>
-	<option value="land_owner">Land Owner</option>
-	<option value="useremail">E-mail</option>
+	<option value="land_owner">Land Owner</option>	
 	<option value="title">Title</option>
 	<option value="detail">Detail</option>
 	<option value="price">Price</option>
@@ -120,7 +119,7 @@ $t = count($records);
 		<th>Title</th>
 		<th>Detail</th>
 		<th>Price</th>
-		<th>E-mail</th>
+		<th>Sold</th>
 		<th>Land Owner</th>
 		<th></th>
 	</tr>
@@ -163,7 +162,7 @@ $t = count($records);
 			<td><?php echo htmlentitiesX($records[$i]['title']); ?></td>
 			<td><?php echo $records[$i]['detail']; ?></td>
 			<td><?php echo $records[$i]['price'];?></td>
-			<td><?php echo $records[$i]['useremail'];	?></td>			
+			<td><?php echo ($records[$i]['web_user_id'])? '<span style="color: green">Yes</span>' : '<span style="color: red">No</span>' ;	?></td>			
 			<td><?php echo $records[$i]['land_owner'];	?></td>			
 			<td width='300px'>
 			<?php
