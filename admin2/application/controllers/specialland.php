@@ -181,35 +181,23 @@ class specialland extends CI_Controller {
 		
 		$this->load->view('layout/main', $data);;
 	}
-	public function ajax_delete($landId=""){
+	public function ajax_delete($id=""){
 		if(!$_SESSION['user']){
 			return false;
 		}
-		if(!$landId){
-			$landId = $_POST['id'];
+		if(!$id){
+			$id = $_POST['id'];
 		}
-		$sql = "select id, land_special_id, land_detail_id from `land` where `id`=".$this->db->escape($landId) . " limit 1";
+		$id = mysql_real_escape_string($id);
+		$sql = "delete from `land_special` where id = '".$id."' limit 1";
 		$q = $this->db->query($sql);
-		$rs = $q->row_array();
-		if(!empty($rs))
-		{
-			// totally delete
-			$sql = "delete from land_special where id = '".$rs['land_special_id']."' limit 1";
-			$q = $this->db->query($sql);
-			$sql = "delete from land_detail where id = '".$rs['land_detail_id']."' limit 1";
-			$q = $this->db->query($sql);
-			$sql = "delete from land where id = '".$rs['id']."' limit 1";
-			$q = $this->db->query($sql);
-			?>
-			alertX("Successfully deleted.");
-			<?php		
-		}
-		else
-		{
-			?>
-			alertX("The record is already deleted in the database.");
-			<?php		
-		}
+		$sql = "delete from `land` where land_special_id = '".$id."' limit 1";
+		$q = $this->db->query($sql);
+		$sql = "delete from `pictures_special` where land_special_id = '".$id."' limit 1";
+		$q = $this->db->query($sql);
+		?>
+		alertX("Successfully deleted.");
+		<?php		
 		exit();
 	}	
 }
