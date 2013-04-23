@@ -21,15 +21,16 @@ if($method=='contribution'){
 	<li <?php if($controller=="affiliates"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."affiliates";?>"'>
 		Affiliates
 	</li>
+	<li <?php if($controller=="webuser"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."webuser";?>"'>
+		Web Users
+	</li>
+	
 	<!--
 	<li <?php if($controller=="sales"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."sales";?>"'>
 		Sales
 	</li>
 	<li <?php if($controller=="paypal"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."paypal";?>"'>
 		Paypal Configuration
-	</li>
-	<li <?php if($controller=="webusers"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."webusers";?>"'>
-		Web Users
 	</li>
 	-->
 </ul>
