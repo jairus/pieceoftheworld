@@ -20,14 +20,14 @@ class specialland extends CI_Controller {
 				left join web_users WU on WU.id = L.web_user_id
 				where L.`land_special_id` is not NULL limit $start, $limit" ;
 		*/
-		$sql = "select * from `land_special` where 1 limit $start, $limit";
+		$sql = "select * from `land_special` where 1 and `id` in (select distinct `land_special_id` from `land`) order by `id` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
 		$records = $q->result_array();
 		
 		//$sql = "select count(`id`) as `cnt` from `land` where `land_special_id` is NULL order by `folder` desc" ;
-		$sql = "select count(`id`) as `cnt` from `land_special` where 1" ;
+		$sql = "select count(`id`) as `cnt` from `land_special` where 1 and `id` in (select distinct `land_special_id` from `land`)" ;
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
@@ -52,7 +52,7 @@ class specialland extends CI_Controller {
 		
 		$sql = "select LS.*, WU.useremail from `land_special` LS
 				left join web_users WU on WU.id = LS.web_user_id
-				where 1 ";
+				where 1 and `LS`.`id` in (select distinct `land_special_id` from `land`)";
 		if($filter=='id'){
 			$sql .= "and LS.id = '".mysql_real_escape_string($search)."' ";
 		} elseif($filter == 'useremail'){
@@ -69,7 +69,7 @@ class specialland extends CI_Controller {
 				
 		$sql = "select count(LS.id) as `cnt`  from `land_special` LS
 				left join web_users WU on WU.id = LS.web_user_id
-				where 1 ";
+				where 1 and `LS`.`id` in (select distinct `land_special_id` from `land`) ";
 		if($filter=='id'){
 			$sql .= "and LS.id = '".mysql_real_escape_string($search)."' ";
 		} elseif($filter == 'useremail'){
@@ -163,11 +163,115 @@ class specialland extends CI_Controller {
 			}
 			?>
 			alertX("Successfully Updated Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
-			//self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
+			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
+			jQuery("#savebutton").val("Save");
 			<?php
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
 	}	
+	
+	function ajax_add(){
+		$table = "specialland";
+		$controller = $table;
+		$error = false;
+		$_POST['price'] = str_replace(',','',trim($_POST['price']));
+		
+		if(!trim($_POST['title'])){
+			?>alertX("Please input land title!");<?php
+			$error = true;
+		}
+		if(!is_numeric($_POST['price']))
+		{
+			?>alertX("Please enter valid price!");<?php
+			$error = true;
+		}
+		// check if the web user exists if the autocomplete was not used
+		if($_POST['web_user_id'] == '' ){
+			if($_POST['useremail'] != ''){
+				$sql = "select id from web_users where useremail = '".mysql_real_escape_string($_POST['useremail'])."' limit 1";
+				$rs = $this->db->query($sql)->row_array();
+				if(!empty($rs)){
+					$_POST['web_user_id'] = $rs['id'];
+				}
+				else
+				{
+					?>alertX("Please enter existing web users only");<?php
+					$error = true;			
+				}			
+			} else {
+				$_POST['web_user_id'] = 0;
+			}
+			
+		}			
+		
+		
+		if(!$error){
+			// check if there are other lands that are connected to the same land detail
+			$landSpecialId = $_POST['id'];
+			$landId = $_POST['id'];
+						
+			$sql = "insert into `land_special` set 
+					`title` = '".mysql_real_escape_string($_POST['title'])."',
+					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
+					`price` = '".mysql_real_escape_string($_POST['price'])."',
+					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."',
+					`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."'					
+					";	
+			
+			$this->db->query($sql);										
+			$insert_id = $this->db->insert_id();
+			
+			if(count($_POST['points'])){
+				foreach($_POST['points'] as $value){
+					list($x, $y) = explode("-", $value);
+					$sql = "insert into `land` set 
+					`x`='".mysql_real_escape_string($x)."',
+					`y`='".mysql_real_escape_string($y)."',
+					`land_special_id`='".mysql_real_escape_string($insert_id)."'
+					";
+					$this->db->query($sql);	
+				}
+			}
+			
+			$sql = "delete from `pictures_special` where `land_special_id`=".$this->db->escape($insert_id);
+			$this->db->query($sql);
+			if(is_array($_POST['pictures'])){
+				
+				$mainPix = $_POST['isMainPix'];
+				
+				foreach($_POST['pictures'] as $key=>$value){
+					//move files
+					$from = dirname(__FILE__)."/../../../_uploads2/specialland/temp/".$_POST['sid']."/".urldecode(basename($value));
+					$folder = dirname(__FILE__)."/../../../_uploads2/specialland/".$insert_id."/images/";
+					if(!is_dir($folder)){
+						@mkdir(dirname(__FILE__)."/../../../_uploads2/specialland/".$insert_id."/", 0777);
+						@mkdir(dirname(__FILE__)."/../../../_uploads2/specialland/".$insert_id."/images/", 0777);
+					}
+					$to = $folder.urldecode(basename($value));
+					rename($from, $to);
+					
+					//http%3A//www.pieceoftheworld.co/admin2/../_uploads2/specialland/temp/special1366809169454/images.jpg
+					$value2 = str_replace("admin2/../_uploads2/specialland/temp/".$_POST['sid']."/", "_uploads2/specialland/".$insert_id."/images/", $value);
+					$isMain = ($mainPix == $value)? 1 : 0;
+					$sql = "insert into `pictures_special` set 
+					`land_special_id`=".$this->db->escape($insert_id).", 
+					`title`=".$this->db->escape($_POST['picture_titles'][$key]).",
+					`isMain`='$isMain', 
+					`picture`=".$this->db->escape($value2);
+					$this->db->query($sql);
+				}
+				
+			
+			}
+			?>
+			alertX("Successfully Added Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
+			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $insert_id; ?>";
+			<?php
+		}
+		?>jQuery("#record_form *").attr("disabled", false);<?php
+	}	
+	
+	
 	public function edit($id){
 		$table = "specialland";
 		$controller = $table;
@@ -182,11 +286,25 @@ class specialland extends CI_Controller {
 		$q = $this->db->query($sql);
 		$pictures = $q->result_array();	
 		
+		//get first point of the special land
+		
+		$sql = "select * from `land` where `land_special_id`='".mysql_real_escape_string($id)."'";
+		$q = $this->db->query($sql);
+		$points = $q->result_array();
+		$record['points'] = $points;
+		
 		$data['pictures'] = $pictures;			
 		$data['record'] = $record;
 		$data['content'] = $this->load->view($controller.'/add', $data, true);
 
 		
+		$this->load->view('layout/main', $data);;
+	}
+	
+	public function add(){
+		$table = "specialland";
+		$controller = $table;
+		$data['content'] = $this->load->view($controller.'/add', $data, true);
 		$this->load->view('layout/main', $data);;
 	}
 	public function ajax_delete($id=""){
@@ -197,11 +315,11 @@ class specialland extends CI_Controller {
 			$id = $_POST['id'];
 		}
 		$id = mysql_real_escape_string($id);
-		$sql = "delete from `land_special` where id = '".$id."' limit 1";
+		$sql = "delete from `land_special` where id = '".$id."'";
 		$q = $this->db->query($sql);
-		$sql = "delete from `land` where land_special_id = '".$id."' limit 1";
+		$sql = "delete from `land` where land_special_id = '".$id."'";
 		$q = $this->db->query($sql);
-		$sql = "delete from `pictures_special` where land_special_id = '".$id."' limit 1";
+		$sql = "delete from `pictures_special` where land_special_id = '".$id."'";
 		$q = $this->db->query($sql);
 		?>
 		alertX("Successfully deleted.");

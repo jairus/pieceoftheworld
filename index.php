@@ -64,7 +64,7 @@ if($_GET['px']!=""){
 	echo "var masterUser = '".$masterUser."';";
 ?>
 <?php 
-	if(!trim($_GET['latlong'])){
+	if(!trim($_GET['latlong'])&&!trim($_GET['xy'])){
 		if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) { ?>
 			var showTutorial = getCookie("showTutorial");
 			if (showTutorial !== "false") {
@@ -222,6 +222,23 @@ if($_GET['px']!=""){
 			?>
 			inLatLng = new google.maps.LatLng(<?php echo $lat; ?>, <?php echo $long; ?>);
 			updatePopupWindowTabInfo(inLatLng);
+			var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
+			//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+			map.setZoom(17);
+			map.setCenter(loc);
+			jQuery("#clicktozoom").hide();
+			<?php
+		}
+		else if(trim($_GET['xy'])){
+			list($x, $y) = explode("~", trim($_GET['xy']));
+			$x += 0;
+			$y += 0;
+			?>
+			var projection = new MercatorProjection();
+			var point = {};
+			point.x = <?php echo $x;?>;
+			point.y = <?php echo $y;?>;
+			var inLatLng = projection.fromPointToLatLng(point);
 			var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
 			//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
 			map.setZoom(17);

@@ -73,6 +73,7 @@ function searchCompany(){
 	</select>
 	Search: <input type='text' id='search' value="<?php echo sanitizeX($search); ?>" name='search' />
 	<input type='button' class='button normal' value='search' onclick='searchCompany()'>
+	<input type='button' class='button normal' value='Add Special Land' onclick='self.location="/addspecial.php"'>
 </form>
 <?php
 if(trim($filter)){

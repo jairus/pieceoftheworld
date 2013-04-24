@@ -89,7 +89,7 @@ jQuery(function(){
 			if(!is_dir($folder)){
 				mkdir($folder, 0777);
 			}
-			if($record['id']){
+			if($record['id']){			
 				$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/".$record['id'];
 				if(!is_dir($folder)){
 					mkdir($folder, 0777);
@@ -98,6 +98,21 @@ jQuery(function(){
 				if(!is_dir($folder)){
 					mkdir($folder, 0777);
 				}
+			}
+			else{
+				$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/temp";
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+				$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/temp/".$_GET['idx'];
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+				$folder = dirname(__FILE__)."/../../../../_uploads2/specialland/temp/".$_GET['idx'];
+				if(!is_dir($folder)){
+					mkdir($folder, 0777);
+				}
+
 			}
 			echo str_replace(dirname(__FILE__)."/../../..", "", $folder);			
 		?>',
@@ -173,10 +188,13 @@ if($record['id']){
 }
 else{
 	?>
-	<input type='hidden' name='sid' value="<?php echo sanitizeX($sid); ?>">
+	<input type='hidden' name='sid' value="<?php echo sanitizeX($_GET['idx']); ?>">
 	<?php
 }
 
+if($_SESSION[$_GET['idx']]){
+	$add_data = json_decode(stripslashes($_SESSION[$_GET['idx']]));
+}
 
 ?>
 <table width="100%" cellpadding="10px">
@@ -201,10 +219,30 @@ else{
 ?>
 <tr>
 <td width='50%'> 
+	<?php
+	if(!$record&&count($add_data->points)){
+		$t = count($add_data->points);
+		for($i=0; $i<$t; $i++){
+			?><input type='hidden' value="<?php echo $add_data->points[$i]; ?>" name='points[]'><?php
+		}
+	}
+	?>
 	<table width="100%">
 		<tr class="even required">
 		  <td>* Title:</td>
-		  <td><input type="text" name="title" size="40"></td>
+		  <td><input type="text" name="title" size="40">&nbsp;
+		  <?php
+		  if($record){
+			?><a target='_blank' href='/index.php?xy=<?php echo $record['points'][0]['x']."~".$record['points'][0]['y']?>'>View in Map</a><?php
+		  }
+		  else{
+			if($add_data->points[0]){
+				list($x, $y) = explode("-",$add_data->points[0]);
+				?><a href='/addspecial.php?xy=<?php echo $x."~".$y; ?>&idx=<?php echo $_GET['idx']; ?>'>View in Map</a><?php
+			}
+		  }
+		  ?>
+		  </td>
 		</tr>
 		<tr class="odd required">
 		  <td>* Detail:</td>
@@ -230,8 +268,8 @@ else{
 </td>
 <td width='50%'>
 	<table width="100%">
-		<tr class="even required">
-		  <td>* Picture:</td>
+		<tr class="even">
+		  <td>Picture:</td>
 		  <td>
 			  <div id='sspathhtml' style='padding-bottom:10px;'></div>
 			  <input type='text' id="co_pictures" />
@@ -285,7 +323,9 @@ if(is_array($pictures)){
 }
 if($record){
 	foreach($record as $key=>$value){
-		if($key=="active"){
+		if($key=="points"){
+		}
+		else if($key=="active"){
 			if($value=="1"){
 				?>
 				jQuery('[name="<?php echo $key; ?>"]').attr("checked", true);
