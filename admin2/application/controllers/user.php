@@ -10,7 +10,7 @@ class user extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select * from `user` where 1 limit $start, $limit";
+		$sql = "select * from `user` where 1 order by id desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -46,7 +46,7 @@ class user extends CI_Controller {
 		} elseif($search != ''){
 			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
-		$sql .= " limit $start, $limit" ;
+		$sql .= " order by id desc limit $start, $limit" ;
 
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
