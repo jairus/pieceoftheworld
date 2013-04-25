@@ -178,7 +178,7 @@ class land extends CI_Controller {
 	public function edit($id){
 		$table = "land";
 		$controller = $table;
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`,  LD.`land_owner`,  LD.`picture`, LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`land_owner`,  LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
