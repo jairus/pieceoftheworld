@@ -148,7 +148,9 @@ class specialland extends CI_Controller {
 			$this->db->query($sql);
 			if(is_array($_POST['pictures'])){
 
-				$mainPix = str_replace("admin2/../", '', $_POST['isMainPix']); 
+				// if no main pix, default it to the first one
+				$mainPix = (isset($_POST['isMainPix']))? str_replace("admin2/../", '', $_POST['isMainPix']) : str_replace("admin2/../", '', $_POST['pictures'][0]);
+
 				foreach($_POST['pictures'] as $key=>$value){
 					$value = str_replace("admin2/../", '', $value); 
 					
@@ -237,7 +239,11 @@ class specialland extends CI_Controller {
 			$this->db->query($sql);
 			if(is_array($_POST['pictures'])){
 				
-				$mainPix = $_POST['isMainPix'];
+				//$mainPix = $_POST['isMainPix'];
+				
+				// if no main pix, default it to the first one
+				$mainPix = (isset($_POST['isMainPix']))? $_POST['isMainPix'] : $_POST['pictures'][0];
+
 				
 				foreach($_POST['pictures'] as $key=>$value){
 					//move files
