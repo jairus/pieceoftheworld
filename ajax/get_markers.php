@@ -11,6 +11,9 @@ $con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions
 if (!$con) { die('[[]]'); }
 mysql_select_db($conOptions['database'], $con);
 $sql = "";
+
+updateLandViewCounter($x1, $y1);
+
 $keys = array_keys($_GET);
 if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ anti cache timestamp variable is always gonna be there
 	if($type=='exact'){
@@ -26,7 +29,8 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			where 
 			`x`=$x1 and `y`=$y1 
 			";
-		$markers = dbQuery($sql, $_dblink);
+		$markers = dbQuery($sql, $_dblink);			
+		
 		if($markers[0]['web_user_id']||$markers[0]['land_special_id']){
 			$sql = "SELECT 
 				if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
@@ -360,5 +364,20 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 	// save thumbnail into a file
 	
 }
-
+function updateLandViewCounter($x, $y)
+{	
+	if($x && $y){
+		// update land view counter 
+		$rs = dbQuery("select id from land_view where x = '$x' and y = '$y' limit 1 ");
+		if(!empty($rs)){
+			dbQuery("update land_view set viewCtr = viewCtr + 1 where id = '{$rs[0]['id']}' limit 1 ");
+		} else {
+			// check if there is a land with this coordinate
+			$rs = dbQuery("select id from land where x = '$x' and y = '$y' limit 1 ");
+			$landId = (!empty($rs))? $rs[0]['id'] : 'null';
+			dbQuery("insert into land_view set viewCtr = 1, x='$x', y='$y', land_id = $landId ");
+		}	
+	
+	}
+}
 ?>

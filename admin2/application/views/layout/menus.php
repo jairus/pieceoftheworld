@@ -27,6 +27,9 @@ if($method=='contribution'){
 	<li <?php if($controller=="user"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."user";?>"'>
 		System Users
 	</li>
+	<li <?php if($controller=="landcounter"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."landcounter";?>"'>
+		Land Views
+	</li>
 	
 	<!--
 	<li <?php if($controller=="sales"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."sales";?>"'>
