@@ -1,6 +1,10 @@
 <?php 
 error_reporting(E_ALL^E_NOTICE);
 session_start(); 
+if($_GET['special']){
+	$_SESSION[$_GET['idx']] = $_POST['data'];
+	exit();
+}
 require_once 'ajax/global.php';
 if($_GET['affid']){
 	$_SESSION['affid'] = $_GET['affid'];
@@ -64,16 +68,7 @@ if($_GET['px']!=""){
 	echo "var masterUser = '".$masterUser."';";
 ?>
 <?php 
-	if(!trim($_GET['latlong'])&&!trim($_GET['xy'])){
-		if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) { ?>
-			var showTutorial = getCookie("showTutorial");
-			if (showTutorial !== "false") {
-				window.location="tutorial.php";
-				//window.showModalDialog("tutorial.html",0, "dialogWidth:700px; dialogHeight:500px; center:yes; resizable: no; status: no");
-			}
-			<?php 
-		}
-	}
+	
 	?>
 	var enableGeoLoc = false;
 	var geoLoc;
@@ -244,7 +239,14 @@ if($_GET['px']!=""){
 			map.setZoom(17);
 			map.setCenter(loc);
 			jQuery("#clicktozoom").hide();
+			//idx po
 			<?php
+			if($_GET['idx']){
+				?>
+				points = JSON.parse('<?php echo stripslashes($_SESSION[$_GET['idx']]); ?>');
+				putBoxes(points);
+				<?php
+			}
 		}
 		?>
 		
@@ -1210,7 +1212,7 @@ if($_GET['px']!=""){
 	}
 	
 	
-	function ajaxGetMarker2(map, x1, y1, x2, y2, multi) {
+	function ajaxGetMarker2(map, x1, y1) {
 		var markersJSON = null;
 		$.ajax({
 			url:'ajax/get_markers.php?x1='+x1+'&y1='+y1+"&type=exact&_=<?php echo time(); ?>",
@@ -1232,16 +1234,13 @@ if($_GET['px']!=""){
 		ret.title = "";
 		ret.points = "";
 		ret.json = "";
-		ret.attached = "";
 		var blockInfo = getBlockInfo(inLatLng);
-		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
+		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
 		//returnText = '[[]]';
 		if (returnText != '[[]]') {
 			if(markerJSON[0].email){ //if special land unpaid
 				consoleX(markerJSON[0].land_special_id);
-				consoleX(markerJSON[0].points);
-				ret.attached = markerJSON[0].points;
 				ret.price = markerJSON[0].price;
 			}
 			else{ //for bidding only
@@ -1251,6 +1250,7 @@ if($_GET['px']!=""){
 			ret.colored = 1;
 			//set the points
 			ret.points = worldCoordinate.x+"-"+worldCoordinate.y;
+			ret.strlatlong = strlatlong;
 			ret.title = markerJSON[0].title;
 			ret.detail = markerJSON[0].detail;
 			ret.json = markerJSON[0];
@@ -1271,6 +1271,8 @@ if($_GET['px']!=""){
 			ret.colored = 0;
 			//set the points
 			ret.points = worldCoordinate.x+"-"+worldCoordinate.y;
+			ret.strlatlong = strlatlong;
+			consoleX(ret);
 		}
 		return ret; //returns ret object
 	}
@@ -1283,11 +1285,6 @@ if($_GET['px']!=""){
 			gzones[i].setMap(null);
 		}
 		gzones = [];
-		for(i=0; i<gattached.length; i++){
-			gattached[i].setVisible(false);
-			gattached[i].setMap(null);
-		}
-		gattached = [];
 		updatePopupWindowTabInfoNew();
 	}
 	
@@ -1393,7 +1390,7 @@ if($_GET['px']!=""){
 						firstindex = i;
 					}
 					if(gzones[i].ret.city){
-						details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png' onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
+						details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png' onclick='cancelBox("+i+")' style='cursor:pointer' />"+gzones[i].ret.points+"<br />";
 					}
 					else if(gzones[i].ret.region){
 						details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1418,7 +1415,7 @@ if($_GET['px']!=""){
 			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 			jQuery("#buy-button").val("Buy");
 			jQuery("#buy-button").hide();
-			details += "<hr />Total: USD "+total.toFixed(2);
+			details += "<hr />Total: USD "+total.toFixed(2)+"<br><br><input type='button' onclick='setSpecial()' value='Set as Special' >";
 			jQuery("#info-title").html("Buy Land");
 			jQuery("#info-detail").html(details);
 		}
@@ -1434,7 +1431,7 @@ if($_GET['px']!=""){
 				if (gzones[i].ret.json.email == masterUser) {
 					consoleX("special unbought");
 					price = gzones[i].ret.json.price;
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+					jQuery("#info-detail").html(jQuery("#info-detail").html() + '<br /><br />Price: $<span id="theprice">'+price+"</span>");
 				}
 				else{
 					consoleX("special bought");
@@ -1466,9 +1463,40 @@ if($_GET['px']!=""){
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
 	}
-	
+	function setSpecial(){
+		total = 0;
+		datax = {};
+		datax.points = [];
+		datax.strlatlongs = [];
+		for(i=0; i<gzones.length; i++){
+			if(gzones[i].ret.active){
+				datax.points.push(gzones[i].ret.points);
+				datax.strlatlongs.push(gzones[i].ret.strlatlong);
+			}
+		}
+		str = JSON.stringify(datax);
+		<?php
+		if($_GET['idx']){
+			?>idx = "<?php echo $_GET['idx']; ?>";<?php
+		}
+		else{
+			?>idx = "special"+(new Date()).getTime();<?php
+		}
+		?>
+		
+		jQuery.ajax({
+			dataType: "html",
+			async: true,
+			type: "POST",
+			data: "data="+str,
+			url: "?special=1&idx="+idx,
+			success: function(data){
+				self.location = "admin2/specialland/add/?idx="+idx;
+			}
+		});
+		
+	}
 	var gzones = [];
-	var gattached = [];
 	function putBox(event){
 		//disable block clicking when zoomed out
 		if(map.getZoom()<17){
@@ -1503,12 +1531,6 @@ if($_GET['px']!=""){
 					gzones[i].setMap();
 				}
 			}
-			//remove all attached selections
-			for(i=0; i<gattached.length; i++){
-				gattached[i].setVisible(false);
-				gattached[i].setMap(null);
-			}
-			gattached = [];
 		}
 		
 		//put in the box
@@ -1525,7 +1547,7 @@ if($_GET['px']!=""){
 			strokeOpacity: 1,
 			strokeWeight: 3,
 			fillColor: "#40E0D0",
-			fillOpacity: 0,
+			fillOpacity: 0.2,
 			zIndex: 10000,
 			ret: ret //just extra 'ret' object variable
 		});
@@ -1533,9 +1555,6 @@ if($_GET['px']!=""){
 			this.ret.price = 0;
 			this.ret.active = 0;
 			this.setMap(); //remove the box
-			if(this.ret.attached.length){
-				unsetGZones();
-			}
 			calculateTotal(); //calculate total of 
 			updatePopupWindowTabInfoNew();
 		});
@@ -1543,51 +1562,86 @@ if($_GET['px']!=""){
 		gzones.push(zone);
 		calculateTotal();
 		updatePopupWindowTabInfoNew();
-		
-		if(ret.attached){
-			thex = worldCoordinate.x;
-			they = worldCoordinate.y;
-			for(i=0; i<ret.attached.length; i++){
-				if(ret.attached[i].x==thex && ret.attached[i].y==they){
-					continue;
-				}
-				worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
-				var block = getBlockLTRB(worldCoordinate);
-				consoleX("block = ");
-				consoleX(block);
-				var bounds = new google.maps.LatLngBounds(
-					new google.maps.LatLng(block[0].lat(),block[0].lng()),
-					new google.maps.LatLng(block[1].lat(),block[1].lng())
-				);
-				var LtLgNE = bounds.getNorthEast();
-				var LtLgSW = bounds.getSouthWest();
-				
-				//put in the box
-				var zoneCoords = [
-					new google.maps.LatLng(LtLgNE.lat(), LtLgNE.lng()),
-					new google.maps.LatLng(LtLgNE.lat(), LtLgSW.lng()),
-					new google.maps.LatLng(LtLgSW.lat(), LtLgSW.lng()),
-					new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
-				];
-				ret.active = 1;
-				zone = new google.maps.Polygon({
-					paths: zoneCoords,
-					strokeColor: "#40E0D0",
-					strokeOpacity: 1,
-					strokeWeight: 3,
-					fillColor: "#40E0D0",
-					fillOpacity: 0,
-					zIndex: 10000
-				});
-				gattached.push(zone);
-				google.maps.event.addListener(zone, 'click', function(event){
-					
-					unsetGZones();
-					calculateTotal(); //calculate total of 
-					updatePopupWindowTabInfoNew();
-				});
-				zone.setMap(window.map);
+	}
+	
+	function putBoxes(points){
+		//disable block clicking when zoomed out
+		if(map.getZoom()<17){
+			unsetGZones();
+			return 0;
+		}
+		for(pi=0; pi<points.strlatlongs.length; pi++){
+			consoleX(points.points[pi]);
+			var projection = new MercatorProjection();
+			/*
+			point = points.points[pi].split(","); //lat and long
+			var latLng = new google.maps.LatLng(point[0],point[1]);
+			var worldCoordinate = projection.fromLatLngToPoint(latLng);
+			worldCoordinate.x = Math.floor(worldCoordinate.x);
+			worldCoordinate.y = Math.floor(worldCoordinate.y);
+			*/
+			
+			point = points.points[pi].split("-"); //lat and long
+			worldCoordinate = new google.maps.Point(point[0]-1, point[1]-1);
+			var block = getBlockLTRB(worldCoordinate);
+			consoleX("block = ");
+			consoleX(block);
+			var bounds = new google.maps.LatLngBounds(
+				new google.maps.LatLng(block[0].lat(),block[0].lng()),
+				new google.maps.LatLng(block[1].lat(),block[1].lng())
+			);
+			var LtLgNE = bounds.getNorthEast();
+			var LtLgSW = bounds.getSouthWest();
+			
+			strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+			jQuery("#tabs").tabs("select",0);
+			//new update popup info
+			var inLatLng = projection.fromPointToLatLng(worldCoordinate);
+			ret = getBlockInfoNew(inLatLng, strlatlong, worldCoordinate);
+			
+			if(ret.colored){
+				return 0;
+				//unsetGZones();
 			}
+			else{
+				//remove all colored selections
+				for(i=0; i<gzones.length; i++){
+					if(gzones[i].ret.colored==1){
+						gzones[i].ret.active = 0;
+						gzones[i].setMap();
+					}
+				}
+			}
+			
+			//put in the box
+			var zoneCoords = [
+				new google.maps.LatLng(LtLgNE.lat(), LtLgNE.lng()),
+				new google.maps.LatLng(LtLgNE.lat(), LtLgSW.lng()),
+				new google.maps.LatLng(LtLgSW.lat(), LtLgSW.lng()),
+				new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
+			];
+			ret.active = 1;
+			zone = new google.maps.Polygon({
+				paths: zoneCoords,
+				strokeColor: "#40E0D0",
+				strokeOpacity: 1,
+				strokeWeight: 3,
+				fillColor: "#40E0D0",
+				fillOpacity: 0.2,
+				zIndex: 10000,
+				ret: ret //just extra 'ret' object variable
+			});
+			google.maps.event.addListener(zone, 'click', function(event){
+				this.ret.price = 0;
+				this.ret.active = 0;
+				this.setMap(); //remove the box
+				calculateTotal(); //calculate total of 
+				updatePopupWindowTabInfoNew();
+			});
+			zone.setMap(window.map);
+			gzones.push(zone);
+			calculateTotal();
+			updatePopupWindowTabInfoNew();
 		}
 	}
 	
@@ -2320,10 +2374,191 @@ if($_GET['px']!=""){
   -->
       <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix change_titlebar_style" style="border: solid 1px #578C0B !important; border-bottom: solid 1px #97CF48 !important; background: #97CF48 !important;"><span id="ui-id-1" class="ui-dialog-title" style="text-align:center; width: 100%;"><img src="images/cpanel-logo.png?_=<?php echo time();?>"></span></div>
       <div id="dialog" class="ui-dialog-content ui-widget-content change_dialog_style" style="width: auto; min-height: 52px; height: auto; border: solid 1px #578C0B !important; border-top: solid 1px #97CF48 !important; background: #97CF48 !important;" scrolltop="0" scrollleft="0">
-		<div class="dialog_body">
-			<?php include('mainTabs.php'); ?>
-		</div>
-	</div>
+    <div class="dialog_body">
+		<div id="tabs" class="change_tab_style">
+			<ul class="change_tab_ul_style">
+				<!--
+				<li><a style="padding: 2px !important;" href="#news">News</a></li>
+				-->
+				<li><a style="padding: 2px !important;" href="#info">Info</a></li>
+				<li><a style="padding: 2px !important;" href="#search">Search</a></li>
+				<!--
+				<li><a style="padding: 2px !important;" href="#us">US</a></li>
+				-->
+				<!--
+				<li><a style="padding: 2px !important;" href="#buy"><img src="images/cart.png" width="11" height="11" border="0"></a></li>
+				-->
+				<!--
+				<li><a style="padding: 2px !important;" href="#configuration"><img src="images/compile.png" width="11" height="11" border="0"></a></li>
+				-->
+				<li><a style="padding: 2px !important;" href="#configuration">Settings</a></li>
+				<!--
+				<li><a style="padding: 2px !important;" href="#help"><img src="images/question.png" width="11" height="11" border="0"></a></li>
+				-->
+				<li><a style="padding: 2px !important;" href="#help">About</a></li>
+			</ul>
+		<!--
+		<div id="news" class="tab_body news">
+          <h3>News</h3>
+          <ul id="news-ul" class="jcarousel jcarousel-skin-tango">
+            <li><span id="news-1-text" style="float: left; width: 200px;"></span><span><img id="news-1-img" src="images/news_img_1.png" width="32" height="32" border="0"></span></li>
+            <li><span id="news-1-text" style="float: left; width: 200px;"></span><span><img id="news-1-img" src="images/news_img_1.png" width="32" height="32" border="0"></span></li>
+            <li><span id="news-1-text" style="float: left; width: 200px;"></span><span><img id="news-1-img" src="images/news_img_1.png" width="32" height="32" border="0"></span></li>
+          </ul>
+        </div>
+		-->
+        <div id="info" class="tab_body">
+		  <span id="info-span-noselection" style="display:block; padding:5px; padding-top:15px;">
+		    <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center>
+		  </span>
+		  <span id="info-span" style="display:none;">
+            <h3><span id="info-city"></span><span id="info-title"></span></h3>
+              <table>
+                <tr>
+                  <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
+                  <td valign="top">
+				    <table>
+                      <tr style='display:none'>
+                        <td><strong>Latitude:</strong></td>
+                        <td><span id="info-latitude"></span></td>
+                      </tr>
+                      <tr style='display:none'>
+                        <td><strong>Longitude:</strong></td>
+                        <td><span id="info-longitude"></span></td>
+                      </tr>
+					 
+                      <tr id='info-land_owner_container' style='display:none'>
+                        <td colspan="2">
+                          Owner: <span id="info-land_owner"></span>
+					    </td>
+                      </tr>
+					  <tr>
+                        <td colspan="2">
+						  <br />
+                          <span id="info-detail"></span>
+						  <br />&nbsp;
+						  <div id="dcountry"></div>
+						  <div id="dregion"></div>
+						  <div id="dcity"></div>
+					    </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+                          <center><br>
+						  <table>
+						  <tr>
+						  <td style='display:none'><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none" onClick="onBuyLand();"></td>
+						  <td><input type="button" id="clicktozoom" value="Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
+						  <td style='display:none'><a id='fbsharelink' style='border:0px;' ><img style='border:0px;' src='fbshare.jpg' id='fbshare'></a></td>
+						  <td valign='middle' id='sharethisloc' style='display:none'>Share this location</td>
+						  </tr>
+						  </table>
+						  </center>
+					    </td>
+                      </tr>
+                    </table>
+			      </td>
+                </tr>
+              </table>
+		  </span>	  
+        </div>
+        <div id="search" class="tab_body">
+              <h3>Search</h3>
+              Here you can make a search for any area, street, mountain, country, landmark, address etc. Just make your desired search to instantly bring you to that location.<br/>
+              <div style="width: 250px; overflow: hidden;">
+            <input type="text" id="search_enteraplace" name="search_enteraplace_name" style="width: 90%;">
+          </div>
+              <h3>Pick one of the World's top places</h3>
+              <div style="width: 250px; overflow: hidden;">
+              <select id="search_topplaces" name="search_topplaces_name" onChange="updatePopupWindowTabSearch();" style="width: 90%;">
+                  <option value="" selected="selected">Select from World's top places</option>
+                  <option value="Atlantis">Atlantis</option>
+                  <option value="Firefox Crop Circles">Firefox Crop Circles</option>
+                  <option value="UFO Landing Pads">UFO Landing Pads</option>
+                  <option value="Badlands Guardian">Badlands Guardian</option>
+                  <option value="Lost at Sea">Lost at Sea</option>
+             </select>
+          </div>
+            </div>
+		<!--	
+        <div id="us" class="tab_body">
+              <h3>Learn about POTW</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin dignissim pharetra purus at malesuada.</p>
+              <p>Praesent diam neque, malesuada vel aliquet vitae, accumsan ac ipsum. Sed mauris nibh, venenatis vitae pulvinar eget, rutrum vestibulum elit. Suspendisse ac neque enim.</p>
+              <p>Donec porta ipsum quis magna interdum facilisis. Nam tristique dignissim mattis. Mauris ornare mollis lectus sed facilisis. Etiam faucibus sollicitudin accumsan.</p>
+        </div>
+		-->
+		<!--
+        <div id="buy" class="tab_body">
+          <h3><span id="buy-title">Buy Land</span></h3>
+              <table>
+                <tr>
+                  <td><div class="img"><img id="buy-img" src="images/eiffel.png"></div></td>
+                  <td valign="top">
+				    <table>
+                      <tr>
+                        <td><strong>Latitude:</strong></td>
+                        <td><span id="buy-latitude">48.85800</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Longitude:</strong></td>
+                        <td><span id="buy-longitude">2.29460</span></td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+						  <br/><br/><br/>
+                          <center><input type="button" id="buy-button" value="Buy Now" style="padding: 10px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();"></center>
+					    </td>
+                      </tr>
+                    </table>
+			      </td>
+                </tr>
+              </table>
+        </div>
+		-->
+        <div id="configuration" class="tab_body">
+              <h3>Settings</h3>
+              <p>
+          <table width="100%">
+            <tr>
+              <td>Email</td>
+              <td align="right"><input type="edit" id="config_email" name="config_email_name" value="" size=20 onkeypress="document.getElementById('config_save').disabled = false;"><input type="button" id="config_save" name="config_save_name" value="Save" disabled onClick="this.disabled = true; setCookie('user_email', document.getElementById('config_email').value, 365);" ></td>
+            </tr>
+          </table>
+          <table>
+            <tr>
+              <td>Show Own Land</td>
+              <td><input type="checkbox" id="config_showownland" name="config_showownland_name" onClick="updatePopupWindowTabConfig(true);" checked></td>
+            </tr>
+            <tr>
+              <td>Show Important Places</td>
+              <td><input type="checkbox" id="config_showimportantplaces" name="config_showimportantplaces_name" onClick="updatePopupWindowTabConfig(true);" checked></td>
+            </tr>
+            <tr>
+              <td>Show Owned Land</td>
+              <td><input type="checkbox" id="config_showownedland" name="config_showownedland_name" onClick="updatePopupWindowTabConfig(true);"></td>
+            </tr>
+            <tr>
+              <td>Show Grid</td>
+              <td><input type="checkbox" id="config_showgrid" name="config_showgrid_name" onClick="updatePopupWindowTabConfig(true);" checked></td>
+            </tr>
+          </table>
+              </p>
+            </div>
+        <div id="help" class="tab_body">
+              <h3>About</h3>
+			  <p>Dear Citizen of the World</p>
+			  <p>Welcome to <a href="http://www.PieceoftheWorld.com" target="_blank">PieceoftheWorld.com</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
+			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
+			  <p>So join us and set your mark - get your piece of the world today.</p>
+			  <p>Piece of the World team</p>
+			  <p>Contact us:<br><a href='mailto:PieceoftheWorld2013@gmail.com'>PieceoftheWorld2013@gmail.com</a></p>
+			  
+        </div>
+      </div>
+        </div>
+  </div>
     </div>
 
 <div id="header">
@@ -2412,7 +2647,6 @@ if($_GET['px']!=""){
 var page={};
 $(function() { new FrontPage().init(); });
 //]]>
-
 </script>
 </body>
 </html>

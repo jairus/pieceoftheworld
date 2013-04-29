@@ -157,6 +157,12 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 	$pictures = dbQuery($sql, $_dblink);
 	$t = count($pictures);
 	
+	$sql = "select `x`, `y` from `land` where `land_special_id`='".$markers[0]['id']."'";
+	$points = dbQuery($sql, $_dblink);
+	if(count($points)){
+		$markers[0]['points'] = $points;
+	}
+	
 	if($t){
 		//showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
 		//showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
