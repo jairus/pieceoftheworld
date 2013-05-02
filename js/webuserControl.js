@@ -16,9 +16,21 @@ $(document).ready(function(){
 			url: 'ajax/user_fxn.php?action=getLands',						
 			success: function(data){
 				$('#ownedLandList').html(data);
+				$(".editableText").editInPlace({					
+					url: "ajax/user_fxn.php?action=edit",		
+					saving_animation_color: "#ECF2F8",					
+				});
+				$(".editableTextarea").editInPlace({
+					url: "ajax/user_fxn.php?action=edit",
+					saving_animation_color: "#ECF2F8",
+					field_type: "textarea",
+				});
 			},
 		});	
 	}
+	function nl2br(str) {   		
+		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ '<br />' +'$2');
+	}	
 	
 	$('#regLink').click(function(e){
 		e.preventDefault();
@@ -90,5 +102,13 @@ $(document).ready(function(){
 				}
 			},
 		});	
-	});	
+	});
+	$('.manageImageLink').live('click', function(e){
+		e.preventDefault();
+		$id = $(this).attr('data-id');
+		$type = $(this).attr('data-type');
+
+		$holder = $('#pixHolder_'+$type+'_'+$id);		
+		$holder.toggle('slide');
+	});
 });

@@ -1,5 +1,14 @@
 <?php 
 session_start();
+function site_url(){
+	$host = $_SERVER['HTTP_HOST'];
+	if($host=='localhost'){
+		return "http://".$host."/pieceoftheworld.co/";
+	}
+	else{
+		return "http://".$host."/";
+	}
+}
 ?>
 <style>
 .hide {display: none;}
@@ -10,9 +19,11 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 #loginForm label {width: 70px;}
 #registerForm label {width: 130px;}
 #ownedLandList .table {width: 410px;}
+#pixHolder{ z-index: 2010; height: 300px; width: 300px;  background-color: red;}
 </style>
 
 		<div id="tabs" class="change_tab_style">
+		
 			<ul class="change_tab_ul_style">
 				<!--
 				<li><a style="padding: 2px !important;" href="#news">News</a></li>
@@ -72,6 +83,7 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
         </div>    
         <div id="ownedLands" class="tab_body">			
 			<div id="loggedinHolder">
+			
 				<h3>Hello <span class='currentUser' ><?php echo $_SESSION['userdata']['useremail']?> </span>! | <a href="#" id="logoutLink" >LOGOUT</a></h3>								
 				<div id='ownedLandList'>loading lands...</div>				
 			</div>
@@ -226,8 +238,11 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 			  
         </div>
       </div>
+	  
 
 <script type="text/javascript">
-	var loggedIn = '<?php echo isset($_SESSION['userdata'])  ?>';
+	var loggedIn = '<?php echo isset($_SESSION['userdata'])  ?>';		
 </script>
-<script src="js/webuserControl.js" type="text/javascript"></script>
+<!--<script type="text/javascript" src="editInPlace/jquery.ui.js"></script> -->
+<script type="text/javascript" src="js/jquery.editinplace.js"></script>
+<script type="text/javascript" src="js/webuserControl.js" ></script>
