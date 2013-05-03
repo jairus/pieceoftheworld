@@ -7,13 +7,23 @@ $(document).ready(function(){
 		$( "#tabs" ).tabs( {active: 4});
 		$('#tabs [href="#ownedLands"]').hide();
 	}
+	$( "#userPanelExtra" ).dialog({
+		height: 400,
+		width: 400,
+		//modal: true,	  
+		autoOpen: false,
+		show: {
+			effect: "slide",        		
+			duration: 300
+		},
+	});		
 
 	function getLands(){
 		$.ajax({
 			dataType: "html",
 			type: 'post',
 			async: true,
-			url: 'ajax/user_fxn.php?action=getLands',						
+			url: 'ajax/page_webuserLands.php',						
 			success: function(data){
 				$('#ownedLandList').html(data);
 				$(".editableText").editInPlace({					
@@ -31,7 +41,10 @@ $(document).ready(function(){
 	function nl2br(str) {   		
 		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ '<br />' +'$2');
 	}	
-	
+	function resizeHeight(){
+		$("#userPanelExtra").dialog({height: 500});
+//		<?php echo $record['type']?>_<?php echo $record['id']?> iframe",window.parent.document).height( $("#record_form").height() + 100 );
+	}	
 	$('#regLink').click(function(e){
 		e.preventDefault();
 		$('#loginHolder').slideToggle();
@@ -103,12 +116,39 @@ $(document).ready(function(){
 			},
 		});	
 	});
-	$('.manageImageLink').live('click', function(e){
+	$('.manageImageLink').live('click', function(e){	
+		$( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		$( "#userPanelExtra" ).dialog( "open" );
 		e.preventDefault();
 		$id = $(this).attr('data-id');
-		$type = $(this).attr('data-type');
-
-		$holder = $('#pixHolder_'+$type+'_'+$id);		
-		$holder.toggle('slide');
+		$.ajax({
+			dataType: "html",
+			type: 'get',
+			data: $('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserPictures.php',						
+			success: function(data){
+				$( "#userPanelExtra" ).dialog( {title: "Manage Images"} );
+				$('#userPanelExtra').html(data);
+				resizeHeight();				
+			},
+		});	
+	});
+	$('.manageTags').live('click', function(e){	
+		$( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		$( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = $(this).attr('data-id');
+		$.ajax({
+			dataType: "html",
+			type: 'get',
+			data: $('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserTags.php',						
+			success: function(data){
+				$( "#userPanelExtra" ).dialog( {title: "Manage Category and Tags"} );
+				$('#userPanelExtra').html(data);
+				resizeHeight();
+				
+			},
+		});	
 	});
 });

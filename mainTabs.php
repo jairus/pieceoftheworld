@@ -1,14 +1,5 @@
 <?php 
-session_start();
-function site_url(){
-	$host = $_SERVER['HTTP_HOST'];
-	if($host=='localhost'){
-		return "http://".$host."/pieceoftheworld.co/";
-	}
-	else{
-		return "http://".$host."/";
-	}
-}
+require_once('ajax/user_fxn.php')
 ?>
 <style>
 .hide {display: none;}
@@ -21,6 +12,8 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 #ownedLandList .table {width: 410px;}
 #pixHolder{ z-index: 2010; height: 300px; width: 300px;  background-color: red;}
 </style>
+
+<div id='userPanelExtra'></div>
 
 		<div id="tabs" class="change_tab_style">
 		

@@ -1,43 +1,31 @@
 <?php
 session_start();
 require_once 'global.php';
-$result = array();
-switch($_GET['action'])
-{
-	case "login": $result = login();
-		$response = json_encode($result); 
-		die($response);
-		break;
-	case "register": $result = register();
-		$response = json_encode($result);
-		die($response);
-		break;
-	case "logout": $result = logout();	
-		$response = json_encode($result);
-		die($response);
-		break;		
-	case "getLands": 
-		if(isset($_SESSION['userdata'])){
-			$response = getLands($_SESSION['userdata']['id']);	
-		} else {			
-			$response = 'Please login first.';
-		}
-		header('Content-Type: text/html; charset=utf-8');
-		die($response);
-		break;
-	case "edit": 
-		header('Content-Type: text/html; charset=utf-8');
-		$response = edit();		
-		die($response);
-		break;
-	case "getpix": $result = getpix($_GET['id'],$_GET['type'] );	
-		$response = json_encode($result);
-		die($response);
-		break;						
-	case "upload": $result = upload($_GET['recordId'],$_GET['type'] );	
-		$response = json_encode($result);
-		die($response);
-		break;								
+if(isset($_GET['action'])){
+	$result = array();
+	switch($_GET['action'])
+	{
+		case "login": $result = login();
+			$response = json_encode($result); 			
+			break;
+		case "register": $result = register();
+			$response = json_encode($result);			
+			break;
+		case "logout": $result = logout();	
+			$response = json_encode($result);			
+			break;		
+		case "upload": $result = upload($_POST['id'], $_POST['type']);
+			$response = json_encode($result);			
+			break;				
+		case "saveTags": $result = saveTags($_POST['id'], $_POST['type']);
+			$response = json_encode($result);			
+			break;							
+		case "edit": 
+			header('Content-Type: text/html; charset=utf-8');
+			$response = edit();					
+			break;
+	}
+	die($response);
 }
 
 // START OF FUNCTIONS //
@@ -93,91 +81,36 @@ function logout()
 }
 function getLands($id)
 {
-	$html = '';
-	$sql = "SELECT LD.id, LD.`title` , LD.`detail`
+	$rs = array();
+	$sql = "SELECT LD.id, LD.`title` , LD.`detail`, LD.category_id
 			FROM  `land_detail` LD
 			LEFT JOIN land L ON LD.id = L.land_detail_id
 			WHERE L.web_user_id =  '$id'
 			GROUP BY LD.id
 			ORDER BY LD.`id` DESC 			
 			";
-	$rs = dbQuery($sql);
-	if(!empty($rs)){						
-		$html .= '<h2>Ordinary Lands</h2>
-				<table border="1" class="table landList" ><tr>
-					<th>Plot</th>
-					<th>Title</th>
-					<th>Detail</th>
-					</tr>';
-		foreach($rs as $row){
-			$html .= "<tr>
-						<td>
-							<ul>";
-							
+	$rs['land_detail'] = dbQuery($sql);
+	if(!empty($rs['land_detail'])){
+		foreach($rs['land_detail'] as &$row){							
 			$sql2 = "select x, y from land where land_detail_id = '".$row['id']."' ";
-			$rs2 = dbQuery($sql2);
-			foreach($rs2 as $row2){
-				$html .= "<li><a href='?xy=".$row2['x']."~".$row2['y']."'>".$row2['x']." - ".$row2['y']."</a></li>";
-			}
-						
-			$html .=  "		</ul>
-						</td>
-						<td valign='top'><p class='editableText' id='title-".$row['id']."-land_detail'>".$row["title"]."</p>
-							<a href='#' data-id='".$row['id']."' data-type='pictures' class='manageImageLink'>manage images</a>
-						</td>
-						<td valign='top'><p class='editableTextarea' id='detail-".$row['id']."-land_detail'>".nl2br($row["detail"])."</p></td>
-					</tr>
-					<tr id='pixHolder_pictures_".$row['id']."' class='hide'><td colspan='3'>						
-							<iframe src='".site_url()."webuserPictures.php?id=".$row['id']."&type=pictures' frameborder=0 height='100' width='300'></iframe>						
-					</td></tr>";
-		}
-		$html .= '</table>';
-	
+			$row['land'] = dbQuery($sql2);
+		}			
 	} 
+	
 	$sql = "select LD.id, LD.`title`, LD.`detail`, format(LD.price,2) as price
 			from `land_special` LD			
 			where LD.web_user_id = '$id' 			
 			order by LD.`id` desc 
 			";
-	$rs = dbQuery($sql);
-	if(!empty($rs)){
-		$html .= '<h2>Special Lands</h2>
-				<table border="1" class="table landList" ><tr>
-					<th>Plot</th>
-					<th>Title</th>
-					<th>Detail</th>
-					<th>Price</th>
-					</tr>';
-		foreach($rs as $row){			
-			$html .= "<tr>
-						<td>
-							<ul>";
-							
+	$rs['land_special'] = dbQuery($sql);
+	if(!empty($rs['land_special'])){
+		foreach($rs['land_special'] as &$row){			
+		
 			$sql2 = "select x, y from land where land_special_id = '".$row['id']."' ";
-			$rs2 = dbQuery($sql2);
-			foreach($rs2 as $row2){
-				$html .= "<li><a href='?xy=".$row2['x']."~".$row2['y']."'>".$row2['x']." - ".$row2['y']."</a></li>";
-			}
-						
-			$html .=  "		</ul>			
-						<td><p class='editableText' id='title-".$row['id']."-land_special'>".$row["title"]."</p>
-							<a href='#' data-id='".$row['id']."' data-type='pictures' classs='manageImageLink'>manage images</a>
-						</td>
-						<td><p class='editableTextarea' id='detail-".$row['id']."-land_special'>".nl2br($row["detail"])."</p></td>
-						<td>".$row["price"]."</td>
-					</tr>
-					<tr class='hide'><td colspan='3' id='pixHolder_pictures_special_".$row['id']."'><img src='images/loading.gif'></td></tr>";
+			$row['land'] = dbQuery($sql2);
 		}
-		$html .= '</table>';	
-	} 
-	
-	if($html){
-		$result = '<p>Below are your owned lands.<p>' . $html;		
 	}
-	else {
-		$result = '<p>You can now start buying pieces of land.<p>' . $html;				
-	}
-	return $result;			
+	return $rs;	
 }
 // expect: title-<id>-<table> or detail-<id>-<table>
 function edit()
@@ -190,9 +123,17 @@ function edit()
 	dbQuery($sql);
 	return nl2br($result);
 }
-function upload($landId, $table='pictures')
-{	
-	$landField = ($table == 'pictures')? 'land_id' : 'land_special_id';
+function upload($landId, $type)
+{
+	$result = array();
+	if($type == 'land_detail'){
+		$table = 'pictures';
+		$landField = 'land_id';		
+	} else {
+		$table = 'pictures_special';
+		$landField = 'land_special_id';		
+	}
+		
 	$sql = "delete from `$table` where `$landField`=".mysql_real_escape_string($landId);
 	dbQuery($sql);
 	if(is_array($_POST['pictures'])){
@@ -217,23 +158,50 @@ function upload($landId, $table='pictures')
 	}
 	return $result;
 }
-function getpix($landId, $table='pictures', $isAjax = false)
+function getPix($landId, $type)
 {
 	$pictures = array();
-	$landField = ($table == 'pictures')? 'land_id' : 'land_special_id';
-	$sql = "select * from `$table` where `$landField`= '".mysql_real_escape_string($landId)."' order by id asc";
-	$pictures = dbQuery($sql);	
-	foreach($pictures as &$value)
-	{		
-		$value['picturePath'] =  $value['picture'];
-		$value['pictureFile'] = urldecode(basename($value['picture']));
-		$value['isChecked'] = ($value['isMain'])? 'checked' : '';
-	}
-	if($isAjax){
-		$result = array('status' => true, 'total' => count($pictures), 'content' => $pictures);
+	if($type == 'land_detail'){
+		$table = 'pictures';
+		$landField = 'land_id';		
 	} else {
-		$result = $pictures;
-	}	
+		$table = 'pictures_special';
+		$landField = 'land_special_id';		
+	}
+	
+	$sql = "select * from `$table` where `$landField`= '".mysql_real_escape_string($landId)."' order by id asc";
+	$result = dbQuery($sql);	
+	return $result;
+}
+function getTags($landId, $table)
+{	
+	$result = array();
+	$sql = "select L.tags, L.category_id
+			from $table L
+			where L.`id`= '".mysql_real_escape_string($landId)."' limit 1";
+	$rs = dbQuery($sql);	
+
+	if(!empty($rs)){
+		$result = $rs[0];
+	}
+	return $result;
+}
+function getCategories()
+{
+	$result = array();	
+	$sql = "select id,name from `categories` where `deleted`= 0 order by name asc ";
+	$rs = dbQuery($sql);	
+	foreach($rs as $row){
+		$result[$row['id']] = $row['name'];
+	}
+	return $result;
+}
+function saveTags($landId, $table)
+{
+	$result = array('status' => false, 'message' => 'Cannot save tags.');
+	$sql = "update $table set tags = '".mysql_real_escape_string(implode(',',$_POST['tags']))."', category_id = '".mysql_real_escape_string($_POST['category_id'])."' where id ='".mysql_real_escape_string($landId)."' limit 1";
+	dbQuery($sql);	
+	$result = array('status' => true, 'message' => 'Tags saved successfully');		
 	return $result;
 }
 ?>

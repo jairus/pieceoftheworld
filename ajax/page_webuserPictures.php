@@ -1,32 +1,18 @@
 <?php
 session_start();
-require_once('ajax/user_fxn.php');
+require_once('user_fxn.php');
 
 $record['id'] = $_GET['id'];
 $record['type'] = $_GET['type'];
 
-$pictures = getpix($record['id'], $record['type']);
+$pictures = getPix($record['id'], $record['type']);
 
-?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-	<meta charset="utf-8">
-	<title>Piece of the World Admin System</title>
-	<script language="javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/jquery-1.7.2.min.js"></script>
-	
-	<script type="text/javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/swfobject.js"></script>
-	<script type="text/javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/jquery.uploadify.v2.1.4.min.js"></script>
-	<link rel="stylesheet" type="text/css" href="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/uploadify.css" media="screen" />
-	<style>		
-	</style>
-</head>
-<body>
+?>	
+<script type="text/javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/swfobject.js"></script>
+<script type="text/javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/jquery.uploadify.v2.1.4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/uploadify.css" media="screen" />
 
 <script>
-function resizeHeight(){
-	jQuery("#pixHolder_<?php echo $record['type']?>_<?php echo $record['id']?> iframe",window.parent.document).height( $("#record_form").height() + 50 );
-}
 function saveRecord(approve){
 	extra = "";
 	jQuery("#savebutton").val("Saving...");
@@ -47,8 +33,7 @@ function delSS(obj, filepath){
 	if(confirm("Are you sure you want to delete this image?")){
 		index = ss.indexOf(filepath);
 		ss.splice(index, 1);
-		obj.parentElement.outerHTML = "";
-		resizeHeight();
+		obj.parentElement.outerHTML = "";		
 		return true;
 	}
 	return false;
@@ -65,7 +50,7 @@ function refreshPictures(filepath){
 		html += "<div><a target='_blank' href='"+filepath+"'>"+file+"</a> <label><input type='radio' name='isMainPix' value='"+filepath+"' /> Set as Main Image</label>" +
 				"<br/>Description: <input type='text' name='picture_titles[]' /><input type='hidden' name='pictures[]' value='"+filepath+"' /> <a style='cursor:pointer; text-decoration:underline' class='red delete' onclick='delSS(this, \""+filepath+"\")' >Delete</a></div><br/>";
 		jQuery("#sspathhtml").html(html);
-		resizeHeight();
+		
 	}	
 }
 
@@ -122,10 +107,14 @@ jQuery(function(){
 	<div id='sspathhtml'></div>
 	<input type='text' id="co_pictures" />
 	<input type='button' class='button normal' value='Upload' onclick="jQuery('#co_pictures').uploadifyUpload();" >			  
+	<input type='hidden' name='type' value='<?php echo $record['type']?>'>
+	<input type='hidden' name='id' value='<?php echo $record['id']?>'>
 
 	<input type="button" id='savebutton' value="Save" onclick="saveRecord()" />
 
 </form>
+
+
 <script>
 <?php
 
@@ -145,13 +134,8 @@ if(!empty($pictures)){
 		<?php
 	}
 	?>
-	jQuery("#sspathhtml").html(html);
-	resizeHeight();
-	
+	jQuery("#sspathhtml").html(html);		
 	<?php
 }
 ?>
 </script>
-
-</body>
-</html>
