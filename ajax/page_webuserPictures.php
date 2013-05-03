@@ -8,9 +8,9 @@ $record['type'] = $_GET['type'];
 $pictures = getPix($record['id'], $record['type']);
 
 ?>	
-<script type="text/javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/swfobject.js"></script>
-<script type="text/javascript" src="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/jquery.uploadify.v2.1.4.min.js"></script>
-<link rel="stylesheet" type="text/css" href="http://localhost/pieceoftheworld.co/admin2/media/js/uploadify/uploadify.css" media="screen" />
+<script type="text/javascript" src="<?php echo site_url(); ?>/admin2/media/js/uploadify/swfobject.js"></script>
+<script type="text/javascript" src="<?php echo site_url(); ?>/admin2/media/js/uploadify/jquery.uploadify.v2.1.4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="<?php echo site_url(); ?>/admin2/media/js/uploadify/uploadify.css" media="screen" />
 
 <script>
 function saveRecord(approve){
@@ -43,7 +43,7 @@ var ss = [];
 function refreshPictures(filepath){
 	file = filepath.split(/\//g);
 	file = file[file.length-1];
-	filepath = escape(filepath);
+//	filepath = escape(filepath);
 	if(ss.indexOf(filepath)==-1){
 		ss.push(filepath);
 		html = jQuery("#sspathhtml").html();	
@@ -90,11 +90,11 @@ jQuery(function(){
 		  	str += x+"\n";
 		  }
 		  fp = fileObj.filePath;
-		  //remove slash at fron of path
+		  //remove slash /../ at front of path
 		  while(fp[0]=='/'){
-		  	fp = fp.substring(1);
+		  	fp = fp.substring(4);
 		  }
-		  
+  
 		  filepath = "<?php echo site_url(); ?>"+fp;
 		  refreshPictures(filepath);
 		}	

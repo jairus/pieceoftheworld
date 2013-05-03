@@ -63,7 +63,7 @@ $(function(){
 	
 	<br/><br/>
 	
-	<label>Tags:</label>		
+	<label>Tags (comma separated):</label>		
 	<ul id="landTags">	
 	<?php 	if(isset($rs['tags']) && $rs['tags'] != ''){ 
 				$tagArr = explode(',',$rs['tags']);
