@@ -201,7 +201,30 @@ function saveTags($landId, $table)
 	$result = array('status' => false, 'message' => 'Cannot save tags.');
 	$sql = "update $table set tags = '".mysql_real_escape_string(implode(',',$_POST['tags']))."', category_id = '".mysql_real_escape_string($_POST['category_id'])."' where id ='".mysql_real_escape_string($landId)."' limit 1";
 	dbQuery($sql);	
-	$result = array('status' => true, 'message' => 'Tags saved successfully');		
+	
+	// save each tag in tags table
+	$oldTags = explode(',',$_POST['oldTags']);
+	$newTags = $_POST['tags'];
+	// get deleted tags
+	$toDelete = array_diff($oldTags, $newTags);
+	// get to add tags
+	$toAdd = array_diff($newTags, $oldTags);
+	
+	foreach($toAdd as $tag){
+		$tag = mysql_real_escape_string(strtolower(trim($tag)));		
+		$rs = dbQuery("select id from tags where lower(name) = '$tag' limit 1");
+		if(!empty($rs)){
+			dbQuery("update tags set useCounter = useCounter + 1 where id = '".$rs[0]['id']."' limit 1");
+		} else {
+			$newId = dbQuery("insert into tags set name='$tag' ");
+		}
+	}
+	foreach($toDelete as $tag){
+		$tag = mysql_real_escape_string(strtolower(trim($tag)));
+		dbQuery("update tags set useCounter = useCounter - 1 where lower(name) = '$tag' limit 1");
+	}
+	
+	$result = array('status' => true, 'message' => 'Tags saved successfully', 'tags' => implode(',',$newTags) );		
 	return $result;
 }
 ?>

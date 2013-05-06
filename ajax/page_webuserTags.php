@@ -31,6 +31,7 @@ function saveRecord(approve){
 		success: function(data){
 			jQuery("#savebutton").val("Save");
 			alert(data.message);
+			jQuery('#oldTags').val(data.tags);
 		}
 	});
 }
@@ -50,7 +51,7 @@ $(function(){
 <form id='record_form'>
 	<input type='hidden' name='id' value='<?php echo $record['id']?>' />
 	<input type='hidden' name='type' value='<?php echo $record['type']?>' />
-	<input type='hidden' name='landTagValues' id='landTagValues' value='<?php echo $record['tags']?>' />
+	<input type='hidden' name='oldTags' id='oldTags' value='<?php if(isset($rs['tags']) && $rs['tags'] != '') echo $rs['tags']?>' />
 		
 	<label>Category: </label>
 	<select name='category_id'>

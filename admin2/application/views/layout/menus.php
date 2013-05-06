@@ -25,12 +25,17 @@ if($method=='contribution'){
 		Web Users
 	</li>
 	<li <?php if($controller=="user"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."user";?>"'>
-		System Users
+		Admin Users
 	</li>
 	<li <?php if($controller=="landcounter"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."landcounter";?>"'>
 		Land Views
 	</li>
-	
+	<li <?php if($controller=="categories"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."categories";?>"'>
+		Static Categories
+	</li>
+	<li <?php if($controller=="tags"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."tags";?>"'>
+		User Tags
+	</li>		
 	<!--
 	<li <?php if($controller=="sales"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."sales";?>"'>
 		Sales
