@@ -1,565 +1,426 @@
 <?php
+require_once('ajax/user_fxn.php');
 session_start();
+
+if($_GET['ajaxlogout']){
+	unset($_SESSION['userdata']);
+	exit();
+}
+
+function sanitizeX($str){
+	$str = strip_tags($str);
+	$str = htmlentities($str);
+	return $str;
+}
 function microtime_float(){
 	list($usec, $sec) = explode(" ", microtime());
 	return ((float)$usec + (float)$sec);
 }
+function checkEmail($email, $mx=false) {
+    if(preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/" , $email))
+    {
+        list($username,$domain)=explode('@',$email);
+        if($mx){
+			if(!getmxrr ($domain,$mxhosts)) {
+				return false;
+			}
+		}
+        return true;
+    }
+    return false;
+}
+if($_POST['step']=="1"){
+	$_SESSION['POST'] = $_POST;
+	if(!$_GET['f']){
+		$foldername = date("Ymd")."_".microtime_float();
+		$post = $_POST;
+	}
+	else{
+		$foldername = $_GET['f'];		$foldername = $_GET['f'];
+		$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
+		$uploads_http = 'http://pieceoftheworld.co/_uploads/'.$foldername;
+		$filename = $uploads_dir."/post.txt";
+		$post2 = unserialize(file_get_contents($filename));
+		$post = $_POST;
+		$post['filename'] = $post2['filename'];
+		$post['http_picture'] = $post2['http_picture'];
+	}
+	$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
+	$uploads_http = 'http://pieceoftheworld.co/_uploads/'.$foldername;
+	@mkdir($uploads_dir, 0777);
+	$filename = $uploads_dir."/post.txt";
+	
+	
+	
+	if ($_FILES["image"]["error"] == UPLOAD_ERR_OK) {
+		$tmp_name = $_FILES["image"]["tmp_name"];
+		$name = $_FILES["image"]["name"];
+		move_uploaded_file($tmp_name, "$uploads_dir/$name");
+		$post['filename'] = "$uploads_dir/$name";
+		$http_picture = $uploads_http."/$name";
+		$post['http_picture'] = $http_picture;
+	}
+	$post['amount'] = $_SESSION['px'];
+	file_put_contents ( $filename, serialize($post));
+	
+	
+	if($_POST['register']){
+		if(!isUnique(trim($_POST['email']))){
+			?>
+			<script>
+				//alert("?error=1&type=buy&f=<?php echo $foldername; ?>");
+				self.location="?f=<?php echo $foldername; ?>&error=The inputted E-mail is already taken. Please input an another E-mail address&type=buy&f=<?php echo $foldername; ?>";
+			</script>
+			<?php
+			exit();
+		}
+		else if(!checkEmail(trim($_POST['email']))){
+			?>
+			<script>
+				//alert("?error=1&type=buy&f=<?php echo $foldername; ?>");
+				self.location="?f=<?php echo $foldername; ?>&error=Invalid E-mail address&type=buy&f=<?php echo $foldername; ?>";
+			</script>
+			<?php
+			exit();
+		}
+		else if(trim($_POST['password'])==""||($_POST['password']!=$_POST['repassword'])){
+			?>
+			<script>
+				//alert("?error=1&type=buy&f=<?php echo $foldername; ?>");
+				self.location="?f=<?php echo $foldername; ?>&error=Password and Re-type Password dont match&type=buy&f=<?php echo $foldername; ?>";
+			</script>
+			<?php
+			exit();
+		}
+		else if(!trim($_POST['email'])||!trim($_POST['title'])||!trim($_POST['description'])){
+			?>
+			<script>
+				//alert("?error=1&type=buy&f=<?php echo $foldername; ?>");
+				self.location="?f=<?php echo $foldername; ?>&error=Please complete all fields with *&type=buy&f=<?php echo $foldername; ?>";
+			</script>
+			<?php
+			exit();
+		}
+	}
+	else if(!trim($_POST['email'])||!trim($_POST['title'])||!trim($_POST['description'])){
+		?>
+		<script>
+			//alert("?error=1&type=buy&f=<?php echo $foldername; ?>");
+			self.location="?f=<?php echo $foldername; ?>&error=Please complete all fields with *&type=buy&f=<?php echo $foldername; ?>";
+		</script>
+		<?php
+		exit();
+	}
+	
+}
+else if($_GET['f']){
+	$foldername = $_GET['f'];
+	$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
+	$uploads_http = 'http://pieceoftheworld.co/_uploads/'.$foldername;
+	$filename = $uploads_dir."/post.txt";
+	$post = unserialize(file_get_contents($filename));
+	if($_GET['remove_image']){
+		unset($post['filename']);
+		unset($post['http_picture']);
+		file_put_contents ( $filename, serialize($post));
+	}
+}
+
 ?>
 <!doctype html>
 <html lang="us">
 <head>
 <meta charset="utf-8">
 <title>PieceoftheWorld</title>
-<link href="css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
 <script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
-<script src="js/jquery-ui-1.9.2.custom.min.js" type="text/javascript"></script>
-<link href="css/main.css" rel="stylesheet">
-<?php
-$type = @$_GET['type'];
-$plots = explode("_", @$_GET['land']);
-$plots = array_unique($plots);
-
-require_once 'ajax/global.php';
-$conOptions = GetGlobalConnectionOptions();
-$con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions['password']);
-if (!$con) { die(''); }
-mysql_select_db($conOptions['database'], $con);
-
-$land_special_id = -1;
-$owner_user_id = -1;
-$owner_user_email = "";
-$title = "";
-$detail = "";
-
-$plotsArray = array();
-
-$unboughtStandardPlot = false;
-$unboughtSpecialArea = false;
-$boughtStandardPlot = false;
-$boughtSpecialArea = false;
-
-?>
-<script type="text/javascript">
-	function setSessionPrice(p){
-		jQuery.ajax({
-			dataType: "html",
-			url: "/index.php/?px="+p,
-			success: function(data){
+<style>
+.hint{
+	padding-left:20px;
+	font-size:10px;
+	font-style:italic;
+	display:inline;
+}
+.header{
+	padding:10px;
+	background:#f0f0f0;
+}
+</style>
+<script>
+function logout(){
+	jQuery.ajax({
+		url:"?ajaxlogout=1",
+		dataType:'html',
+		async:false,
+		success:function(data, textStatus, jqXHR){
+			
+		}
+	});
+	jQuery("#theform *").attr("disabled", true);
+	self.location = "bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>&_="+(new Date()).getTime();
+}
+function login(){
+	jQuery.ajax({
+		dataType: "json",
+		type: 'post',
+		async: false,
+		url: "ajax/user_fxn.php?action=login",
+		data: "email="+$('#lemail').val()+"&password="+$('#lpassword').val(),
+		success: function(data){
+			if(data.status){
+				self.location = "bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>&_="+(new Date()).getTime();
+			} else {
+				jQuery("#loginStatus").html(data.message);			
+				jQuery("#loginStatusTr").show('slide');					
 			}
-		});
-	}
-	var unboughtStandardPlot = false;
-	var unboughtSpecialArea = false;
-	var boughtStandardPlot = false;
-	var boughtSpecialArea = false;
-	var numberOfPlots = 0;
-	var price = 0;
-	var discountPercent = 30.00;
-	function onLoad() {
-		//pricex = window.opener.jQuery('#theprice').html();
-		pricex = <?php echo $_SESSION['px']; ?>;
-		var user_email = getCookie("user_email");
-		//document.getElementById('email').value = user_email;
-		//document.getElementById('paypal-return-url').value += user_email;
-		
-		if (unboughtStandardPlot === true) {
-			if(!pricex){
-				var amount = 9.90 * numberOfPlots;
-				price = String(amount.toFixed(2));
-			}
-			else{
-				price = String(pricex.toFixed(2));
-			}
-		}
-		else if (unboughtSpecialArea === true) {
-			/*
-			if(!pricex){
-				price = '499';
-			}
-			else{
-				price = String(pricex.toFixed(2));
-			}
-			*/
-			price = 499;
-		}
-		setSessionPrice(price);
-		/*
-		else if (boughtStandardPlot === true) {
-		}
-		else if (boughtSpecialArea === true) {
-		}
-		*/
-		<?php
-		if ($type != "bid") {
-			?>
-			jQuery('#amount_id').val(price);
-			jQuery('#totalamount').val(price);
-			<?php
-		}	
-		?>
-		<?php
-		if (isset($_GET["post_id"])) {
-			?>
-			jQuery('#facebookshare').attr("href", "#");
-			jQuery('#facebookshareimg').attr("src", 'images/fsharedisabled.png');
-
-			var discount = (price*discountPercent)/100.00;
-			price = price - discount;
-			jQuery('#discount').val(discount.toFixed(2));
-			jQuery('#totalamount').val(price.toFixed(2));
-			jQuery('#amount_id').val(price.toFixed(2));
-			<?php
-		}
-		if($_GET['land']=='526825-289180_526825-289180'){
-			?>
-			jQuery('#amount_id').val(1);
-			jQuery('#totalamount').val(1);
-			<?php
-		}
-		?>		
-	}
-
-	function onSubmit() {
-		if (jQuery('#email').val() == "") {
-			alert('Please provide a valid email address to proceed.');
-			return false;
-		}
-		
-		jQuery('#paypal-return-url').val(jQuery('#paypal-return-url').val()+ jQuery('#email').val() ) ;
-		setTimeout('window.close()',5000);
-		return true;
-	}
-	
-	function getCookie(c_name) {
-		var i,x,y,ARRcookies=document.cookie.split(";");
-		for (i=0;i<ARRcookies.length;i++) {
-			x=ARRcookies[i].substr(0,ARRcookies[i].indexOf("="));
-			y=ARRcookies[i].substr(ARRcookies[i].indexOf("=")+1);
-			x=x.replace(/^\s+|\s+$/g,"");
-			if (x==c_name) {
-				if (y == null || y == "") {
-					y = "";
-				}
-				return unescape(y);
-			}
-		}
-		return "";
-	}
-
-	function setCookie(c_name,value,exdays) {
-		var exdate=new Date();
-		exdate.setDate(exdate.getDate() + exdays);
-		var c_value=escape(value) + ((exdays==null) ? "" : "; expires="+exdate.toUTCString());
-		document.cookie=c_name + "=" + c_value;
-	}
+		},
+	});	
+}
+function showLogin(){
+	jQuery("#loginStatusTr").hide();	
+	jQuery(".createaccount").hide();
+	jQuery(".loginaccount").show();
+	jQuery("#continuebutton").attr("disabled", true);
+}
+function cancelLogin(){
+	jQuery("#loginStatusTr").hide();		
+	jQuery(".createaccount").show();
+	jQuery(".loginaccount").hide();
+	jQuery("#continuebutton").attr("disabled", false);
+}
 </script>
-<script type="text/javascript">
-
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-39101024-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
-
-</script>
-</head>
-
-<body style="cursor: auto; background-color: white;" onload="onLoad();">
-	<?php
-// find out the domain:
-$domain = "www.pieceoftheworld.co";
-// find out the path to the current file:
-$path = $_SERVER['SCRIPT_NAME'];
-// find out the QueryString:
-$queryString = $_SERVER['QUERY_STRING'];
-// put it all together:
-$urlCurr1 = "http://" . $domain . $path . "?" . $queryString;
- 
-// An alternative way is to use REQUEST_URI instead of both
-// SCRIPT_NAME and QUERY_STRING, if you don't need them seperate:
-$urlCurr2 = "http://" . $domain . $_SERVER['REQUEST_URI'];
-?>
+<body style="cursor: auto; background-color: white;">
 <?php
-if ($type == "bid") {
-	echo "<h1>Place your bid</h1>";
-}
-else {
-	echo "<h1>Purchase land</h1>";
-}
-?>
-<table border=0>
-<tr>
-<td valign="top" >
-
-</td>
-<td width="300" valign="top">
-<?php
-if (sizeof($plots) == 1) {
-	$plotCo =  explode("-", $plots[0]);
-	$sql = "SELECT * FROM land WHERE x=".$plotCo[0]." AND y=".$plotCo[1];
-	$result = mysql_query($sql);
-	$row = null;
-	if ($result != null) {
-		$row = mysql_fetch_array($result);
+if(strtolower($_GET['type'])=='buy'){
+	if($_GET['type']&&$_GET['thumb']&&$_GET['link']){
+		$_SESSION["GET"] = $_GET;
 	}
+	/*
+	echo "<pre>";
+	//print_r($_GET);
 
-	if ($row == null) {
-		//mysql_close($con);
-		// Unbought standard plot selected
-		echo '<center><img  src="'.$_GET['thumb'].'" /></center>';
-		echo "<ul><li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li></ul>";
-		$unboughtStandardPlot = true;
-		//die('<li><font color=red>Invalid input</font></li></ul></td></tr></table></body></html>');
-	}
-	else {
-		
-		
-		
-		if ($owner_user_id == -1) {
-			$land_special_id = $row[3];
-			$owner_user_id = $row[4];
-			$title = $row[5];
-			$detail = $row[6];
-			echo "<h4>".$title." : ".$detail."</h4>";
-			echo '<center><img src="'.$_GET['thumb'].'" /></center>';
-			echo "<ul>";
-		}
-		if ($row[4] != 3) {
-			if ($row[3] == 0) {
-				$plotsArray[] = $row;
-				echo '<center><img src="'.$_GET['thumb'].'" /></center>';
-				echo "<ul><li><font color=black>Plot Id (".$plots[0].") (Standard Plot)</font></li></ul>";
-				$boughtStandardPlot = true;
-			}
-			else {
-				$sql = "SELECT * FROM land WHERE land_special_id=".$row[3];
-				$result = mysql_query($sql);
-				while ($row = mysql_fetch_array($result)) {
-					$plotsArray[] = $row;
-					echo "<li><font color=black>Plot Id (".$row[1]."-".$row[2].") (Special Area)</font></li>";
-				}
-				$boughtSpecialArea = true;
-			}
-		}
-		else {
-			if ($row[3] == 0) {
-				$plotsArray[] = $row;
-				echo '<center><img src="'.$_GET['thumb'].'" /></center>';
-				echo "<ul><li>Plot Id (".$plots[0].") (Standard Plot)</li></ul>";
-				$unboughtStandardPlot = true;
-			}
-			else {
-				$sql = "SELECT * FROM land WHERE land_special_id=".$row[3];
-				$result = mysql_query($sql);
-				while ($row = mysql_fetch_array($result)) {
-					$plotsArray[] = $row;
-					echo "<li>Plot Id (".$row[1]."-".$row[2].") (Special Area)</li>";
-				}
-				$unboughtSpecialArea = true;
-			}
-		}
-	}
-	echo '<script type="text/javascript">numberOfPlots = 1;</script>';
-}
-else if (sizeof($plots) == 2) {
-	$numberOfPlots = 0;
-	$plotCoLT =  explode("-", $plots[0]);
-	$plotCoRB =  explode("-", $plots[1]);
-	$land_not_in_database = false;
-	for ($i = $plotCoLT[0]; $i <= $plotCoRB[0]; $i++) {
-		if ($land_not_in_database === true) { break; }
-		for ($j = $plotCoLT[1]; $j <= $plotCoRB[1]; $j++) {
-			$numberOfPlots++;
-			$sql = "SELECT * FROM land WHERE x=".$i." AND y=".$j;
-			$result = mysql_query($sql);
-			$row = null;
-			if ($result != null) {
-				$row = mysql_fetch_array($result);
-			}
-			if ($row == null) {
-				//mysql_close($con);
-				$land_not_in_database = true;
-				$unboughtStandardPlot = true;
-				break;
-				//die('<li><font color=red>Invalid input</font></li></ul></td></tr></table></body></html>');
-			}
-			if ($owner_user_id == -1) {
-				$land_special_id = $row[3];
-				$owner_user_id = $row[4];
-				$title = $row[5];
-				$detail = $row[6];
-				
-				if($_GET['print']){
-					echo "<pre>";
-					print_r($row);
-					echo "</pre>";
-				}
-				echo "<h4>".$title." : ".$detail."</h4>";
-				echo '<center><img src="'.$_GET['thumb'].'" /></center>';
-				echo "<ul>";
-			}
-			$plotsArray[] = $row;
-			if ($row[4] != 3) {
-				if ($row[3] == 0) {
-					echo "<li><font color=black>Plot Id (".$i."-".$j.") (Standard Plot)</font></li>";
-					$boughtStandardPlot = true;
-				}
-				else {
-					echo "<li><font color=black>Plot Id (".$i."-".$j.") (Special Area)</font></li>";
-					$boughtSpecialArea = true;
-				}
-			}
-			else {
-				if ($row[4] == 3) {
-					echo "<li>Plot Id (".$i."-".$j.") (Special Area)</li>";
-					$unboughtSpecialArea = true;
-				}
-				else {
-					echo "<li>Plot Id (".$i."-".$j.") (Standard Plot)</li>";
-					$unboughtStandardPlot = true;
-				}
-			}
-		}
-	}
-	if ($land_not_in_database === true) { 
-		$numberOfPlots = 0;
-		echo "<ul>";
-		for ($i = $plotCoLT[0]; $i <= $plotCoRB[0]; $i++) {
-			for ($j = $plotCoLT[1]; $j <= $plotCoRB[1]; $j++) {
-				$numberOfPlots++;
-				echo "<li><font color=black>Plot Id (".$i."-".$j.") (Standard Plot)</font></li>";
-			}
-		}
-		echo "</ul>";
-	}
-	echo '<script type="text/javascript">numberOfPlots = '.$numberOfPlots.';</script>';
-}
-else {
-	echo '<script type="text/javascript">numberOfPlots = 0;</script>';
-	echo "<li><font color=red>Unexpected input found.</font></li>";
-}
+	print_r($_SESSION);
+	$coords = json_decode(stripslashes($_SESSION['coords']));
+	print_r($coords);
+	<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=418617858219868&link=http://www.pieceoftheworld.co/&picture=http://www.pieceoftheworld.co/images/pastedgraphic.jpg&name=PieceoftheWorld&caption=The%20best%20Valentine%27s%20gift%20of%202013&description=I%20just%20bought%20myself%20a%20piece%20of%20the%20world&redirect_uri=<?php echo urlencode($urlCurr1); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
+	<td><font size="3">Share on Facebook to get 30% discount.</font></td>
 
-//echo $unboughtStandardPlot ." - ". $unboughtSpecialArea ." - ". $boughtStandardPlot ." - ". $boughtSpecialArea;
+	Array
+	(
+		[px] => 49.5
+		[coords] => {\"points\":[\"435913-179277\",\"435914-179277\",\"435915-179277\",\"435914-179278\",\"435913-179278\"],\"strlatlongs\":[\"61.03031988363268,69.10856386347723\",\"61.03031988363268,69.10913532742507\",\"61.03031988363268,69.10970679137279\",\"61.030043095736616,69.10913532742507\",\"61.030043095736616,69.10856386347723\"]}
+		[GET] => Array
+			(
+				[type] => buy
+				[thumb] => http://www.pieceoftheworld.co/images/place_holder_small.png?_=1
+				[link] => http://www.pieceoftheworld.co/?latlong=61.03042900252349~69.10878896713257
+			)
 
-$mixedArea = 
-			($unboughtStandardPlot && $unboughtSpecialArea) ||
-			($unboughtStandardPlot && $boughtStandardPlot) ||
-			($unboughtStandardPlot && $boughtSpecialArea) ||
-			($unboughtSpecialArea && $boughtStandardPlot) ||
-			($unboughtSpecialArea && $boughtSpecialArea) ||
-			($boughtStandardPlot && $boughtSpecialArea);
+	)
+	stdClass Object
+	(
+		[points] => Array
+			(
+				[0] => 435913-179277
+				[1] => 435914-179277
+				[2] => 435915-179277
+				[3] => 435914-179278
+				[4] => 435913-179278
+			)
 
-$sql = "SELECT * FROM user WHERE id=".$owner_user_id;
-$result = mysql_query($sql);
-$row = null;
-if ($result != null) {
-	$row = mysql_fetch_array($result);
-}
-if ($row != null) {
-	$owner_user_email = $row[3];
-}
+		[strlatlongs] => Array
+			(
+				[0] => 61.03031988363268,69.10856386347723
+				[1] => 61.03031988363268,69.10913532742507
+				[2] => 61.03031988363268,69.10970679137279
+				[3] => 61.030043095736616,69.10913532742507
+				[4] => 61.030043095736616,69.10856386347723
+			)
 
-if ($con != null) {
-	mysql_close($con);
-}
-?>	
-</ul>
-<?php
-if ($mixedArea) {
-	echo "<h4><font color=red>ERROR: Mixed Area can not be purchased.</font></h4>";
-}
-else if ($boughtStandardPlot || $boughtSpecialArea) {
-	echo "<h4><font color=black>Note: This area has already been purchased but you can still bid on this area.</font></h4>";
-}
-?>
-</td>
-<td width="50%" valign="top">
-<?php
-echo '<script type="text/javascript">';
-$valueTmp =($unboughtStandardPlot === true) ? 'true' : 'false';
-echo 'unboughtStandardPlot='.$valueTmp.';';
-$valueTmp =($unboughtSpecialArea === true) ? 'true' : 'false';
-echo 'unboughtSpecialArea='.$valueTmp.';';
-$valueTmp =($boughtStandardPlot === true) ? 'true' : 'false';
-echo 'boughtStandardPlot='.$valueTmp.';';
-$valueTmp =($boughtSpecialArea === true) ? 'true' : 'false';
-echo 'boughtSpecialArea='.$valueTmp.';';
-echo '</script>';
-if ($type == "bid") {
+	)
+	*/
 	?>
-	<h4>Fill this form to place your bid:</h4>
-
-	<form action="sendmail.php" method="POST">
-	<table>
-	<tr><td>Name</td><td><input type="text" name="name"></td></tr>
-	<tr><td>Email</td><td><input type="text" id="email"></td></tr>
-	<tr><td>Message</td><td><textarea name="message" rows="6" cols="25"><?php
-	echo "Placing a bid for the following plots:\n\n";
-	$count = count($plotsArray);
-	for ($i = 0; $i < $count; $i++) {
-		echo $plotsArray[$i][1]."-".$plotsArray[$i][2]."\n";
+	<style>
+	td{
+		vertical-align:top;
 	}
-	?>
-	</textarea></td></tr>
-	<tr><td></td><td><input type="submit" value="Send"><input type="reset" value="Clear"><input type="hidden" name="owner_user_email" value="'.$owner_user_email.'"></td></tr>
-	</form>
-	<?php
-}
-else {
-	
-	if(!$_POST['save']&&!$_GET["post_id"]){
-		
-		echo '<center><h4>Set a title, text and picture to be shown at your very own Piece of the World</h4></center>';
+	input[type='text']{
+		width:200px;
+	}
+	textarea{
+		width:200px;
+	}
+	*{
+		font-size:11px;
+		font-family:verdana;
+	}
+	</style>
+	<center>
+	<br /><br />
+	<form enctype="multipart/form-data" method='post' action='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>' id='theform' style='margin:0px'>
+	<table style='height:100%;'><tr><td style='height:100%; vertical-align:middle'>
+		<table cellpadding=3>
+		<?php
 		if($_GET['error']){
-			echo '<center><h4>Please complete fields with *</h4></center>';
+			?>
+			<tr class='account'>
+				<td colspan=3 style='color:red; font-weight:bold'>
+					<?php echo $_GET['error']; ?>.
+				</td>
+			</tr>
+			<?php
 		}
 		?>
-		<form action="?type=buy&land=<?php echo $_GET['land']; ?>&thumb=<?php echo urlencode($_GET['thumb']); ?>&link=<?php echo urlencode($_GET['link']); ?>" method="post" enctype="multipart/form-data">
-			<input type="hidden" value="1" name="save">
-			<input type="hidden" value="1" name="step">
-			<input type="hidden" value="A631CD74-1D21-40b1-8602-346611127127" name="pass">
-			<input type="hidden" value="<?php echo @$_GET['land']; ?>" name="land">
-			<input type="hidden" value="2" name="step">
-			<table>
-				<tbody><tr>
-					<td><strong>Email<font color="red">*</font>&nbsp;</strong></td>
-					<td colspan="2"><input type="text" style="width: 100%;" maxlength="50" name="useremail" value="<?php echo htmlentities($_SESSION['POST']['useremail']); ?>" ></td>
-				</tr>
-				<tr>
-					<td><strong>Title<font color="red">*</font>&nbsp;</strong></td>
-					<td colspan="2"><input type="text" style="width: 100%;" maxlength="50" name="title_name" id="title" value="<?php echo htmlentities($_SESSION['POST']['title_name']); ?>"></td>
-				</tr>
-				<tr>
-					<td><strong>Land Owner<font color="red"></font>&nbsp;</strong></td>
-					<td colspan="2"><input type="text" style="width: 100%;" maxlength="50" name="land_owner" id="title" value="<?php echo htmlentities($_SESSION['POST']['land_owner']); ?>"></td>
-				</tr>
-				<tr>
-					<td style="vertical-align:top;"><strong>Text&nbsp;</strong></td>
-					<td colspan="2"><textarea style="width: 100%; height:75px;" maxlength="160" name="detail_name" id="detail"><?php echo htmlentities($_SESSION['POST']['detail_name']); ?></textarea></td>
-				</tr>
-				<tr>
-					<td><strong>Picture</strong></td>
-					<td><input type="file" style="width: 100%;" name="picture_name" id="picture"></td>
-					<td></td>
-				</tr>
-				<tr>
-					<td></td>
-					<td align="right" colspan="2"><br><input type="submit" value="  Submit  " name="button_name" id="button"></td>
-				</tr>
-			</tbody></table>
-		</form>
-	<?php
-	}
-	else{
-		if($_POST){
-			$_SESSION['POST'] = $_POST;
-			if(!trim($_POST['useremail'])||!trim($_POST['title_name'])){
-				?>
-				<script>
-					self.location="?error=1&type=buy&land=<?php echo $_GET['land']; ?>";
-				</script>
-				<?php
-				exit();
-			}
-			$foldername = date("Ymd")."_".microtime_float();
-			
-			$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
-			$uploads_http = 'http://pieceoftheworld.co/_uploads/'.$foldername;
-			mkdir($uploads_dir, 0777);
-			$filename = $uploads_dir."/post.txt";
-			$post = $_POST;
-			
-			if ($_FILES["picture_name"]["error"] == UPLOAD_ERR_OK) {
-				$tmp_name = $_FILES["picture_name"]["tmp_name"];
-				$name = $_FILES["picture_name"]["name"];
-				move_uploaded_file($tmp_name, "$uploads_dir/$name");
-				$post['filename'] = "$uploads_dir/$name";
-				$http_picture = $uploads_http."/$name";
-			}
-			$post['amount'] = $_SESSION['px'];
-			file_put_contents ( $filename, serialize($post));
-		}
-		else if($_GET['f']){
-			$foldername  = $_GET['f'];
-		}
-	
-		?>
-		<table align="center" border=0 valign=top width="300">
-		<tr valign=top>
-			<td valign=top>
-				<table border=0 align="center">
+		<tr>
+			<td>
+				<input type='hidden' name='step' value="1">
+				<table cellpadding=10>		
+					
+					<?php
+					/*
+					[userdata] => Array
+					(
+						[useremail] => jairus@nmg.com.ph
+						[id] => 56
+					)
+					*/
+					if($_SESSION['userdata']['useremail']){
+						?>
+						<tr class='account'>
+							<td colspan=2 class='header'>
+							<b>Account</b><div class='hint'>Not your account? Click <a href='#' onclick='logout();'>here</a> to logout.</div>
+							</td>
+						</tr>
+						<tr class='account'>
+							<td>* E-mail</td>
+							<td>
+							<input type='hidden' name='email' value="<?php echo sanitizeX($_SESSION['userdata']['useremail']) ?>" >
+							<?php 
+							echo $_SESSION['userdata']['useremail'];
+							?>
+							</td>
+						</tr>
+						<?php
+
+					}
+					else{
+						?>
+						<tr class='createaccount'>
+							<td colspan=2 class='header'>
+							<input type='hidden' name='register' value="1">
+							<b>Create an account</b><div class='hint'>Already have an account? Click <a href='#' onclick='showLogin()'>here</a> to login.</div>
+							</td>
+						</tr>
+						<tr class='createaccount'>
+							<td>* E-mail</td>
+							<td><input type='text' name='email' placeholder="e.g. john@email.com" value="<?php echo sanitizeX($post['email']) ?>" ></td>
+						</tr>
+						<tr class='createaccount'>
+							<td>* Password</td>
+							<td><input type='password' name='password' ></td>
+						</tr>
+						<tr class='createaccount'>
+							<td>* Re-type Password</td>
+							<td><input type='password' name='repassword'  ></td>
+						</tr>
+						<tr class='loginaccount' style='display:none'>
+							<td colspan=2 class='header'><b>Account Login</b></td>
+						</tr>
+						<tr id='loginStatusTr' style='display:none'>
+							<td id='loginStatus' align='center' colspan=2></td>
+						</tr>
+						<tr class='loginaccount' style='display:none'>
+							<td>* E-mail</td>
+							<td><input type='text' id='lemail' placeholder="e.g. john@email.com" ></td>
+						</tr>
+						<tr class='loginaccount' style='display:none'>
+							<td>* Password</td>
+							<td><input type='password' id='lpassword' ></td>
+						</tr>
+						<tr class='loginaccount' style='display:none'>
+							<td colspan=2 align='center'><input type='button' value='Login' onclick='login()'><input type='button' value='Cancel' onclick='cancelLogin()'></td>
+						</tr>
+						<?php
+					}
+					?>
+					
 					<tr>
-						<td align="center"><a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=<?php /* echo "http://pieceoftheworld.co/"; */ echo urlencode($_GET['link']); ?>&picture=<?php if(trim($http_picture)){ echo $http_picture; } else { echo urlencode($_GET['thumb']); } /* echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); */ ?>&name=I just bought a Piece of the World&caption=<?php if(trim($post['title_name'])) { echo $post['title_name']; } else { echo urlencode("Mark your very own Piece of the World!	"); } ?>&description=<?php if(trim($post['detail_name'])) { echo $post['detail_name']; } else { echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); } ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a></td>
-						<td><font size="3">Click on this Facebook icon to share PieceoftheWorld.com and get a 30% discount</font></td>
+						<td colspan=2 class='header'><b>Label your land</b></td>
+					</tr>
+					<tr>
+						<td>* Name for your land</td>
+						<td><input type='text' name='title' placeholder="e.g. The Eiffel Tower" value="<?php echo sanitizeX($post['title']) ?>"></td>
+					</tr>
+					<tr>
+						<td>* Description for your land</td>
+						<td><textarea name='description' placeholder="e.g. Best place to go to in Paris France" ><?php echo $post['title']; ?></textarea></td>
+					</tr>
+					<tr>
+						<td>Name of the land owner</td>
+						<td><input type='text' name='land_owner' value="<?php echo sanitizeX($post['land_owner']) ?>"></td>
+					</tr>
+					<tr>
+						<td>Image</td>
+						<td>
+						<?php
+						if($post['http_picture']){
+							?>
+							<table>
+							<tr>
+							<td valign='middle'>
+								<a href="<?php echo $post['http_picture']; ?>" target='_blank'><img src="images/image.php?p=<?php echo base64_encode($post['http_picture']); ?>&b=1&mx=50" /></a><br>
+							</td>
+							<td valign='middle'>
+								<a href='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>&remove_image=1'>Remove Image</a>
+							</td>
+							</tr>
+							</table>
+							<?php
+						}
+						?>
+						<input type='file' name='image'>
+						
+						</td>
 					</tr>
 				</table>
 			</td>
+			<td>
+				<table cellpadding=3>
+					<tr>
+						<td class='header'>
+							<b>Land Purchase Details</b>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<div id='buydetails' style='padding:10px;'><?php echo $_SESSION['buydetails']; ?></div>
+						</td>
+					</tr>
+					<tr>
+						<td style='border-top:1px solid #f0f0f0; '>
+						<div style='font-size:12px; font-weight:bold; padding:10px;'>
+						Total: USD <?php echo number_format($_SESSION['px'],2); ?> 
+						<!--<a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=<?php /* echo "http://pieceoftheworld.co/"; */ echo urlencode($_SESSION['GET']['link']); ?>&picture=<?php if(trim($http_picture)){ echo $http_picture; } else { echo urlencode($_GET['thumb']); } /* echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); */ ?>&name=I just bought a Piece of the World&caption=<?php if(trim($post['title_name'])) { echo $post['title_name']; } else { echo urlencode("Mark your very own Piece of the World!	"); } ?>&description=<?php if(trim($post['detail_name'])) { echo $post['detail_name']; } else { echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); } ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a>-->
+						</div>
+						</td>
+					</tr>
+					<tr>
+						<td align='center'>
+							<img src='<?php echo $_SESSION['GET']['thumb']?>' />
+						</td>
+					</tr>
+				</table>
+			</td>
+		
 		</tr>
-		<tr><td>
-		<table align="center" border=0 valign=top>
 		<tr>
-		<td>Email: </td><td><input type="text" id="email" name="email_name" value="<?php echo $_POST['useremail']; ?>" size="20"></td>
-		</tr>
-		<tr>
-		<td>Discount: USD </td><td><input type="text" id="discount" name="discount_name" value="0.0" size="4" readonly></td>
-		</tr>
-		<tr>
-		<td>Total amount: USD </td><td><input type="text" id="totalamount" name="totalamount_name" value="0.0" size="4" readonly></td>
+			<td colspan=3 align='center'><input type='submit' id='continuebutton' value="Proceed" style='width:100%; height: 25px;'></td>
 		</tr>
 		</table>
-		</td></tr>
-		<tr><td align="center">
-
-		<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
-			<input type="hidden" value="_xclick" name="cmd">
-			<input type="hidden" value="pieceoftheworld2013@gmail.com" name="business">
-			<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>">
-			<input type="hidden" value="Land" name="item_name">
-			<input type="hidden" value="0" name="amount" id="amount_id">
-			<input type="hidden" value="http://www.pieceoftheworld.co/ppc2.php?f=<?php echo $foldername; ?>&step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
-			<input type="hidden" value="http://www.pieceoftheworld.co/" name="cancel_return">
-			<input type="hidden" value="USD" name="currency_code">
-			<input type="hidden" value="US" name="lc">
-			Upon pressing Buy Now button I accept<br>
-			PieceoftheWorld's all <a href="#" onclick="window.showModalDialog('tac.php',0, 'dialogWidth:600px; dialogHeight:400px; center:yes; resizable: no; status: no');">terms and conditions</a><br>
-			<br>
-			<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-			<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 		</form>
-		<!--
-		<form action="https://www.sandbox.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
-		<input type="hidden" name="cmd" value="_xclick">
-		<input type="hidden" name="business" value="bilalb_1359948554_biz@gmail.com">
-		<input type="hidden" name="lc" value="US">
-		<input type="hidden" value="Land" name="item_name">
-		<input type="hidden" value="0" name="amount" id="amount_id">
-		<input type="hidden" name="currency_code" value="USD">
-		<input type="hidden" name="button_subtype" value="services">
-		<input type="hidden" name="no_note" value="1">
-		<input type="hidden" name="no_shipping" value="1">
-		<input type="hidden" name="rm" value="1">
-		<input type="hidden" value="http://www.pieceoftheworld.co/ppc.php?step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
-		<input type="hidden" name="cancel_return" value="http://www.pieceoftheworld.co">
-		<input type="hidden" name="bn" value="PP-BuyNowBF:btn_buynowCC_LG.gif:NonHosted">
-		Upon pressing Buy Now button I accept<br>
-		PieceoftheWorld's all <a href="#" onclick="window.showModalDialog('tac.php',0, 'dialogWidth:600px; dialogHeight:400px; center:yes; resizable: no; status: no');">terms and conditions</a><br>
-		<br>
-		<input type="image" src="https://www.sandbox.paypal.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
-		<img alt="" border="0" src="https://www.sandbox.paypal.com/en_US/i/scr/pixel.gif" width="1" height="1">
-		</form>
-		-->
-		</td></tr>
-		</table>
-		<?php
-	}
+	</td></tr></table>
+	</center>
+	<?php
 }
 ?>
-</td>
-</tr>
-</table>
 </body>
 </html>

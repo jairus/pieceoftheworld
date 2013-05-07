@@ -173,8 +173,8 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 	
 		showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 		showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-		$markers[0]['thumb_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/thumb_".basename($picture.".png?_=".time());
-		$markers[0]['img_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/450_".basename($picture.".png?_=".time());
+		$markers[0]['thumb_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/thumb_".basename($picture.".png");
+		$markers[0]['img_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/450_".basename($picture.".png");
 	}
 }
 else{
@@ -197,8 +197,8 @@ else{
 			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 			//if not special land
-			$markers[0]['thumb_url'] = "/_uploads2/land/".$markers[0]['id']."/images/thumb_".basename($picture.".png?_=".time());
-			$markers[0]['img_url'] = "/_uploads2/land/".$markers[0]['id']."/images/450_".basename($picture.".png?_=".time());
+			$markers[0]['thumb_url'] = "/_uploads2/land/".$markers[0]['id']."/images/thumb_".basename($picture.".png");
+			$markers[0]['img_url'] = "/_uploads2/land/".$markers[0]['id']."/images/450_".basename($picture.".png");
 		}
 	}
 	if(trim($markers[0]['folder'])&&!$t){ //if no picture
@@ -223,8 +223,8 @@ else{
 		if(trim($post['filename'])){
 			showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
 			showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
-			$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
-			$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
+			$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png");
+			$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png");
 			
 			/*
 			if(trim($markers[0]['land_owner'])==""){

@@ -1,12 +1,6 @@
 <?php 
 error_reporting(E_ALL^E_NOTICE);
 session_start(); 
-if($_GET['coords']){
-	$_SESSION["coords"] = $_POST['data'];
-	$_SESSION["buydetails"] = $_POST['buydetails'];
-	print_r($_SESSION["coords"]);
-	exit();
-}
 require_once 'ajax/global.php';
 if($_GET['affid']){
 	$_SESSION['affid'] = $_GET['affid'];
@@ -70,7 +64,7 @@ if($_GET['px']!=""){
 	echo "var masterUser = '".$masterUser."';";
 ?>
 <?php 
-	if(!trim($_GET['latlong'])&&!trim($_GET['xy'])){
+	if(!trim($_GET['latlong'])){
 		if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) { ?>
 			var showTutorial = getCookie("showTutorial");
 			if (showTutorial !== "false") {
@@ -235,23 +229,6 @@ if($_GET['px']!=""){
 			jQuery("#clicktozoom").hide();
 			<?php
 		}
-		else if(trim($_GET['xy'])){
-			list($x, $y) = explode("~", trim($_GET['xy']));
-			$x += 0;
-			$y += 0;
-			?>
-			var projection = new MercatorProjection();
-			var point = {};
-			point.x = <?php echo $x;?>;
-			point.y = <?php echo $y;?>;
-			var inLatLng = projection.fromPointToLatLng(point);
-			var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
-			//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
-			map.setZoom(17);
-			map.setCenter(loc);
-			jQuery("#clicktozoom").hide();
-			<?php
-		}
 		?>
 		
 		
@@ -332,26 +309,14 @@ if($_GET['px']!=""){
 		//updatePopupWindowTabInfo(event.latLng);
 	}
 	
-	function setSessionPrice(p, sync){
-		if(sync){
-			jQuery.ajax({
-				dataType: "html",
-				async: false,
-				url: "?px="+p,
-				success: function(data){
-				}
-			});
-
-		}
-		else{
-			jQuery.ajax({
-				dataType: "html",
-				//async: false,
-				url: "?px="+p,
-				success: function(data){
-				}
-			});
-		}
+	function setSessionPrice(p){
+		jQuery.ajax({
+			dataType: "html",
+			//async: false,
+			url: "?px="+p,
+			success: function(data){
+			}
+		});
 	}
 	
 	function checkWater(LatLng){
@@ -1243,14 +1208,13 @@ if($_GET['px']!=""){
 	
 	
 	
-	function getBlockInfoNew(inLatLng, strlatlong, worldCoordinate){
+	function getBlockInfoNew(inLatLng, strlatlong){
 		var ret = {};
 		ret.inLatLng = inLatLng;
 		ret.detail = "";
 		ret.title = "";
 		ret.points = "";
 		ret.json = "";
-		ret.attached = "";
 		var blockInfo = getBlockInfo(inLatLng);
 		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
@@ -1258,8 +1222,6 @@ if($_GET['px']!=""){
 		if (returnText != '[[]]') {
 			if(markerJSON[0].email){ //if special land unpaid
 				consoleX(markerJSON[0].land_special_id);
-				consoleX(markerJSON[0].points);
-				ret.attached = markerJSON[0].points;
 				ret.price = markerJSON[0].price;
 			}
 			else{ //for bidding only
@@ -1268,8 +1230,7 @@ if($_GET['px']!=""){
 			}
 			ret.colored = 1;
 			//set the points
-			ret.points = worldCoordinate.x+"-"+worldCoordinate.y;
-			ret.strlatlong = strlatlong;
+			ret.points = "";
 			ret.title = markerJSON[0].title;
 			ret.detail = markerJSON[0].detail;
 			ret.json = markerJSON[0];
@@ -1289,8 +1250,7 @@ if($_GET['px']!=""){
 			ret.areatype = rtemp.areatype;
 			ret.colored = 0;
 			//set the points
-			ret.points = worldCoordinate.x+"-"+worldCoordinate.y;
-			ret.strlatlong = strlatlong;
+			ret.points = "";
 		}
 		return ret; //returns ret object
 	}
@@ -1303,45 +1263,31 @@ if($_GET['px']!=""){
 			gzones[i].setMap(null);
 		}
 		gzones = [];
-		for(i=0; i<gattached.length; i++){
-			gattached[i].setVisible(false);
-			gattached[i].setMap(null);
-		}
-		gattached = [];
 		updatePopupWindowTabInfoNew();
 	}
 	
-	function calculateTotal(sync){
+	function calculateTotal(){
 		total = 0;
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
 				total += gzones[i].ret.price*1;
 			}
 		}
-		setSessionPrice(total, sync);
+		setSessionPrice(total);
 		consoleX("Calculated total = "+total);
 	}
 	
 	function cancelBox(i){
-		is = i.split(",");
-		for(x=0; x<is.length; x++){
-			i = is[x];
-			if(i!=""){
-				gzones[i].ret.price = 0;
-				gzones[i].ret.active = 0;
-				gzones[i].setMap(); //remove the box
-			}
-		}
+		gzones[i].ret.price = 0;
+		gzones[i].ret.active = 0;
+		gzones[i].setMap(); //remove the box
 		calculateTotal(); //calculate total of 
 		updatePopupWindowTabInfoNew();
 	}
 	
-	gsessiondetails = "";
-	gsessiondetails = "";
 	function updatePopupWindowTabInfoNew(){
-	
 		consoleX("updatePopupWindowTabInfoNew");
-		jQuery("#buy-button").hide();
+		
 		if(!gzones.length){
 			showPopupWindowTabInfo(false);
 			return false;
@@ -1382,8 +1328,6 @@ if($_GET['px']!=""){
 		total = 0;
 		blankblocks = false;
 		specialbought = false;
-		detailsobjarr = {};
-		
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
 				if(gzones[i].ret.json){ //if a special land or a bought land
@@ -1424,137 +1368,31 @@ if($_GET['px']!=""){
 						firstindex = i;
 					}
 					if(gzones[i].ret.city){
-						if(!detailsobjarr["City: "+gzones[i].ret.city]){
-							detailsobjarr["City: "+gzones[i].ret.city] = new function(){
-								var price = 0;
-								var count = 0;
-								var idx = "";
-							};
-						}
-						if(!detailsobjarr["City: "+gzones[i].ret.city].price){
-							detailsobjarr["City: "+gzones[i].ret.city].price = 0;
-						}
-						detailsobjarr["City: "+gzones[i].ret.city].price = gzones[i].ret.price.toFixed(2);
-						if(!detailsobjarr["City: "+gzones[i].ret.city].count){
-							detailsobjarr["City: "+gzones[i].ret.city].count = 0;
-						}
-						detailsobjarr["City: "+gzones[i].ret.city].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
-						}
-						detailsobjarr["City: "+gzones[i].ret.city].idx += i+",";
-						//details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png' onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
+						details += gzones[i].ret.city+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png' onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else if(gzones[i].ret.region){
-						
-						if(!detailsobjarr["Region: "+gzones[i].ret.region]){
-							detailsobjarr["Region: "+gzones[i].ret.region] = new function(){
-								var price = 0;
-								var count = 0;
-								var idx = "";
-							};
-						}
-						if(!detailsobjarr["Region: "+gzones[i].ret.region].price){
-							detailsobjarr["Region: "+gzones[i].ret.region].price = 0;
-						}
-						detailsobjarr["Region: "+gzones[i].ret.region].price = gzones[i].ret.price.toFixed(2);
-						if(!detailsobjarr["Region: "+gzones[i].ret.region].count){
-							detailsobjarr["Region: "+gzones[i].ret.region].count = 0;
-						}
-						detailsobjarr["Region: "+gzones[i].ret.region].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
-						}
-						detailsobjarr["Region: "+gzones[i].ret.region].idx += i+",";
-						//details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
+						details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else if(gzones[i].ret.country){
-						if(!detailsobjarr["Country: "+gzones[i].ret.country]){
-							detailsobjarr["Country: "+gzones[i].ret.country] = new function(){
-								var price = 0;
-								var count = 0;
-								var idx = "";
-							};
-						}
-						if(!detailsobjarr["Country: "+gzones[i].ret.country].price){
-							detailsobjarr["Country: "+gzones[i].ret.country].price = 0;
-						}
-						detailsobjarr["Country: "+gzones[i].ret.country].price = gzones[i].ret.price.toFixed(2);
-						if(!detailsobjarr["Country: "+gzones[i].ret.country].count){
-							detailsobjarr["Country: "+gzones[i].ret.country].count = 0;
-						}
-						detailsobjarr["Country: "+gzones[i].ret.country].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
-						}
-						detailsobjarr["Country: "+gzones[i].ret.country].idx += i+",";
-						//details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
+						details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else if(gzones[i].ret.areatype=='water'){
-						if(!detailsobjarr["Water Area: "]){
-							detailsobjarr["Water Area: "] = new function(){
-								var price = 0;
-								var count = 0;
-								var idx = "";
-							};
-						}
-						if(!detailsobjarr["Water Area: "].price){
-							detailsobjarr["Water Area: "].price = 0;
-						}
-						detailsobjarr["Water Area: "].price = gzones[i].ret.price.toFixed(2);
-						if(!detailsobjarr["Water Area: "].count){
-							detailsobjarr["Water Area: "].count = 0;
-						}
-						detailsobjarr["Water Area: "].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
-						}
-						detailsobjarr["Water Area: "].idx += i+",";
-						//details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
+						details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					else {
-						if(!detailsobjarr["Land Area: "]){
-							detailsobjarr["Land Area: "] = new function(){
-								var price = 0;
-								var count = 0;
-								var idx = "";
-							};
-						}
-						if(!detailsobjarr["Land Area: "].price){
-							detailsobjarr["Land Area: "].price = 0;
-						}
-						detailsobjarr["Land Area: "].price = gzones[i].ret.price.toFixed(2);
-						if(!detailsobjarr["Land Area: "].count){
-							detailsobjarr["Land Area: "].count = 0;
-						}
-						detailsobjarr["Land Area: "].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
-						}
-						detailsobjarr["Land Area: "].idx += i+",";
-						//details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
+						details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
 					}
 					total += gzones[i].ret.price*1;
 				}
-			}	
+			}
+			
 		}
-		gsessiondetails = "";
 		if(blankblocks){
 			consoleX("blankblocks");
-			for(x in detailsobjarr){
-				detail = x + " USD " + detailsobjarr[x].price  + " x " + detailsobjarr[x].count ;
-				gsessiondetails += detail + "<br />";
-				details += detail + " <img src='images/x.png'  onclick='cancelBox(\""+detailsobjarr[x].idx+"\")' style='cursor:pointer' /><br />" ;
-			}
 			showPopupWindowTabInfo(true);
-			jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
-			jQuery("#info-lightbox").attr("title", "" );
-			jQuery("#info-lightbox").colorbox({width:'550px'});
 			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
-			jQuery("#info-img").unbind();
-				
 			jQuery("#buy-button").val("Buy");
-			jQuery("#buy-button").show();
+			jQuery("#buy-button").hide();
 			details += "<hr />Total: USD "+total.toFixed(2);
 			jQuery("#info-title").html("Buy Land");
 			jQuery("#info-detail").html(details);
@@ -1562,24 +1400,10 @@ if($_GET['px']!=""){
 		else if(specialbought){
 			consoleX("special or bought");
 			if(gzones[i].ret.json.thumb_url){
-				jQuery("#info-lightbox").attr("href", gzones[i].ret.json.img_url );
-				xtitle = "";
-				if(gzones[i].ret.json.land_owner){
-					xtitle = "Land Owner: "+gzones[i].ret.json.land_owner+"<br />";
-				}
-				xtitle += gzones[i].ret.json.detail;
-				xtitle = "";
-				jQuery("#info-lightbox").attr("title", xtitle );
-				//jQuery("#info-lightbox").lightBox({fixedNavigation:true});
-				jQuery("#info-lightbox").colorbox({width:'550px'});
 				jQuery("#info-img")[0].src = gzones[i].ret.json.thumb_url;
 			}
 			else{
-				jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
-				Query("#info-lightbox").attr("title", "" );
-				jQuery("#info-lightbox").colorbox({width:'550px'});
 				jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
-				jQuery("#info-img").unbind();
 			}
 			if(gzones[i].ret.json.land_special_id){
 				if (gzones[i].ret.json.email == masterUser) {
@@ -1619,7 +1443,6 @@ if($_GET['px']!=""){
 	}
 	
 	var gzones = [];
-	var gattached = [];
 	function putBox(event){
 		//disable block clicking when zoomed out
 		if(map.getZoom()<17){
@@ -1641,7 +1464,7 @@ if($_GET['px']!=""){
 		strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
 		jQuery("#tabs").tabs("select",0);
 		//new update popup info
-		ret = getBlockInfoNew(event.latLng, strlatlong, worldCoordinate);
+		ret = getBlockInfoNew(event.latLng, strlatlong);
 		
 		if(ret.colored){
 			unsetGZones();
@@ -1654,12 +1477,6 @@ if($_GET['px']!=""){
 					gzones[i].setMap();
 				}
 			}
-			//remove all attached selections
-			for(i=0; i<gattached.length; i++){
-				gattached[i].setVisible(false);
-				gattached[i].setMap(null);
-			}
-			gattached = [];
 		}
 		
 		//put in the box
@@ -1672,9 +1489,9 @@ if($_GET['px']!=""){
 		ret.active = 1;
 		zone = new google.maps.Polygon({
 			paths: zoneCoords,
-			strokeColor: "#ffffff",
+			strokeColor: "#40E0D0",
 			strokeOpacity: 1,
-			strokeWeight: 2,
+			strokeWeight: 3,
 			fillColor: "#40E0D0",
 			fillOpacity: 0.2,
 			zIndex: 10000,
@@ -1684,9 +1501,6 @@ if($_GET['px']!=""){
 			this.ret.price = 0;
 			this.ret.active = 0;
 			this.setMap(); //remove the box
-			if(this.ret.attached.length){
-				unsetGZones();
-			}
 			calculateTotal(); //calculate total of 
 			updatePopupWindowTabInfoNew();
 		});
@@ -1694,52 +1508,6 @@ if($_GET['px']!=""){
 		gzones.push(zone);
 		calculateTotal();
 		updatePopupWindowTabInfoNew();
-		
-		if(ret.attached){
-			thex = worldCoordinate.x;
-			they = worldCoordinate.y;
-			for(i=0; i<ret.attached.length; i++){
-				if(ret.attached[i].x==thex && ret.attached[i].y==they){
-					continue;
-				}
-				worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
-				var block = getBlockLTRB(worldCoordinate);
-				consoleX("block = ");
-				consoleX(block);
-				var bounds = new google.maps.LatLngBounds(
-					new google.maps.LatLng(block[0].lat(),block[0].lng()),
-					new google.maps.LatLng(block[1].lat(),block[1].lng())
-				);
-				var LtLgNE = bounds.getNorthEast();
-				var LtLgSW = bounds.getSouthWest();
-				
-				//put in the box
-				var zoneCoords = [
-					new google.maps.LatLng(LtLgNE.lat(), LtLgNE.lng()),
-					new google.maps.LatLng(LtLgNE.lat(), LtLgSW.lng()),
-					new google.maps.LatLng(LtLgSW.lat(), LtLgSW.lng()),
-					new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
-				];
-				ret.active = 1;
-				zone = new google.maps.Polygon({
-					paths: zoneCoords,
-					strokeColor: "#ffffff",
-					strokeOpacity: 1,
-					strokeWeight: 2,
-					fillColor: "#40E0D0",
-					fillOpacity: 0.2,
-					zIndex: 10000
-				});
-				gattached.push(zone);
-				google.maps.event.addListener(zone, 'click', function(event){
-					
-					unsetGZones();
-					calculateTotal(); //calculate total of 
-					updatePopupWindowTabInfoNew();
-				});
-				zone.setMap(window.map);
-			}
-		}
 	}
 	
 	function drawRect(lt, rb, color, opacity) {
@@ -2032,17 +1800,8 @@ if($_GET['px']!=""){
 					xtitle = "Land Owner: "+markerJSON[0].land_owner+"<br />";
 				}
 				xtitle += markerJSON[0].detail;
-				xtitle = "";
 				jQuery("#info-lightbox").attr("title", xtitle );
-				//jQuery("#info-lightbox").lightBox({fixedNavigation:true});
-				jQuery("#info-lightbox").colorbox({width:'550px'});
-			}
-			else{
-				jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
-				jQuery("#info-lightbox").attr("title", "" );
-				jQuery("#info-lightbox").colorbox({width:'550px'});
-				jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
-				jQuery("#info-img").unbind();
+				jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			}
 	
 			shareowner = jQuery('#info-land_owner').text();
@@ -2392,48 +2151,18 @@ if($_GET['px']!=""){
 		
 	}
 	
-	function setCoords(){
-		total = 0;
-		datax = {};
-		datax.points = [];
-		datax.strlatlongs = [];
-		for(i=0; i<gzones.length; i++){
-			if(gzones[i].ret.active){
-				datax.points.push(gzones[i].ret.points);
-				datax.strlatlongs.push(gzones[i].ret.strlatlong);
-			}
-		}
-		str = JSON.stringify(datax);
-		
-		jQuery.ajax({
-			dataType: "html",
-			async: false,
-			type: "POST",
-			data: "data="+str+"&buydetails="+gsessiondetails,
-			url: "?coords=1",
-			success: function(data){
-				
-			}
-		});
-		
-	}
-	
 	function onBuyLand() {
-		calculateTotal(true); //second parameter to make the routine sync
-		setCoords();
+	
 		
 		var url = "";
 		if (document.getElementById('buy-button').value == "Buy") {
-			//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
-			url = "bidbuyland.php?type=buy&thumb="+document.getElementById('info-img').src+"&link="+globallink;
+			url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
 		}
 		else {
-			//url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
-			url = "bidbuyland.php?type=bid&thumb="+document.getElementById('info-img').src+"&link="+globallink;
+			url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
 		}
 		//window.open(url);
-		jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
-		//window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
+		window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
 	}
 	
 	function getCookie(c_name) {
@@ -2467,10 +2196,6 @@ if($_GET['px']!=""){
 
 <script type="text/javascript" src="jquery-lightbox-0.5/js/jquery.lightbox-0.5.js"></script>
 <link rel="stylesheet" type="text/css" href="jquery-lightbox-0.5/css/jquery.lightbox-0.5.css" media="screen" />
-
-<script src="js/colorbox-master/jquery.colorbox.js"></script>
-<link rel="stylesheet" type="text/css" href="js/colorbox-master/example1/colorbox.css" media="screen" />
-
 <style>
 .ui-dialog {
     width: 450px;
@@ -2482,7 +2207,6 @@ if($_GET['px']!=""){
 #jquery-overlay {
     z-index: 9000;
 }
-#cboxTitle{position:absolute; bottom:4px; left:0; text-align:center; width:90%; color:#000; font-size:11px;}
 </style>
 <script type="text/javascript">
 
@@ -2495,8 +2219,7 @@ if($_GET['px']!=""){
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-	
-  jQuery(".cboxiframe").colorbox({iframe:true, width:"80%", height:"80%"});
+
 </script>
 </head>
 
@@ -2516,10 +2239,191 @@ if($_GET['px']!=""){
   -->
       <div class="ui-dialog-titlebar ui-widget-header ui-corner-all ui-helper-clearfix change_titlebar_style" style="border: solid 1px #578C0B !important; border-bottom: solid 1px #97CF48 !important; background: #97CF48 !important;"><span id="ui-id-1" class="ui-dialog-title" style="text-align:center; width: 100%;"><img src="images/cpanel-logo.png?_=<?php echo time();?>"></span></div>
       <div id="dialog" class="ui-dialog-content ui-widget-content change_dialog_style" style="width: auto; min-height: 52px; height: auto; border: solid 1px #578C0B !important; border-top: solid 1px #97CF48 !important; background: #97CF48 !important;" scrolltop="0" scrollleft="0">
-		<div class="dialog_body">
-			<?php include('mainTabs.php'); ?>
-		</div>
-	</div>
+    <div class="dialog_body">
+		<div id="tabs" class="change_tab_style">
+			<ul class="change_tab_ul_style">
+				<!--
+				<li><a style="padding: 2px !important;" href="#news">News</a></li>
+				-->
+				<li><a style="padding: 2px !important;" href="#info">Info</a></li>
+				<li><a style="padding: 2px !important;" href="#search">Search</a></li>
+				<!--
+				<li><a style="padding: 2px !important;" href="#us">US</a></li>
+				-->
+				<!--
+				<li><a style="padding: 2px !important;" href="#buy"><img src="images/cart.png" width="11" height="11" border="0"></a></li>
+				-->
+				<!--
+				<li><a style="padding: 2px !important;" href="#configuration"><img src="images/compile.png" width="11" height="11" border="0"></a></li>
+				-->
+				<li><a style="padding: 2px !important;" href="#configuration">Settings</a></li>
+				<!--
+				<li><a style="padding: 2px !important;" href="#help"><img src="images/question.png" width="11" height="11" border="0"></a></li>
+				-->
+				<li><a style="padding: 2px !important;" href="#help">About</a></li>
+			</ul>
+		<!--
+		<div id="news" class="tab_body news">
+          <h3>News</h3>
+          <ul id="news-ul" class="jcarousel jcarousel-skin-tango">
+            <li><span id="news-1-text" style="float: left; width: 200px;"></span><span><img id="news-1-img" src="images/news_img_1.png" width="32" height="32" border="0"></span></li>
+            <li><span id="news-1-text" style="float: left; width: 200px;"></span><span><img id="news-1-img" src="images/news_img_1.png" width="32" height="32" border="0"></span></li>
+            <li><span id="news-1-text" style="float: left; width: 200px;"></span><span><img id="news-1-img" src="images/news_img_1.png" width="32" height="32" border="0"></span></li>
+          </ul>
+        </div>
+		-->
+        <div id="info" class="tab_body">
+		  <span id="info-span-noselection" style="display:block; padding:5px; padding-top:15px;">
+		    <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center>
+		  </span>
+		  <span id="info-span" style="display:none;">
+            <h3><span id="info-city"></span><span id="info-title"></span></h3>
+              <table>
+                <tr>
+                  <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
+                  <td valign="top">
+				    <table>
+                      <tr style='display:none'>
+                        <td><strong>Latitude:</strong></td>
+                        <td><span id="info-latitude"></span></td>
+                      </tr>
+                      <tr style='display:none'>
+                        <td><strong>Longitude:</strong></td>
+                        <td><span id="info-longitude"></span></td>
+                      </tr>
+					 
+                      <tr id='info-land_owner_container' style='display:none'>
+                        <td colspan="2">
+                          Owner: <span id="info-land_owner"></span>
+					    </td>
+                      </tr>
+					  <tr>
+                        <td colspan="2">
+						  <br />
+                          <span id="info-detail"></span>
+						  <br />&nbsp;
+						  <div id="dcountry"></div>
+						  <div id="dregion"></div>
+						  <div id="dcity"></div>
+					    </td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+                          <center><br>
+						  <table>
+						  <tr>
+						  <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onClick="onBuyLand();"></td>
+						  <td><input type="button" id="clicktozoom" value="Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
+						  <td><a id='fbsharelink' style='border:0px;' ><img style='border:0px;' src='fbshare.jpg' id='fbshare'></a></td>
+						  <td valign='middle' id='sharethisloc'>Share this location</td>
+						  </tr>
+						  </table>
+						  </center>
+					    </td>
+                      </tr>
+                    </table>
+			      </td>
+                </tr>
+              </table>
+		  </span>	  
+        </div>
+        <div id="search" class="tab_body">
+              <h3>Search</h3>
+              Here you can make a search for any area, street, mountain, country, landmark, address etc. Just make your desired search to instantly bring you to that location.<br/>
+              <div style="width: 250px; overflow: hidden;">
+            <input type="text" id="search_enteraplace" name="search_enteraplace_name" style="width: 90%;">
+          </div>
+              <h3>Pick one of the World's top places</h3>
+              <div style="width: 250px; overflow: hidden;">
+              <select id="search_topplaces" name="search_topplaces_name" onChange="updatePopupWindowTabSearch();" style="width: 90%;">
+                  <option value="" selected="selected">Select from World's top places</option>
+                  <option value="Atlantis">Atlantis</option>
+                  <option value="Firefox Crop Circles">Firefox Crop Circles</option>
+                  <option value="UFO Landing Pads">UFO Landing Pads</option>
+                  <option value="Badlands Guardian">Badlands Guardian</option>
+                  <option value="Lost at Sea">Lost at Sea</option>
+             </select>
+          </div>
+            </div>
+		<!--	
+        <div id="us" class="tab_body">
+              <h3>Learn about POTW</h3>
+              <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Proin dignissim pharetra purus at malesuada.</p>
+              <p>Praesent diam neque, malesuada vel aliquet vitae, accumsan ac ipsum. Sed mauris nibh, venenatis vitae pulvinar eget, rutrum vestibulum elit. Suspendisse ac neque enim.</p>
+              <p>Donec porta ipsum quis magna interdum facilisis. Nam tristique dignissim mattis. Mauris ornare mollis lectus sed facilisis. Etiam faucibus sollicitudin accumsan.</p>
+        </div>
+		-->
+		<!--
+        <div id="buy" class="tab_body">
+          <h3><span id="buy-title">Buy Land</span></h3>
+              <table>
+                <tr>
+                  <td><div class="img"><img id="buy-img" src="images/eiffel.png"></div></td>
+                  <td valign="top">
+				    <table>
+                      <tr>
+                        <td><strong>Latitude:</strong></td>
+                        <td><span id="buy-latitude">48.85800</span></td>
+                      </tr>
+                      <tr>
+                        <td><strong>Longitude:</strong></td>
+                        <td><span id="buy-longitude">2.29460</span></td>
+                      </tr>
+                      <tr>
+                        <td colspan="2">
+						  <br/><br/><br/>
+                          <center><input type="button" id="buy-button" value="Buy Now" style="padding: 10px; padding-left: 25px; padding-right: 25px;" onClick="onBuyLand();"></center>
+					    </td>
+                      </tr>
+                    </table>
+			      </td>
+                </tr>
+              </table>
+        </div>
+		-->
+        <div id="configuration" class="tab_body">
+              <h3>Settings</h3>
+              <p>
+          <table width="100%">
+            <tr>
+              <td>Email</td>
+              <td align="right"><input type="edit" id="config_email" name="config_email_name" value="" size=20 onkeypress="document.getElementById('config_save').disabled = false;"><input type="button" id="config_save" name="config_save_name" value="Save" disabled onClick="this.disabled = true; setCookie('user_email', document.getElementById('config_email').value, 365);" ></td>
+            </tr>
+          </table>
+          <table>
+            <tr>
+              <td>Show Own Land</td>
+              <td><input type="checkbox" id="config_showownland" name="config_showownland_name" onClick="updatePopupWindowTabConfig(true);" checked></td>
+            </tr>
+            <tr>
+              <td>Show Important Places</td>
+              <td><input type="checkbox" id="config_showimportantplaces" name="config_showimportantplaces_name" onClick="updatePopupWindowTabConfig(true);" checked></td>
+            </tr>
+            <tr>
+              <td>Show Owned Land</td>
+              <td><input type="checkbox" id="config_showownedland" name="config_showownedland_name" onClick="updatePopupWindowTabConfig(true);"></td>
+            </tr>
+            <tr>
+              <td>Show Grid</td>
+              <td><input type="checkbox" id="config_showgrid" name="config_showgrid_name" onClick="updatePopupWindowTabConfig(true);" checked></td>
+            </tr>
+          </table>
+              </p>
+            </div>
+        <div id="help" class="tab_body">
+              <h3>About</h3>
+			  <p>Dear Citizen of the World</p>
+			  <p>Welcome to <a href="http://www.PieceoftheWorld.com" target="_blank">PieceoftheWorld.com</a>, the site where you set your mark on the world. You will be in charge and have full control of your virtual piece - upload a picture and write a description.</p>
+			  <p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
+			  <p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
+			  <p>So join us and set your mark - get your piece of the world today.</p>
+			  <p>Piece of the World team</p>
+			  <p>Contact us:<br><a href='mailto:PieceoftheWorld2013@gmail.com'>PieceoftheWorld2013@gmail.com</a></p>
+			  
+        </div>
+      </div>
+        </div>
+  </div>
     </div>
 
 <div id="header">
@@ -2608,7 +2512,6 @@ if($_GET['px']!=""){
 var page={};
 $(function() { new FrontPage().init(); });
 //]]>
-
 </script>
 </body>
 </html>
