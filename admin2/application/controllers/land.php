@@ -10,10 +10,11 @@ class land extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id, C.name as categoryName
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
+				left join categories C on C.id = LD.category_id
 				where L.`land_special_id` is NULL order by L.`id` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
@@ -47,15 +48,19 @@ class land extends CI_Controller {
 		$searchx = trim($_GET['search']);
 		
 		//$sql = "select * from `land` where ";
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id, C.name as categoryName
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
+				left join categories C on C.id = LD.category_id
 				where L.`land_special_id` is NULL and " ;
 		
 		if($filter=='id'){
 			$sql .= "L.id = '".mysql_real_escape_string($search)."' ";
 		}
+        elseif($filter=='category'){
+            $sql .= "LOWER(C.name) like '%".mysql_real_escape_string($search)."%' ";
+        }
 		else{
 			$sql .= "LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
@@ -68,10 +73,14 @@ class land extends CI_Controller {
 		$sql = "select count(L.id) as `cnt` from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
+				left join categories C on C.id = LD.category_id
 				where L.`land_special_id` is NULL and ";
 		if($filter=='id'){
 			$sql .= "L.id = '".mysql_real_escape_string($search)."' ";
 		}
+        elseif($filter=='category'){
+            $sql .= "LOWER(C.name) like '%".mysql_real_escape_string($search)."%' ";
+        }
 		else{
 			$sql .= "LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
@@ -129,7 +138,8 @@ class land extends CI_Controller {
 			
 			$fieldUpdateSql = 
 				"`title` = '".mysql_real_escape_string($_POST['title'])."',
-				`detail` = '".mysql_real_escape_string($_POST['detail'])."',				
+				`detail` = '".mysql_real_escape_string($_POST['detail'])."',
+				`category_id` = '".mysql_real_escape_string($_POST['category_id'])."',
 				`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'";									
 			
 			$sql = "select id from land where land_detail_id = '$landDetailId' and id != '$landId' limit 1";
@@ -178,7 +188,7 @@ class land extends CI_Controller {
 	public function edit($id){
 		$table = "land";
 		$controller = $table;
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`land_owner`,  LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`land_owner`,  LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail, LD.category_id
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
@@ -186,15 +196,19 @@ class land extends CI_Controller {
 		$q = $this->db->query($sql);
 		$record = $q->result_array();
 		$record = $record[0];
+        $data['record'] = $record;
 		
 		$sql = "select * from `pictures` where `land_id`=".$this->db->escape($id)." order by id asc";
 		$q = $this->db->query($sql);
-		$pictures = $q->result_array();	
-		
-		$data['pictures'] = $pictures;			
-		$data['record'] = $record;
-		$data['content'] = $this->load->view($controller.'/add', $data, true);
+		$pictures = $q->result_array();
+		$data['pictures'] = $pictures;
 
+        $sql = "select id, name from `categories` where `deleted` = '0' order by name asc";
+        $q = $this->db->query($sql);
+        $categories = $q->result_array();
+        $data['categories'] = $categories;
+
+		$data['content'] = $this->load->view($controller.'/add', $data, true);
 		
 		$this->load->view('layout/main', $data);;
 	}

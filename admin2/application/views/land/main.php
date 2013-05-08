@@ -1,11 +1,6 @@
-<?php
-
-?>
 <script>
 jQuery(function(){
 
-	
-	
 	jQuery("#company_search").autocomplete({
 		//define callback to format results
 		source: function(req, add){
@@ -69,6 +64,7 @@ function searchCompany(){
 	<option value="useremail">E-mail</option>
 	<option value="title">Title</option>
 	<option value="detail">Detail</option>
+    <option value="category">Category</option>
 	</select>
 	Search: <input type='text' id='search' value="<?php echo sanitizeX($search); ?>" name='search' />
 	<input type='button' class='button normal' value='search' onclick='searchCompany()'>
@@ -121,6 +117,7 @@ $t = count($records);
 		<th>Land Owner</th>
 		<th>E-mail</th>
 		<th>Title</th>
+        <th>Category</th>
 		<th width="200px">Detail</th>		
 		<th></th>
 	</tr>
@@ -178,6 +175,9 @@ $t = count($records);
 			<!--<td style='vertical-align:middle;'><?php if(trim($records[$i]['logo'])){ ?><img src='<?php echo site_url(); ?>media/image.php?p=<?php echo $records[$i]['logo'] ?>&mx=25' /> <?php } ?></td>-->
 			<td><?php echo htmlentitiesX($records[$i]['title']); 
 			?></td>
+            <td><?php
+                echo $records[$i]['categoryName'];
+                ?></td>
 			<td><?php 
 			echo $records[$i]['detail'];	
 			?></td>			
@@ -200,7 +200,7 @@ $t = count($records);
 	if($pages>0){
 		?>
 		<tr>
-			<td colspan="11" class='center font12' >
+			<td colspan="10" class='center font12' >
 				There is a total of <?php echo $cnt; ?> <?php if($cnt>1) { echo "records"; } else{ echo "record"; }?> in the database. 
 				Go to Page:
 				<?php
