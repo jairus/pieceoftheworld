@@ -1,5 +1,5 @@
 <?php
-session_start();
+@session_start();
 require_once 'global.php';
 if(isset($_GET['action'])){
 	$result = array();
@@ -43,12 +43,32 @@ function login()
 	$result = array('status' => false, 'message' => 'Invalid email or password');
 	$useremail = urldecode($_POST['email']);
 	$pass = urldecode($_POST['password']);
-	$rs = dbQuery("select id, useremail, password from web_users where useremail = '".mysql_real_escape_string($useremail)."' limit 1 ");
-	if(!empty($rs) && $rs[0]['password'] == md5($pass)){
-		unset($rs[0]['password']);
-		$_SESSION['userdata'] = $rs[0];
-		$result = array('status' => true, 'message' => 'You are now successfully logged in.', 'content' => $rs[0]);	
-	} 
+    $fb_id = urldecode($_POST['fb_id']);
+    $name = urldecode($_POST['name']);
+
+    // if logged in via facebook, register details before logging in
+    if($fb_id != ''){
+        $rs = dbQuery("select id, useremail, name, fb_id from web_users where fb_id = '".mysql_real_escape_string($fb_id)."' limit 1 ");
+        if(!empty($rs) ){
+            $row = $rs[0];
+            $_SESSION['userdata'] = $row;
+        } else {
+            $sql = "insert into web_users (useremail, name, fb_id) values ('".mysql_real_escape_string($useremail)."', '".mysql_real_escape_string($name)."','".mysql_real_escape_string($fb_id)."')";
+            $rs = dbQuery($sql);
+            $newId = $rs['mysql_insert_id'];
+            $row =  array('useremail' => $useremail, 'id' => $newId, 'name' => $name, 'fb_id' => $fb_id);
+            $_SESSION['userdata'] = $row;
+        }
+        $result = array('status' => true, 'message' => 'You are now successfully logged in.', 'content' => $row);
+
+    } else {
+        $rs = dbQuery("select id, useremail, password from web_users where useremail = '".mysql_real_escape_string($useremail)."' limit 1 ");
+        if(!empty($rs) && $rs[0]['password'] == md5($pass)){
+            unset($rs[0]['password']);
+            $_SESSION['userdata'] = $rs[0];
+            $result = array('status' => true, 'message' => 'You are now successfully logged in.', 'content' => $rs[0]);
+        }
+    }
 	return $result;
 }
 function isUnique($useremail)

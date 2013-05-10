@@ -9,8 +9,11 @@ require_once('ajax/user_fxn.php')
 form label {display: inline-block; text-align: right; margin-right: 10px;}
 #loginForm label {width: 70px;}
 #registerForm label {width: 130px;}
-#ownedLandList .table {width: 410px;}
+#ownedLandList {min-height: 500px; }
+#ownedLandList .table {width: 410px; }
+.cpanelwnd { width: 500px; }
 #pixHolder{ z-index: 2010; height: 300px; width: 300px;  background-color: red;}
+
 </style>
 
 <div id='userPanelExtra'></div>
@@ -54,31 +57,43 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 		<div id="login" class="tab_body" >			
 			<div id="loginHolder" >
               <h3>Login</h3>
-			  <form id="loginForm">
-				<label>Email: </label><input type="text" name="email" /><br/>
-				<label>Password: </label><input type="password" name="password"  /><br/>
+			  <form id="loginForm"  autocomplete="off">
+                <input type="hidden" name="fb_id" class="fb_id" />
+                  <input type="hidden" name="name" class="name" />
+				<label>Email: </label><input type="text" name="email" class="email" /><br/>
+				<label>Password: </label><input type="password" name="password"  class="password"  /><br/>
 				<label></label><input type="button" value="submit" id="loginButton" />
 			  </form>
 			  <div id="loginStatus" class="statusResult"></div>
 			  <br/>No Account yet? <a href="#" id="regLink">SIGN UP</a> now!
+
+                <p>or Login via Facebook</p>
+                <div id="fb-root"></div>
+                <fb:login-button show-faces="true" autoLogoutLink="true"  perms="email"  ><img src="images/loading2.gif" class="" /></fb:login-button><br/>
+                <img src="images/loading2.gif" id="loadingImageFb1" class="hide" />
+
 			</div>
 			<div id="regHolder" style="display: none;">
 			  <h3>Register</h3>              
 			  <form id="registerForm">
-				<label>Email: </label><input type="text" name="email" /><br/>
-				<label>Password: </label><input type="password" name="password" /><br/>
+                <input type="hidden" name="fb_id" class="fb_id" />
+                  <input type="hidden" name="name" class="name" />
+				<label>Email: </label><input type="text" name="email" class="email" /><br/>
+				<label>Password: </label><input type="password" name="password" class="password"  /><br/>
 				<label>Retype Password: </label><input type="password" name="password_again" /><br/>
 				<label></label><input type="button" value="submit" id="registerButton" />
 			  </form>
 			  <div id="regStatus"  class="statusResult"></div>
 			  <br/>Already have an account? <a href="#" id="loginLink">LOGIN</a> now!
-            </div>		
+            </div>
         </div>    
         <div id="ownedLands" class="tab_body">			
 			<div id="loggedinHolder">
-			
-				<h3>Hello <span class='currentUser' ><?php echo $_SESSION['userdata']['useremail']?> </span>! | <a href="#" id="logoutLink" >LOGOUT</a></h3>								
-				<div id='ownedLandList'>loading lands...</div>				
+				<h3>Hello <span class='currentUser' ><?php echo $_SESSION['userdata']['useremail']?> </span>! | <a href="#" id="logoutLink" >LOGOUT</a></h3>
+                <img src="images/loading2.gif" id="loadingImageFb2" class="hide" />
+                <fb:like href="http://pieceoftheworld.co" ref="joy1" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>
+				<div id='ownedLandList'>loading lands...</div>
+
 			</div>
 		</div>
         <div id="info" class="tab_body">
