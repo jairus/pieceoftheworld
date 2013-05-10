@@ -1,14 +1,60 @@
 $(document).ready(function(){
+    // start of facebook functions
+    var fbResponse = false;
+    window.fbAsyncInit = function() {
+        FB.init({
+            appId      : '454736247931357', // App ID
+            channelUrl : '//localhost/pieceoftheworld.co/channel.html',
+            status     : true, // check login status
+            cookie     : true, // enable cookies to allow the server to access the session
+            xfbml      : true  // parse XFBML
+        });
 
+        FB.Event.subscribe('auth.login', function(response) {
+            $("#loadingImageFb2").hide();
+            $("#loadingImageFb1").show();
+            if (response.status === 'connected') {
+                fbResponse = response;
+                loginFb();
+            } else { /* FB.login(); */ }
+        });
+//        FB.Event.subscribe('edge.create', function(href, widget) {
+//            alert('You just liked the page!');
+//        });
+    };
+
+    // Load the SDK asynchronously
+    (function(d, s, id){
+        var js, fjs = d.getElementsByTagName(s)[0];
+        if (d.getElementById(id)) {return;}
+        js = d.createElement(s); js.id = id;
+        js.src = "//connect.facebook.net/en_US/all.js";
+        fjs.parentNode.insertBefore(js, fjs);
+    }(document, 'script', 'facebook-jssdk'));
+
+    function loginFb() {
+        FB.api('/me', function(response) {
+            // update fields in login, reg and facebook form in mainTabs.php
+            $("form input[name='fb_id']").val(response.id);
+            $("form input[name='email']").val(response.email);
+            $("form input[name='name']").val(response.name);
+            loginUser();
+        });
+    }
+    // end of facebook functions
 
 	if(loggedIn){
-		$( "#tabs" ).tabs( {active: 5});
+		var tabs = $( "#tabs" ).tabs( {active: 5});
 		$('#tabs [href="#login"]').hide();
 		getLands();
 	} else {
-		$( "#tabs" ).tabs( {active: 4});
+        var tabs = $( "#tabs" ).tabs( {active: 4});
 		$('#tabs [href="#ownedLands"]').hide();
 	}
+    tabs.bind("click",function(){
+        FB.XFBML.parse(); // another parse call in index.php in show popup function
+    });
+
 	$( "#userPanelExtra" ).dialog({
 		height: 400,
 		width: 400,
@@ -19,6 +65,7 @@ $(document).ready(function(){
 			duration: 300
 		}
 	});
+
 	$('#regLink').click(function(e){
 		e.preventDefault();
 		$('#loginHolder').slideToggle();
@@ -115,6 +162,7 @@ $(document).ready(function(){
                     $('#tabs [href="#login"]').hide();
                     $( "#tabs" ).tabs( {active: 5});
                     $('.currentUser').html(data.content.useremail);
+                    FB.XFBML.parse();
                     getLands();
                 } else {
                     $("#loginStatus").html(data.message);
@@ -171,47 +219,5 @@ $(document).ready(function(){
         });
     }
 
-    // start of facebook functions
-    var fbResponse = false;
-    window.fbAsyncInit = function() {
-        FB.init({
-            appId      : '454736247931357', // App ID
-            status     : true, // check login status
-            cookie     : true, // enable cookies to allow the server to access the session
-            xfbml      : true  // parse XFBML
-        });
 
-        FB.Event.subscribe('auth.login', function(response) {
-            $("#loadingImageFb2").hide();
-            $("#loadingImageFb1").show();
-            if (response.status === 'connected') {
-                fbResponse = response;
-                loginFb();
-            } else { /* FB.login(); */ }
-        });
-//        FB.Event.subscribe('edge.create', function(href, widget) {
-//            alert('You just liked the page!');
-//        });
-
-    };
-
-    // Load the SDK asynchronously
-    (function(d){
-        var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-        if (d.getElementById(id)) {return;}
-        js = d.createElement('script'); js.id = id; js.async = true;
-        js.src = "//connect.facebook.net/en_US/all.js";
-        ref.parentNode.insertBefore(js, ref);
-    }(document));
-
-    function loginFb() {
-        FB.api('/me', function(response) {
-            // update fields in login, reg and facebook form in mainTabs.php
-            $("form input[name='fb_id']").val(response.id);
-            $("form input[name='email']").val(response.email);
-            $("form input[name='name']").val(response.name);
-            loginUser();
-        });
-    }
-    // end of facebook functions
 });

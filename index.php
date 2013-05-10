@@ -1961,10 +1961,11 @@ if($_GET['px']!=""){
 	function showPopupWindowTabInfo(isSelected) {
 		document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
 		document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
+        FB.XFBML.parse();
 	}
 	
 	
-	
+
 	var globallink;
 	function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 		consoleX("updatePopupWindowTabInfo");
@@ -1996,6 +1997,7 @@ if($_GET['px']!=""){
 		showPopupWindowTabInfo(true);
 		document.getElementById('info-latitude').innerHTML = inLatLng.lat().toFixed(5);
 		document.getElementById('info-longitude').innerHTML = inLatLng.lng().toFixed(5);
+
 		
 		
 		
@@ -2501,6 +2503,8 @@ if($_GET['px']!=""){
 </head>
 
 <body style="cursor: auto; margin:0px;">
+<div id="fb-root"></div>
+
 <table style='z-index: 1010; width:300px; height:100px; position:absolute; background:white; top:-10000px' id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
 <div id="map_canvas" style='top:55px;'></div>
 <div class="cpanelwnd ui-dialog ui-widget ui-widget-content ui-corner-all" style="outline: 0px none; z-index: 1008; position: absolute; border: 0px !important;" tabindex="-1" role="dialog" aria-labelledby="ui-id-1">

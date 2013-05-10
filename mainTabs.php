@@ -13,13 +13,11 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 #ownedLandList .table {width: 410px; }
 .cpanelwnd { width: 500px; }
 #pixHolder{ z-index: 2010; height: 300px; width: 300px;  background-color: red;}
+.fb-like span, .fb-like iframe { height:25px!important; width:150px!important}
 
 </style>
-
 <div id='userPanelExtra'></div>
-
 		<div id="tabs" class="change_tab_style">
-		
 			<ul class="change_tab_ul_style">
 				<!--
 				<li><a style="padding: 2px !important;" href="#news">News</a></li>
@@ -68,7 +66,6 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 			  <br/>No Account yet? <a href="#" id="regLink">SIGN UP</a> now!
 
                 <p>or Login via Facebook</p>
-                <div id="fb-root"></div>
                 <fb:login-button show-faces="true" autoLogoutLink="true"  perms="email"  ><img src="images/loading2.gif" class="" /></fb:login-button><br/>
                 <img src="images/loading2.gif" id="loadingImageFb1" class="hide" />
 
@@ -93,7 +90,6 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
                 <img src="images/loading2.gif" id="loadingImageFb2" class="hide" />
                 <fb:like href="http://pieceoftheworld.co" ref="joy1" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>
 				<div id='ownedLandList'>loading lands...</div>
-
 			</div>
 		</div>
         <div id="info" class="tab_body">
@@ -102,6 +98,7 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 		  </span>
 		  <span id="info-span" style="display:none;">
             <h3><span id="info-city"></span><span id="info-title"></span></h3>
+                <fb:like href="http://pieceoftheworld.co" ref="joy2" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>
               <table>
                 <tr>
                   <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
@@ -149,7 +146,7 @@ form label {display: inline-block; text-align: right; margin-right: 10px;}
 			      </td>
                 </tr>
               </table>
-		  </span>	  
+		  </span>
         </div>
         <div id="search" class="tab_body">
               <h3>Search</h3>
