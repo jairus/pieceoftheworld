@@ -4,7 +4,7 @@ $(document).ready(function(){
     window.fbAsyncInit = function() {
         FB.init({
             appId      : '454736247931357', // App ID
-            channelUrl : '//localhost/pieceoftheworld.co/channel.html',
+            channelUrl : '//pieceoftheworld.co/channel.html',
             status     : true, // check login status
             cookie     : true, // enable cookies to allow the server to access the session
             xfbml      : true  // parse XFBML
