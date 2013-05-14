@@ -18,9 +18,17 @@ $(document).ready(function(){
                 loginFb();
             } else { /* FB.login(); */ }
         });
-//        FB.Event.subscribe('edge.create', function(href, widget) {
-//            alert('You just liked the page!');
-//        });
+        FB.Event.subscribe('edge.create', function(href, widget) {
+            $.ajax({
+                 dataType: "json",
+                 type: 'get',
+                 data: {'href':  encodeURI(href) }, // from index.php line 2121
+                 url: 'ajax/user_fxn.php?action=like',
+                 success: function(data){
+                    console.log(data);
+                 }
+            });
+        });
     };
 
     // Load the SDK asynchronously
@@ -43,84 +51,84 @@ $(document).ready(function(){
     }
     // end of facebook functions
 
-	if(loggedIn){
-		var tabs = $( "#tabs" ).tabs( {active: 5});
-		$('#tabs [href="#login"]').hide();
-		getLands();
-	} else {
+    if(loggedIn){
+        var tabs = $( "#tabs" ).tabs( {active: 5});
+        $('#tabs [href="#login"]').hide();
+        getLands();
+    } else {
         var tabs = $( "#tabs" ).tabs( {active: 4});
-		$('#tabs [href="#ownedLands"]').hide();
-	}
+        $('#tabs [href="#ownedLands"]').hide();
+    }
     tabs.bind("click",function(){
         FB.XFBML.parse(); // another parse call in index.php in show popup function
     });
 
-	$( "#userPanelExtra" ).dialog({
-		height: 400,
-		width: 400,
-		//modal: true,
-		autoOpen: false,
-		show: {
-			effect: "slide",
-			duration: 300
-		}
-	});
+    $( "#userPanelExtra" ).dialog({
+        height: 400,
+        width: 400,
+        //modal: true,
+        autoOpen: false,
+        show: {
+            effect: "slide",
+            duration: 300
+        }
+    });
 
-	$('#regLink').click(function(e){
-		e.preventDefault();
-		$('#loginHolder').slideToggle();
-		$('#regHolder').slideToggle();
-	});
-	$('#loginLink').click(function(e){
-		e.preventDefault();
-		$('#regHolder').slideToggle();
-		$('#loginHolder').slideToggle();
-	});
-	$('#logoutLink').click(function(e){
-		e.preventDefault();
+    $('#regLink').click(function(e){
+        e.preventDefault();
+        $('#loginHolder').slideToggle();
+        $('#regHolder').slideToggle();
+    });
+    $('#loginLink').click(function(e){
+        e.preventDefault();
+        $('#regHolder').slideToggle();
+        $('#loginHolder').slideToggle();
+    });
+    $('#logoutLink').click(function(e){
+        e.preventDefault();
         logoutUser();
-	});
-	$('#loginButton').click(function(){
+    });
+    $('#loginButton').click(function(){
         loginUser();
-	});
-	$('#registerButton').click(function(){
+    });
+    $('#registerButton').click(function(){
         registerUser();
-	});
-	$('.manageImageLink').live('click', function(e){
-		$( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
-		$( "#userPanelExtra" ).dialog( "open" );
-		e.preventDefault();
-		$id = $(this).attr('data-id');
-		$.ajax({
-			dataType: "html",
-			type: 'get',
-			data: $('#form_'+$id).serialize(),
-			url: 'ajax/page_webuserPictures.php',
-			success: function(data){
-				$( "#userPanelExtra" ).dialog( {title: "Manage Images"} );
-				$('#userPanelExtra').html(data);
-				resizeHeight();
-			}
-		});
-	});
-	$('.manageTags').live('click', function(e){
-		$( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
-		$( "#userPanelExtra" ).dialog( "open" );
-		e.preventDefault();
-		$id = $(this).attr('data-id');
-		$.ajax({
-			dataType: "html",
-			type: 'get',
-			data: $('#form_'+$id).serialize(),
-			url: 'ajax/page_webuserTags.php',
-			success: function(data){
-				$( "#userPanelExtra" ).dialog( {title: "Manage Category and Tags"} );
-				$('#userPanelExtra').html(data);
-				resizeHeight();
-
-			}
+    });
+    $('.manageImageLink').live('click', function(e){
+        $( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+        $( "#userPanelExtra" ).dialog( "open" );
+        e.preventDefault();
+        $id = $(this).attr('data-id');
+        $.ajax({
+            dataType: "html",
+            type: 'get',
+            data: $('#form_'+$id).serialize(),
+            url: 'ajax/page_webuserPictures.php',
+            success: function(data){
+                $( "#userPanelExtra" ).dialog( {title: "Manage Images"} );
+                $('#userPanelExtra').html(data);
+                resizeHeight();
+            }
         });
-	});
+    });
+    $('.manageTags').live('click', function(e){
+        $( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+        $( "#userPanelExtra" ).dialog( "open" );
+        e.preventDefault();
+        $id = $(this).attr('data-id');
+        $.ajax({
+            dataType: "html",
+            type: 'get',
+            data: $('#form_'+$id).serialize(),
+            url: 'ajax/page_webuserTags.php',
+            success: function(data){
+                $( "#userPanelExtra" ).dialog( {title: "Manage Category and Tags"} );
+                $('#userPanelExtra').html(data);
+                resizeHeight();
+
+            }
+        });
+    });
 
     function getLands(){
         $('#ownedLandList').html('');
@@ -218,6 +226,4 @@ $(document).ready(function(){
             }
         });
     }
-
-
 });

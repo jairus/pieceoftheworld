@@ -121,6 +121,7 @@ $t = count($records);
 		<th>Price</th>
 		<th>Sold</th>
 		<th>Land Owner</th>
+        <th>FB Likes</th>
 		<th></th>
 	</tr>
 	<?php
@@ -164,7 +165,8 @@ $t = count($records);
 			<td><?php echo $records[$i]['detail']; ?></td>
 			<td><?php echo $records[$i]['price'];?></td>
 			<td><?php echo ($records[$i]['web_user_id'])? '<span style="color: green">Yes</span>' : '<span style="color: red">No</span>' ;	?></td>			
-			<td><?php echo $records[$i]['land_owner'];	?></td>			
+			<td><?php echo $records[$i]['land_owner'];	?></td>
+            <td><?php echo $records[$i]['totalLikes'];	?></td>
 			<td width='300px'>
 			<?php
 			/*if(trim($records[$i]['folder'])){
@@ -187,7 +189,7 @@ $t = count($records);
 	if($pages>0){
 		?>
 		<tr>
-			<td colspan="9" class='center font12' >
+			<td colspan="10" class='center font12' >
 				There is a total of <?php echo $cnt; ?> <?php if($cnt>1) { echo "records"; } else{ echo "record"; }?> in the database. 
 				Go to Page:
 				<?php

@@ -118,7 +118,8 @@ $t = count($records);
 		<th>E-mail</th>
 		<th>Title</th>
         <th>Category</th>
-		<th width="200px">Detail</th>		
+		<th width="200px">Detail</th>
+        <th>FB Likes</th>
 		<th></th>
 	</tr>
 	<?php
@@ -180,7 +181,10 @@ $t = count($records);
                 ?></td>
 			<td><?php 
 			echo $records[$i]['detail'];	
-			?></td>			
+			?></td>
+            <td><?php
+                echo $records[$i]['totalLikes'];
+                ?></td>
 			<td width='300px'>
 			<?php
 			if(trim($records[$i]['folder'])){
@@ -200,7 +204,7 @@ $t = count($records);
 	if($pages>0){
 		?>
 		<tr>
-			<td colspan="10" class='center font12' >
+			<td colspan="11" class='center font12' >
 				There is a total of <?php echo $cnt; ?> <?php if($cnt>1) { echo "records"; } else{ echo "record"; }?> in the database. 
 				Go to Page:
 				<?php

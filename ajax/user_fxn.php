@@ -24,7 +24,13 @@ if(isset($_GET['action'])){
 			header('Content-Type: text/html; charset=utf-8');
 			$response = edit();					
 			break;
-	}
+        case "like":            
+            parse_str(parse_url($_GET['href'], PHP_URL_QUERY), $arrLand);
+            $result = saveFbLike($arrLand['landId'], $arrLand['specialLandId']);
+            $response = json_encode($result);
+            break;
+
+    }
 	die($response);
 }
 
@@ -246,5 +252,16 @@ function saveTags($landId, $table)
 	
 	$result = array('status' => true, 'message' => 'Tags saved successfully', 'tags' => implode(',',$newTags) );		
 	return $result;
+}
+function saveFbLike($landId, $specialLandId){
+    $result = array('status' => false, 'message' => "Invalid Land. ID: $landId . Special: $specialLandId ");
+    if($specialLandId != null && is_numeric($specialLandId) ){
+        dbQuery("update land_special set totalLikes = totalLikes + 1 where id = '$specialLandId' limit 1");
+        $result = array('status' => true, 'message' => 'Land like saved for special land');
+    } elseif($landId != null && is_numeric($landId) ){
+        dbQuery("update land set totalLikes = totalLikes + 1 where id = '$landId' limit 1");
+        $result = array('status' => true, 'message' => 'Land like saved for ordinary land');
+    }
+    return $result;
 }
 ?>
