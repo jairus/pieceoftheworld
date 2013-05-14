@@ -51,6 +51,8 @@ function login()
 	$pass = urldecode($_POST['password']);
     $fb_id = urldecode($_POST['fb_id']);
     $name = urldecode($_POST['name']);
+    $gender = urldecode($_POST['gender']);
+    $location = urldecode($_POST['location']);
 
     // if logged in via facebook, register details before logging in
     if($fb_id != ''){
@@ -59,7 +61,7 @@ function login()
             $row = $rs[0];
             $_SESSION['userdata'] = $row;
         } else {
-            $sql = "insert into web_users (useremail, name, fb_id) values ('".mysql_real_escape_string($useremail)."', '".mysql_real_escape_string($name)."','".mysql_real_escape_string($fb_id)."')";
+            $sql = "insert into web_users (useremail, name, fb_id, gender, location) values ('".mysql_real_escape_string($useremail)."', '".mysql_real_escape_string($name)."','".mysql_real_escape_string($fb_id)."','".mysql_real_escape_string($gender)."','".mysql_real_escape_string($location)."')";
             $rs = dbQuery($sql);
             $newId = $rs['mysql_insert_id'];
             $row =  array('useremail' => $useremail, 'id' => $newId, 'name' => $name, 'fb_id' => $fb_id);

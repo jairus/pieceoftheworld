@@ -88,7 +88,6 @@ require_once('ajax/user_fxn.php')
     <div id="loggedinHolder">
         <h3>Hello <span class='currentUser' ><?php echo $_SESSION['userdata']['useremail']?> </span>! | <a href="#" id="logoutLink" >LOGOUT</a></h3>
         <img src="images/loading2.gif" id="loadingImageFb2" class="hide" />
-        <fb:like href="http://pieceoftheworld.co" ref="joy1" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>
         <div id='ownedLandList'>loading lands...</div>
     </div>
 </div>

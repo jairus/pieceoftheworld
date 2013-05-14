@@ -46,6 +46,11 @@ $(document).ready(function(){
             $("form input[name='fb_id']").val(response.id);
             $("form input[name='email']").val(response.email);
             $("form input[name='name']").val(response.name);
+			$("form input[name='gender']").val(response.gender);
+			if(typeof(response.location) != 'undefined'){
+				$("form input[name='location']").val(response.location.name);
+			}
+console.log(response);
             loginUser();
         });
     }
