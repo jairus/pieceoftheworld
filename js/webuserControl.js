@@ -146,7 +146,22 @@ console.log(response);
             }
         });
     });
-
+    $('.manageVideoLink').live('click', function(e){
+        $( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+        $( "#userPanelExtra" ).dialog( "open" );
+        e.preventDefault();
+        $id = $(this).attr('data-id');
+        $.ajax({
+            dataType: "html",
+            type: 'get',
+            data: $('#form_'+$id).serialize(),
+            url: 'ajax/page_webuserVideos.php',
+            success: function(data){
+                $( "#userPanelExtra" ).dialog( {title: "Manage Videos"} );
+                $('#userPanelExtra').html(data);
+            }
+        });
+    });
     function getLands(){
         $('#ownedLandList').html('');
         $.ajax({

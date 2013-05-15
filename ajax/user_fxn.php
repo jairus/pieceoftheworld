@@ -34,6 +34,10 @@ if(isset($_GET['action'])){
             $result = saveFbLike($arrLand['landId'], $arrLand['specialLandId'], 'unlike');
             $response = json_encode($result);
             break;
+        case "uploadVideo": $result = saveVideos($_POST['id'], $_POST['type']);
+            $response = json_encode($result);
+            break;
+
 
     }
 	die($response);
@@ -294,6 +298,51 @@ function saveFbLike($landId, $specialLandId, $status = 'like'){
     } elseif($landId != null && is_numeric($landId) ){
         dbQuery("update land set totalLikes = totalLikes $operator 1 where id = '$landId' limit 1");
         $result = array('status' => true, 'message' => 'Land like saved for ordinary land');
+    }
+    return $result;
+}
+function getVideos($landId, $type)
+{
+    $videos = array();
+    if($type == 'land_detail'){
+        $table = 'videos';
+        $landField = 'land_id';
+    } else {
+        $table = 'videos_special';
+        $landField = 'land_special_id';
+    }
+
+    $sql = "select * from `$table` where `$landField`= '".mysql_real_escape_string($landId)."' order by id asc";
+    $result = dbQuery($sql);
+    return $result;
+}
+function saveVideos($landId, $type)
+{
+    $result = array();
+    if($type == 'land_detail'){
+        $table = 'videos';
+        $landField = 'land_id';
+    } else {
+        $table = 'videos_special';
+        $landField = 'land_special_id';
+    }
+
+    $sql = "delete from `$table` where `$landField`=".mysql_real_escape_string($landId);
+    dbQuery($sql);
+    if(is_array($_POST['video_link'])){
+
+        foreach($_POST['video_link'] as $key => $value){
+            if($value){
+                $sql = "insert into `$table` set
+                `$landField`='".mysql_real_escape_string($landId)."',
+                `title`='".mysql_real_escape_string($_POST['video_title'][$key])."',
+                `video`='".mysql_real_escape_string($value)."'";
+                dbQuery($sql);
+            }
+        }
+        $result = array('status' => true, 'message' => 'Videos saved successfully');
+    } else {
+        $result = array('status' => false, 'message' => 'Cannot save videos');
     }
     return $result;
 }
