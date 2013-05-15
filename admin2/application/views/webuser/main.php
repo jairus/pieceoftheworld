@@ -67,7 +67,11 @@ function addRecord(){
 <form action="<?php echo site_url(); ?>webuser/search/" class='inline' >
 	Filter: <select name='filter' id='sfilter'>
 	<option value="useremail">E-mail</option>
-	<option value="id">ID</option>	
+	<option value="id">ID</option>
+    <option value="gender">Gender</option>
+    <option value="location">Location</option>
+    <option value="name">Name</option>
+    <option value="fb_id">Facebook ID</option>
 	</select>
 	Search: <input type='text' id='search' value="<?php echo sanitizeX($search); ?>" name='search' />
 	<input type='button' class='button normal' value='search' onclick='searchCompany()'>
@@ -90,44 +94,25 @@ $t = count($records);
 		<th style="width:20px"></th>
 		<th>ID</th>
 		<th>E-mail</th>
-		<th></th>
+        <th>Name</th>
+		<th>Gender</th>
+        <th>Location</th>
+        <th>Facebook ID</th>
+        <th></th>
 	</tr>
 	<?php
 	
 	for($i=0; $i<$t; $i++){
-		$post = array();
-		$imageurl = "";
-		$absfolder = dirname(__FILE__)."/../../../../_uploads/".trim($records[$i]['folder']);
-		$filename = $absfolder."/post.txt";
-		if(file_exists($filename)){
-			$post = (file_get_contents($filename));
-			$post = unserialize($post);
-			$records[$i]['title'] = $post['title_name'];
-			$records[$i]['detail'] = $post['detail_name'];
-			$records[$i]['land_owner'] = $post['land_owner'];
-			$records[$i]['useremail'] = $post['useremail'];
-			/*
-			Array
-			(
-				[save] => 1
-				[step] => 2
-				[pass] => A631CD74-1D21-40b1-8602-346611127127
-				[land] => 101130-220106_101131-220106
-				[useremail] => melissa.birdvogel@gmail.com
-				[title_name] => Home is where the heart is
-				[land_owner] => Melissa
-				[detail_name] => 
-				[button_name] =>   Submit  
-			)
-			*/
-			$imageurl = basename($post['filename']);
-		}
 		?>
 		<tr id="tr<?php echo htmlentitiesX($records[$i]['id']); ?>" class="row" >
 			
 			<td><?php echo $start+$i+1; ?></td>
 			<td><a href="<?php echo site_url(); ?>webuser/edit/<?php echo $records[$i]['id']?>" ><?php echo htmlentitiesX($records[$i]['id']); ?></a></td>			
-			<td><?php echo $records[$i]['useremail'];	?></td>			
+			<td><?php echo $records[$i]['useremail'];	?></td>
+            <td><?php echo $records[$i]['name'];	?></td>
+            <td><?php echo $records[$i]['gender'];	?></td>
+            <td><?php echo $records[$i]['location'];	?></td>
+            <td><?php echo $records[$i]['fb_id'];	?></td>
 			<td width='300px'>
 			[ <a href="<?php echo site_url(); ?>webuser/edit/<?php echo $records[$i]['id']?>" >Edit</a> ] 
 			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['id']) ?>"); ' >Delete</a> ]
@@ -139,7 +124,7 @@ $t = count($records);
 	if($pages>0){
 		?>
 		<tr>
-			<td colspan="12" class='center font12' >
+			<td colspan="8" class='center font12' >
 				There is a total of <?php echo $cnt; ?> <?php if($cnt>1) { echo "records"; } else{ echo "record"; }?> in the database. 
 				Go to Page:
 				<?php

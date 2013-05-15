@@ -115,7 +115,30 @@ else{
 	</table>
 </td>
 <td width='50%'>
-	&nbsp;
+    <table width="100%">
+        <tr class="even required">
+            <td> Name:</td>
+            <td><input type="text" name="name" size="40"></td>
+        </tr>
+        <tr class="odd">
+            <td>Gender:</td>
+            <td><select name="gender" id="gender">
+                    <option value=""></option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+            </td>
+        </tr>
+        <tr class="even">
+            <td>Location:</td>
+            <td><input type="text" name="location" id="location" size="40"  /></td>
+        </tr>
+        <tr class="odd">
+            <td>Facebook ID:</td>
+            <td><input type="text" name="fb_id" id="fb_id" size="40"  /></td>
+        </tr>
+
+    </table>
 </td>
 </tr>
 

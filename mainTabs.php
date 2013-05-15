@@ -58,6 +58,8 @@ require_once('ajax/user_fxn.php')
         <form id="loginForm"  autocomplete="off">
             <input type="hidden" name="fb_id" class="fb_id" />
             <input type="hidden" name="name" class="name" />
+			<input type="hidden" name="gender" class="gender" />
+			<input type="hidden" name="location" class="location" />
             <label>Email: </label><input type="text" name="email" class="email" /><br/>
             <label>Password: </label><input type="password" name="password"  class="password"  /><br/>
             <label></label><input type="button" value="submit" id="loginButton" />
@@ -74,10 +76,19 @@ require_once('ajax/user_fxn.php')
         <h3>Register</h3>
         <form id="registerForm">
             <input type="hidden" name="fb_id" class="fb_id" />
-            <input type="hidden" name="name" class="name" />
             <label>Email: </label><input type="text" name="email" class="email" /><br/>
             <label>Password: </label><input type="password" name="password" class="password"  /><br/>
             <label>Retype Password: </label><input type="password" name="password_again" /><br/>
+
+            <label>Name: </label><input type="text" name="name" class="name" /><br/>
+            <label>Gender: </label>
+            <select name='gender'>
+                <option value=""></option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+            </select><br/>
+            <label>Location: </label><input type="text" name="location" class="location" /><br/>
+
             <label></label><input type="button" value="submit" id="registerButton" />
         </form>
         <div id="regStatus"  class="statusResult"></div>
@@ -87,7 +98,7 @@ require_once('ajax/user_fxn.php')
 <div id="ownedLands" class="tab_body">
     <div id="loggedinHolder">
         <h3>Hello <span class='currentUser' ><?php echo $_SESSION['userdata']['useremail']?> </span>! | <a href="#" id="logoutLink" >LOGOUT</a></h3>
-        <img src="images/loading2.gif" id="loadingImageFb2" class="hide" />
+        <img src="images/loading2.gif" id="loadingImageFb2" class="hide" />        
         <div id='ownedLandList'>loading lands...</div>
     </div>
 </div>

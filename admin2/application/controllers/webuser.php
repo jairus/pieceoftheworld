@@ -10,7 +10,7 @@ class webuser extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select id, useremail from `web_users` where 1 limit $start, $limit";
+		$sql = "select id, useremail, fb_id, name, gender, location from `web_users` where 1 limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -40,9 +40,11 @@ class webuser extends CI_Controller {
 		$search = strtolower(trim($_GET['search']));
 		$searchx = trim($_GET['search']);
 		
-		$sql = "select id, useremail from `web_users`  where 1 ";
+		$sql = "select id, useremail, fb_id, name, gender, location from `web_users`  where 1 ";
 		if($filter=='id'){
 			$sql .= "and id = '".mysql_real_escape_string($search)."' ";
+        } elseif($filter == 'gender'){
+            $sql .= "and LOWER(`".$filter."`) = '".mysql_real_escape_string($search)."'";
 		} elseif($search != ''){
 			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
@@ -95,7 +97,11 @@ class webuser extends CI_Controller {
 			$id = $_POST['id'];			
 			
 			$sql = "update `web_users` set 
-					`useremail` = '".mysql_real_escape_string($_POST['useremail'])."'" ;
+					`useremail` = '".mysql_real_escape_string($_POST['useremail'])."',
+					`fb_id` = '".mysql_real_escape_string($_POST['fb_id'])."',
+					`name` = '".mysql_real_escape_string($_POST['name'])."',
+					`gender` = '".mysql_real_escape_string($_POST['gender'])."',
+					`location` = '".mysql_real_escape_string($_POST['location'])."' " ;
 			
 			if(isset($_POST['password']) && $_POST['password'] != ''){
 				$sql .= ", `plain_pass` = '".mysql_real_escape_string($_POST['password'])."'
@@ -114,7 +120,7 @@ class webuser extends CI_Controller {
 	public function edit($id){
 		$table = "webuser";
 		$controller = $table;
-		$sql = "select id, useremail from `web_users` where `id` = '".mysql_real_escape_string($id)."' limit 1";
+		$sql = "select id, useremail, fb_id, name, gender, location from `web_users` where `id` = '".mysql_real_escape_string($id)."' limit 1";
 		$q = $this->db->query($sql);
 		$record = $q->result_array();
 		$record = $record[0];
@@ -139,9 +145,13 @@ class webuser extends CI_Controller {
 		}
 		
 		if(!$error){								
-			$sql = "insert into `web_users` set 
-					`useremail` = '".mysql_real_escape_string($_POST['useremail'])."'
-					";	
+			$sql = "insert into `web_users` set
+					`useremail` = '".mysql_real_escape_string($_POST['useremail'])."',
+					`fb_id` = '".mysql_real_escape_string($_POST['fb_id'])."',
+					`name` = '".mysql_real_escape_string($_POST['name'])."',
+					`gender` = '".mysql_real_escape_string($_POST['gender'])."',
+					`location` = '".mysql_real_escape_string($_POST['location'])."' " ;
+
 			if(isset($_POST['password']) && $_POST['password'] != ''){
 				$sql .= ", `plain_pass` = '".mysql_real_escape_string($_POST['password'])."'
 						, `password` = '".md5($_POST['password'])."' ";				
