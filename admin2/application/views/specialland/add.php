@@ -268,7 +268,20 @@ else{
 </td>
 <td width='50%'>
 	<table width="100%">
-		<tr class="even">
+        <tr class="even">
+            <td>Category:</td>
+            <td>
+                <select name="category_id" id="category_id">
+                    <option value=""></option>
+                    <?php foreach($categories as $cat){
+                        $selected = ($cat['id'] == $record['category_id'])? 'selected' : '';
+                        ?>
+                        <option value="<?php echo $cat['id']?>" <?php echo $selected ?> ><?php echo $cat['name']?></option>
+                    <?php } ?>
+                </select>
+            </td>
+        </tr>
+        <tr class="odd required">
 		  <td>Picture:</td>
 		  <td>
 			  <div id='sspathhtml' style='padding-bottom:10px;'></div>

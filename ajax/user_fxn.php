@@ -1,5 +1,5 @@
 <?php
-session_start();
+@session_start();
 require_once 'global.php';
 if(isset($_GET['action'])){
 	$result = array();
@@ -24,7 +24,22 @@ if(isset($_GET['action'])){
 			header('Content-Type: text/html; charset=utf-8');
 			$response = edit();					
 			break;
-	}
+        case "like":            
+            parse_str(parse_url($_GET['href'], PHP_URL_QUERY), $arrLand);
+            $result = saveFbLike($arrLand['landId'], $arrLand['specialLandId'], 'like');
+            $response = json_encode($result);
+            break;
+        case "unlike":
+            parse_str(parse_url($_GET['href'], PHP_URL_QUERY), $arrLand);
+            $result = saveFbLike($arrLand['landId'], $arrLand['specialLandId'], 'unlike');
+            $response = json_encode($result);
+            break;
+        case "uploadVideo": $result = saveVideos($_POST['id'], $_POST['type']);
+            $response = json_encode($result);
+            break;
+
+
+    }
 	die($response);
 }
 
@@ -43,12 +58,55 @@ function login()
 	$result = array('status' => false, 'message' => 'Invalid email or password');
 	$useremail = urldecode($_POST['email']);
 	$pass = urldecode($_POST['password']);
-	$rs = dbQuery("select id, useremail, password from web_users where useremail = '".mysql_real_escape_string($useremail)."' limit 1 ");
-	if(!empty($rs) && $rs[0]['password'] == md5($pass)){
-		unset($rs[0]['password']);
-		$_SESSION['userdata'] = $rs[0];
-		$result = array('status' => true, 'message' => 'You are now successfully logged in.', 'content' => $rs[0]);	
-	} 
+    $fb_id = urldecode($_POST['fb_id']);
+    $name = urldecode($_POST['name']);
+    $gender = urldecode($_POST['gender']);
+    $location = urldecode($_POST['location']);
+
+    // if logged in via facebook, register details before logging in
+    if($fb_id != ''){
+        $rs = dbQuery("select * from web_users where fb_id = '".mysql_real_escape_string($fb_id)."' or useremail = '".mysql_real_escape_string($useremail)."' limit 1 ");
+        if(!empty($rs) ){
+            $row = $rs[0];
+            // check logged in via fb and had previous account, so update details
+            $addl = '';
+            if($fb_id && !$row['fb_id']){
+                $addl .= ", fb_id = '".mysql_real_escape_string($fb_id)."' ";
+            }
+            if($name && !$row['name']){
+                $addl .= ", name = '".mysql_real_escape_string($name)."' ";
+            }
+            if($gender && !$row['gender']){
+                $addl .= ", gender = '".mysql_real_escape_string($gender)."' ";
+            }
+            if($location && !$row['location']){
+                $addl .= ", location = '".mysql_real_escape_string($location)."' ";
+            }
+
+            if($addl){
+                $addl = substr($addl,1);
+                dbQuery("update web_users set $addl where id = '".$row['id'] ."'  limit 1");
+            }
+            $row['fb_id'] = $fb_id;
+            $row['name'] = $name;
+            $_SESSION['userdata'] = $row;
+        } elseif($fb_id) {
+            $sql = "insert into web_users (useremail, name, fb_id, gender, location) values ('".mysql_real_escape_string($useremail)."', '".mysql_real_escape_string($name)."','".mysql_real_escape_string($fb_id)."','".mysql_real_escape_string($gender)."','".mysql_real_escape_string($location)."')";
+            $rs = dbQuery($sql);
+            $newId = $rs['mysql_insert_id'];
+            $row =  array('useremail' => $useremail, 'id' => $newId, 'name' => $name, 'fb_id' => $fb_id);
+            $_SESSION['userdata'] = $row;
+        }
+        $result = array('status' => true, 'message' => 'You are now successfully logged in.', 'content' => $row);
+
+    } else {
+        $rs = dbQuery("select id, useremail, password from web_users where useremail = '".mysql_real_escape_string($useremail)."' limit 1 ");
+        if(!empty($rs) && $rs[0]['password'] == md5($pass)){
+            unset($rs[0]['password']);
+            $_SESSION['userdata'] = $rs[0];
+            $result = array('status' => true, 'message' => 'You are now successfully logged in.', 'content' => $rs[0]);
+        }
+    }
 	return $result;
 }
 function isUnique($useremail)
@@ -61,13 +119,17 @@ function register()
 	$result = array('status' => false, 'message' => 'Cannot register.');
 	$useremail = urldecode($_POST['email']);
 	$password = md5(urldecode($_POST['password']));
-	if(!isUnique($useremail)){
+    $name = urldecode($_POST['name']);
+    $gender = urldecode($_POST['gender']);
+    $location = urldecode($_POST['location']);
+
+    if(!isUnique($useremail)){
 		$result = array('status' => false, 'message' => 'Email not available anymore.');
 	} else {
-		$sql = "insert into web_users (useremail, password) values ('$useremail', '$password')";
+		$sql = "insert into web_users (useremail, password, name, gender, location) values ('$useremail', '$password', '$name', '$gender', '$location')";
 		$rs = dbQuery($sql);
 		$newId = $rs['mysql_insert_id'];
-		$row =  array('useremail' => $useremail, 'id' => $newId);
+		$row =  array('useremail' => $useremail, 'id' => $newId, 'name' => $name);
 		$_SESSION['userdata'] = $row;
 		$result = array('status' => true, 'message' => 'You are now successfully registered.', 'content' => $row );	
 	}
@@ -226,5 +288,62 @@ function saveTags($landId, $table)
 	
 	$result = array('status' => true, 'message' => 'Tags saved successfully', 'tags' => implode(',',$newTags) );		
 	return $result;
+}
+function saveFbLike($landId, $specialLandId, $status = 'like'){
+    $result = array('status' => false, 'message' => "Invalid Land. ID: $landId . Special: $specialLandId ");
+    $operator = ($status == 'like')? '+' : '-';
+    if($specialLandId != null && is_numeric($specialLandId) ){
+        dbQuery("update land_special set totalLikes = totalLikes $operator 1 where id = '$specialLandId' limit 1");
+        $result = array('status' => true, 'message' => 'Land like saved for special land');
+    } elseif($landId != null && is_numeric($landId) ){
+        dbQuery("update land set totalLikes = totalLikes $operator 1 where id = '$landId' limit 1");
+        $result = array('status' => true, 'message' => 'Land like saved for ordinary land');
+    }
+    return $result;
+}
+function getVideos($landId, $type)
+{
+    $videos = array();
+    if($type == 'land_detail'){
+        $table = 'videos';
+        $landField = 'land_id';
+    } else {
+        $table = 'videos_special';
+        $landField = 'land_special_id';
+    }
+
+    $sql = "select * from `$table` where `$landField`= '".mysql_real_escape_string($landId)."' order by id asc";
+    $result = dbQuery($sql);
+    return $result;
+}
+function saveVideos($landId, $type)
+{
+    $result = array();
+    if($type == 'land_detail'){
+        $table = 'videos';
+        $landField = 'land_id';
+    } else {
+        $table = 'videos_special';
+        $landField = 'land_special_id';
+    }
+
+    $sql = "delete from `$table` where `$landField`=".mysql_real_escape_string($landId);
+    dbQuery($sql);
+    if(is_array($_POST['video_link'])){
+
+        foreach($_POST['video_link'] as $key => $value){
+            if($value){
+                $sql = "insert into `$table` set
+                `$landField`='".mysql_real_escape_string($landId)."',
+                `title`='".mysql_real_escape_string($_POST['video_title'][$key])."',
+                `video`='".mysql_real_escape_string($value)."'";
+                dbQuery($sql);
+            }
+        }
+        $result = array('status' => true, 'message' => 'Videos saved successfully');
+    } else {
+        $result = array('status' => false, 'message' => 'Cannot save videos');
+    }
+    return $result;
 }
 ?>

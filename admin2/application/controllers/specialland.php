@@ -9,18 +9,11 @@ class specialland extends CI_Controller {
 		$start = $_GET['start'];
 		$start += 0;
 		$limit = 50;
-				
-		/*
-		$sql = "select L.`x`, L.`y`, L.`id`, WU.useremail,  LD.`land_owner` , format(LS.price,2) as price,
-				if(L.`web_user_id` = 0, LS.title, LD.title) as title,
-				if(L.`web_user_id` = 0, LS.detail, LD.detail) as detail				
-				from `land` L
-				left join land_detail LD on LD.id = L.land_detail_id				
-				left join land_special LS on LS.id = L.land_special_id
-				left join web_users WU on WU.id = L.web_user_id
-				where L.`land_special_id` is not NULL limit $start, $limit" ;
-		*/
-		$sql = "select * from `land_special` where 1 and `id` in (select distinct `land_special_id` from `land`) order by `id` desc limit $start, $limit";
+
+		$sql = "select LS.*, C.name as categoryName
+		        from `land_special` LS
+		        left join categories C on C.id = LS.category_id
+		        where 1 and LS.`id` in (select distinct `land_special_id` from `land`) order by LS.`id` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -50,13 +43,16 @@ class specialland extends CI_Controller {
 		$search = strtolower(trim($_GET['search']));
 		$searchx = trim($_GET['search']);
 		
-		$sql = "select LS.*, WU.useremail from `land_special` LS
+		$sql = "select LS.*, WU.useremail, C.name as categoryName from `land_special` LS
 				left join web_users WU on WU.id = LS.web_user_id
+				left join categories C on C.id = LS.category_id
 				where 1 and `LS`.`id` in (select distinct `land_special_id` from `land`)";
 		if($filter=='id'){
 			$sql .= "and LS.id = '".mysql_real_escape_string($search)."' ";
 		} elseif($filter == 'useremail'){
-			$sql .= "and LOWER(WU.useremail) like '%".mysql_real_escape_string($search)."%'";			
+			$sql .= "and LOWER(WU.useremail) like '%".mysql_real_escape_string($search)."%'";
+        } elseif($filter=='category'){
+                $sql .= "and LOWER(C.name) like '%".mysql_real_escape_string($search)."%' ";
 		} elseif($search != ''){
 			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}
@@ -69,12 +65,15 @@ class specialland extends CI_Controller {
 				
 		$sql = "select count(LS.id) as `cnt`  from `land_special` LS
 				left join web_users WU on WU.id = LS.web_user_id
+				left join categories C on C.id = LS.category_id
 				where 1 and `LS`.`id` in (select distinct `land_special_id` from `land`) ";
 		if($filter=='id'){
 			$sql .= "and LS.id = '".mysql_real_escape_string($search)."' ";
 		} elseif($filter == 'useremail'){
-			$sql .= "and LOWER(WU.useremail) like '%".mysql_real_escape_string($search)."%'";			
-		} elseif($search != ''){
+			$sql .= "and LOWER(WU.useremail) like '%".mysql_real_escape_string($search)."%'";
+        } elseif($filter=='category'){
+            $sql .= "and LOWER(C.name) like '%".mysql_real_escape_string($search)."%' ";
+        } elseif($search != ''){
 			$sql .= "and LOWER(`".$filter."`) like '%".mysql_real_escape_string($search)."%'";
 		}		
 		
@@ -139,7 +138,8 @@ class specialland extends CI_Controller {
 					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
 					`price` = '".mysql_real_escape_string($_POST['price'])."',
 					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."',
-					`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."'					
+					`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."',
+					`category_id` = '".mysql_real_escape_string($_POST['category_id'])."'
 					where `id` = '$landSpecialId' limit 1";	
 			
 			$this->db->query($sql);										
@@ -217,6 +217,7 @@ class specialland extends CI_Controller {
 					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
 					`price` = '".mysql_real_escape_string($_POST['price'])."',
 					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."',
+					`category_id` = '".mysql_real_escape_string($_POST['category_id'])."',
 					`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."'					
 					";	
 			
@@ -301,6 +302,12 @@ class specialland extends CI_Controller {
 		
 		$data['pictures'] = $pictures;			
 		$data['record'] = $record;
+
+        $sql = "select id, name from `categories` where `deleted` = '0' order by name asc";
+        $q = $this->db->query($sql);
+        $categories = $q->result_array();
+        $data['categories'] = $categories;
+
 		$data['content'] = $this->load->view($controller.'/add', $data, true);
 
 		
@@ -310,7 +317,13 @@ class specialland extends CI_Controller {
 	public function add(){
 		$table = "specialland";
 		$controller = $table;
-		$data['content'] = $this->load->view($controller.'/add', $data, true);
+
+        $sql = "select id, name from `categories` where `deleted` = '0' order by name asc";
+        $q = $this->db->query($sql);
+        $categories = $q->result_array();
+        $data['categories'] = $categories;
+
+        $data['content'] = $this->load->view($controller.'/add', $data, true);
 		$this->load->view('layout/main', $data);;
 	}
 	public function ajax_delete($id=""){

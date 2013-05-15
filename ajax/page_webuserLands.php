@@ -5,7 +5,13 @@ require_once('user_fxn.php');
 $webUserId = $_SESSION['userdata']['id'];
 $rs = getLands($webUserId);	
 
+if(empty($rs['land_detail']) && empty($rs['land_special']) ){
 ?>
+You can now start buying your first pieces of land!
+<?php
+} else {
+?>
+
 
 <?php
 	$type = 'land_detail';
@@ -38,6 +44,8 @@ $rs = getLands($webUserId);
 				<br/>
 				<a href='#' data-id='<?php echo $row['id'] ?>' class='manageImageLink'>manage images</a>
 				<br/><br/>
+                <a href='#' data-id='<?php echo $row['id'] ?>' class='manageVideoLink'>manage videos</a>
+                <br/><br/>
 				<a href='#' data-id='<?php echo $row['id'] ?>' class='manageTags'>manage tags</a><br/>
 			</td>
 			<td valign='top'><p class='editableTextarea' id='detail-<?php echo $row['id']?>-land_detail'><?php echo nl2br($row["detail"])?></p></td>
@@ -46,7 +54,6 @@ $rs = getLands($webUserId);
 	</table>
 <?php } ?>	
 
-<!-- START OF SPECIAL LANDS-->
 <?php
 	$type = 'land_special';
 	if(!empty($rs[$type])){
@@ -86,4 +93,6 @@ $rs = getLands($webUserId);
 		</tr>
 	<?php }?>
 	</table>
-<?php } ?>	
+<?php }
+}
+?>

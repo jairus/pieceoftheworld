@@ -1,11 +1,6 @@
-<?php
-
-?>
 <script>
 jQuery(function(){
 
-	
-	
 	jQuery("#company_search").autocomplete({
 		//define callback to format results
 		source: function(req, add){
@@ -69,6 +64,7 @@ function searchCompany(){
 	<option value="useremail">E-mail</option>
 	<option value="title">Title</option>
 	<option value="detail">Detail</option>
+    <option value="category">Category</option>
 	</select>
 	Search: <input type='text' id='search' value="<?php echo sanitizeX($search); ?>" name='search' />
 	<input type='button' class='button normal' value='search' onclick='searchCompany()'>
@@ -121,7 +117,9 @@ $t = count($records);
 		<th>Land Owner</th>
 		<th>E-mail</th>
 		<th>Title</th>
-		<th width="200px">Detail</th>		
+        <th>Category</th>
+		<th width="200px">Detail</th>
+        <th>FB Likes</th>
 		<th></th>
 	</tr>
 	<?php
@@ -178,9 +176,15 @@ $t = count($records);
 			<!--<td style='vertical-align:middle;'><?php if(trim($records[$i]['logo'])){ ?><img src='<?php echo site_url(); ?>media/image.php?p=<?php echo $records[$i]['logo'] ?>&mx=25' /> <?php } ?></td>-->
 			<td><?php echo htmlentitiesX($records[$i]['title']); 
 			?></td>
+            <td><?php
+                echo $records[$i]['categoryName'];
+                ?></td>
 			<td><?php 
 			echo $records[$i]['detail'];	
-			?></td>			
+			?></td>
+            <td><?php
+                echo $records[$i]['totalLikes'];
+                ?></td>
 			<td width='300px'>
 			<?php
 			if(trim($records[$i]['folder'])){
