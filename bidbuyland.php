@@ -61,6 +61,9 @@ if($_POST['step']=="1"){
 		$post['http_picture'] = $http_picture;
 	}
 	$post['amount'] = $_SESSION['px'];
+	$post['coords'] = $_SESSION['coords'];
+	$post['buydetails'] = $_SESSION['buydetails'];
+	
 	file_put_contents ( $filename, serialize($post));
 	
 	
@@ -111,7 +114,6 @@ if($_POST['step']=="1"){
 		<?php
 		exit();
 	}
-	
 }
 else if($_GET['f']){
 	$foldername = $_GET['f'];
@@ -146,6 +148,13 @@ else if($_GET['f']){
 }
 </style>
 <script>
+function consoleX(str){
+	try{
+		console.log(str);
+	}
+	catch(e){
+	}
+}
 function logout(){
 	jQuery.ajax({
 		url:"?ajaxlogout=1",
@@ -190,7 +199,149 @@ function cancelLogin(){
 </script>
 <body style="cursor: auto; background-color: white;">
 <?php
-if(strtolower($_GET['type'])=='buy'){
+if($_POST['step']==1){
+	$discount = 0;
+	$paypalvalue = $_SESSION['px'];
+	$paypalvalue = $paypalvalue - ($paypalvalue * $discount);
+	?>
+	<style>
+	td{
+		vertical-align:top;
+	}
+	input[type='text']{
+		width:200px;
+	}
+	textarea{
+		width:200px;
+	}
+	*{
+		font-size:11px;
+		font-family:verdana;
+	}
+	</style>
+	<center>
+	<br /><br />
+	<table style='height:100%;'><tr><td style='height:100%; vertical-align:middle'>
+		<table cellpadding=3 style='width:662px;'>
+		<tr>
+			<td style='width:405px'>
+				<table cellpadding=10 style='width:100%' >	
+					<tr class='account'>
+						<td colspan=2 class='header'>
+						<b>Account</b>
+						</td>
+					</tr>
+					<tr class='account'>
+						<td>* E-mail</td>
+						<td>
+						<?php echo sanitizeX($post['email']) ?>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=2 class='header'><b>Land Details</b></td>
+					</tr>
+					<tr>
+						<td>* Name for your land</td>
+						<td><?php echo sanitizeX($post['title']) ?></td>
+					</tr>
+					<tr>
+						<td>* Description for your land</td>
+						<td><?php echo sanitizeX($post['description']); ?></td>
+					</tr>
+					<tr>
+						<td>Name of the land owner</td>
+						<td><?php echo sanitizeX($post['land_owner']); ?></td>
+					</tr>
+					<tr>
+						<td>Image</td>
+						<td>
+						<?php
+						if($post['http_picture']){
+							?>
+							<table>
+							<tr>
+							<td valign='middle'>
+								<a href="<?php echo $post['http_picture']; ?>" target='_blank'><img src="images/image.php?p=<?php echo base64_encode($post['http_picture']); ?>&b=1&mx=50" /></a><br>
+							</td>
+							</tr>
+							</table>
+							<?php
+						}
+						?>
+						
+						</td>
+					</tr>
+					<tr>
+						<td colspan=2 class='header'>
+						<b>Payment Option</b>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=2>
+							<div style='text-align:center'>
+							<input type='radio' name='po' checked> Paypal&nbsp;&nbsp;&nbsp;
+							<input type='radio' name='po'> Credit Card
+							</div>
+							<br /><br />
+							<div id='paypal' style='padding:10px; text-align:center'>
+								<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
+									<input type="hidden" value="_xclick" name="cmd">
+									<input type="hidden" value="pieceoftheworld2013@gmail.com" name="business">
+									<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>">
+									<input type="hidden" value="Land" name="item_name">
+									<input type="hidden" value="<?php echo $paypalvalue; ?>" name="amount" id="amount_id">
+									<input type="hidden" value="http://www.pieceoftheworld.co/ppc2.php?f=<?php echo $foldername; ?>&step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
+									<input type="hidden" value="http://www.pieceoftheworld.co/" name="cancel_return">
+									<input type="hidden" value="USD" name="currency_code">
+									<input type="hidden" value="US" name="lc">
+									Upon pressing Buy Now button I accept PieceoftheWorld's all <a href="#" onclick="window.showModalDialog('tac.php',0, 'dialogWidth:600px; dialogHeight:400px; center:yes; resizable: no; status: no');">terms and conditions</a><br>
+									<br>
+									<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+									<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+								</form>
+							</div>
+						</td>
+					</tr>
+				</table>
+			</td>
+			<td>
+				<table cellpadding=3>
+					<tr>
+						<td class='header'>
+							<b>Land Purchase Details</b>
+						</td>
+					</tr>
+					<tr>
+						<td>
+						<div id='buydetails' style='padding:10px;'><?php echo $_SESSION['buydetails']; ?></div>
+						</td>
+					</tr>
+					<tr>
+						<td style='border-top:1px solid #f0f0f0; '>
+						<div style='font-size:12px; font-weight:bold; padding:10px;'>
+						Total: USD <?php echo number_format($_SESSION['px'],2); ?> 
+						<!--<a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=<?php /* echo "http://pieceoftheworld.co/"; */ echo urlencode($_SESSION['GET']['link']); ?>&picture=<?php if(trim($http_picture)){ echo $http_picture; } else { echo urlencode($_GET['thumb']); } /* echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); */ ?>&name=I just bought a Piece of the World&caption=<?php if(trim($post['title_name'])) { echo $post['title_name']; } else { echo urlencode("Mark your very own Piece of the World!	"); } ?>&description=<?php if(trim($post['detail_name'])) { echo $post['detail_name']; } else { echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); } ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a>-->
+						</div>
+						</td>
+					</tr>
+					<tr>
+						<td align='center'>
+							<img src='<?php echo $_SESSION['GET']['thumb']?>' />
+						</td>
+					</tr>
+				</table>
+			</td>
+		
+		</tr>
+		<tr>
+			<td colspan=3 align='center'><input type='button' value='Back' onclick='self.location="bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $foldername; ?>"' style='width:100%; height: 25px;'></td>
+		</tr>
+		</table>
+	</td></tr></table>
+	</center>
+	<?php
+}
+else if(strtolower($_GET['type'])=='buy'){
 	if($_GET['type']&&$_GET['thumb']&&$_GET['link']){
 		$_SESSION["GET"] = $_GET;
 	}
@@ -326,7 +477,7 @@ if(strtolower($_GET['type'])=='buy'){
 							<td colspan=2 class='header'><b>Account Login</b></td>
 						</tr>
 						<tr id='loginStatusTr' style='display:none'>
-							<td id='loginStatus' align='center' colspan=2></td>
+							<td id='loginStatus' align='center' colspan=2 style='color:red; font-weight:bold'></td>
 						</tr>
 						<tr class='loginaccount' style='display:none'>
 							<td>* E-mail</td>
@@ -352,7 +503,7 @@ if(strtolower($_GET['type'])=='buy'){
 					</tr>
 					<tr>
 						<td>* Description for your land</td>
-						<td><textarea name='description' placeholder="e.g. Best place to go to in Paris France" ><?php echo $post['title']; ?></textarea></td>
+						<td><textarea name='description' placeholder="e.g. Best place to go to in Paris France" ><?php echo $post['description']; ?></textarea></td>
 					</tr>
 					<tr>
 						<td>Name of the land owner</td>

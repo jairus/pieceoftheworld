@@ -1,36 +1,74 @@
 <?php
 //20130213_1360814201.6756
+require_once("dompdf_config.inc.php");
+include_once(dirname(__FILE__)."/../ajax/global.php"); 
 error_reporting(E_ALL ^ E_NOTICE ^ E_DEPRECATED);
 
-require_once 'global.php';
-$conOptions = GetGlobalConnectionOptions();
-$con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions['password']);
-mysql_select_db($conOptions['database'], $con);
 
-require_once("dompdf_config.inc.php");
 if(isset($_GET['f'])){
 	$uploads_dir = dirname(__FILE__).'/../_uploads/'.$_GET['f'];
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
 	
-	if(!isset($post['filename'])){
+	/*
+	$post
+	Array
+	(
+		[step] => 1
+		[email] => jairus@nmg.com.ph
+		[title] => test
+		[description] => test
+		[land_owner] => 
+		[filename] => 
+		[http_picture] => 
+		[amount] => 9.9
+		[coords] => {\"points\":[\"380698-197059\"],\"strlatlongs\":[\"55.7134666222033,37.55518198745631\"]}
+		[buydetails] => City: Moscow USD 9.90 x 1
+
+	)
+	*/
+	
+	
+	
+	$useremail = $post['email'];
+	$land_owner = ($post['land_owner']);
+	$title = ($post['title']);
+	$detail = ($post['description']);	
+
+	$coords = json_decode(stripslashes($post['coords']));
+	$points = $coords->points;
+	$strlatlongs = $coords->strlatlongs;
+	$t = count($points);
+	for($i=0; $i<$t; $i++){
+		list($x, $y) = explode("-", $points[$i]);
+		break;
+	}
+	$sql = "select * from `land` where `x`='".$x."' and `y`='".$y."'";
+	$land = dbQuery($sql, $_dblink);
+	$theid = $land[0]["id"];
+	
+	$post['filename'] = "";
+	
+	//get image
+	$sql = "select * from `pictures` where `land_id`='".$theid."' order by `isMain` desc";
+	$pics = dbQuery($sql, $_dblink);
+	if(!$pics[0]['id']&&$land[0]['land_special_id']){
+		$sql = "select * from `pictures_special` where `land_special_id`='".$land[0]['land_special_id']."' order by `isMain` desc";
+		$pics = dbQuery($sql, $_dblink);
+	}
+	if($pics[0]['id']){
+		if(trim($pics[0]['picture'])){
+			$folder = explode("_uploads2/",$pics[0]['picture']);
+			$filename = $folder[1];
+			$filename = dirname(__FILE__)."/../_uploads2/".$filename;
+			$post['filename'] = $filename;
+		}
+	}
+	if(!trim($post['filename'])){
 		$post['filename'] = dirname(__FILE__)."/../images/place_holder.png";
 	}
 	else{
 		$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
 	}
-	
-	$land = $post['land'];
-	$useremail = $post['useremail'];
-	$land_owner = ($post['land_owner']);
-	$title = ($post['title_name']);
-	$detail = ($post['detail_name']);	
-	$image = $post['filename'];
-	
-	$sql = "select `id` from land where `folder`='".mysql_real_escape_string($_GET['f'])."'";
-	$result = mysql_query($sql);
-	while ($row = mysql_fetch_assoc($result)) {
-           $theid = $row["id"];
-        }
 	
 }
 else{
@@ -167,6 +205,7 @@ $html = "<html>
 if(isset($_GET['image'])){
 
 	// Set the content-type
+	
 	header('Content-Type: image/png');
 
 	// Create the image
@@ -183,7 +222,7 @@ if(isset($_GET['image'])){
 	// Add some shadow to the text
 	//imagettftext($im, 20, 0, 11, 21, $grey, $font, $text);
 
-$font = 'arial.ttf';
+	$font = 'arial.ttf';
 	imagettftext($im, ceil(20*1.66), 0, ceil(100*1.66), ceil(150*1.66), $red, $font, "ID: ".$theid);
 
 
@@ -230,6 +269,11 @@ $font = 'arial.ttf';
 
 }
 else if ( isset( $html ) ) {
+	
+	if($_GET['html']){
+		echo $html;
+		exit();
+	}
 	
 	$dompdf = new DOMPDF();
 	$dompdf->load_html($html);

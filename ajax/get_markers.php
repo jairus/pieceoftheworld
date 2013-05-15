@@ -193,12 +193,13 @@ else{
 			//$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
 			//$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
 			$picture = explode("/_uploads2/", $pictures[0]['picture']);
+			$dir = dirname($picture[1]);
 			$picture = dirname(__FILE__)."/../_uploads2/".$picture[1];
 			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 			//if not special land
-			$markers[0]['thumb_url'] = "/_uploads2/land/".$markers[0]['id']."/images/thumb_".basename($picture.".png");
-			$markers[0]['img_url'] = "/_uploads2/land/".$markers[0]['id']."/images/450_".basename($picture.".png");
+			$markers[0]['thumb_url'] = "/_uploads2/".$dir."/thumb_".basename($picture.".png");
+			$markers[0]['img_url'] = "/_uploads2/".$dir."/450_".basename($picture.".png");
 		}
 	}
 	if(trim($markers[0]['folder'])&&!$t){ //if no picture

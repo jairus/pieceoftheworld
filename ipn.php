@@ -59,151 +59,98 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 		}
 	}
 	
-	$land = $post['land'];
-	$useremail = $post['useremail'];
-	$sql = "select * from `web_users` where `useremail`='".mysql_real_escape_string(trim($useremail))."'";
+	/*
+	$post
+	Array
+	(
+		[step] => 1
+		[email] => jairus@nmg.com.ph
+		[title] => test
+		[description] => test
+		[land_owner] => 
+		[filename] => 
+		[http_picture] => 
+		[amount] => 9.9
+		[coords] => {\"points\":[\"380698-197059\"],\"strlatlongs\":[\"55.7134666222033,37.55518198745631\"]}
+		[buydetails] => City: Moscow USD 9.90 x 1
+
+	)
+	*/
+	
+	$useremail = $post['email'];
+	//get web user id
+	$sql = "select * from `web_users` where LOWER(`useremail`) = '".strtolower($post['email'])."'";
 	$web_user = dbQuery($sql, $_dblink);
 	if($web_user[0]['id']){
 		$web_user_id = $web_user[0]['id'];
 	}
 	else{
-		$pass = rand(1000,9999);
 		$sql = "insert into `web_users` set 
-		`useremail`='".mysql_real_escape_string(trim($useremail))."',
-		`password`='".md5($pass)."',
-		`plain_pass`='".$pass."'
+			`useremail` = '".strtolower($post['email'])."',
+			`password` = '".md5($post['password'])."',
+			`plain_pass` = '".mysql_real_escape_string($post['password'])."'
 		";
-		$web_user = dbQuery($sql, $_dblink);
-		$web_user_id = $web_user['mysql_insert_id'];
-	}
-	$land_owner = ($post['land_owner']);
-	$title = ($post['title_name']);
-	$detail = ($post['detail_name']);	
-	$image = $post['filename'];
-	if ($image != null) {
-		$picture = mysql_real_escape_string(file_get_contents($image)); // the content of the image
+		$web_user_id = dbQuery($sql, $_dblink);
+		$web_user_id = $web_user_id['mysql_insert_id'];
 	}
 	
-	$land_special_id = -1;	
-	$plot_list = array();	
-	$owner_user_id = 0;
-	$plots = explode("_", $land);
-	$plots = array_unique($plots);
+	//insert land detail
+	$sql = "insert into `land_detail` set
+		`title` = '".mysql_real_escape_string($post['title'])."',
+		`detail` = '".mysql_real_escape_string($post['description'])."'
+	";
+	$land_detail_id = dbQuery($sql, $_dblink);
+	$land_detail_id = $land_detail_id['mysql_insert_id'];
 	
-	if ($land != null) {
-		if (sizeof($plots) == 1) {
-			$plotCo =  explode("-", $plots[0]);
-			do{
-				$sql = "SELECT * FROM land WHERE x=".$plotCo[0]." AND y=".$plotCo[1];
-				$rows = dbQuery($sql, $_dblink);
-				if($rows[0]['id']){
-					$sql = "select `id` from `land_detail` where `id`='".$rows[0]['land_detail_id']."'";
-					$land_detail = dbQuery($sql, $_dblink);
-					//if detaul record exists
-					if($land_detail[0]['id']){
-						$sql = "UPDATE `land_detail` set 
-						`title`='".mysql_real_escape_string($title)."', 
-						`detail`='".mysql_real_escape_string($detail)."', 
-						`picture`='".mysql_real_escape_string($picture)."', 
-						`land_owner`='".mysql_real_escape_string($land_owner)."',
-						`folder`='".$_GET['f']."'
-						where `id`='".$rows[0]['land_detail_id']."'
-						";
-						dbQuery($sql, $_dblink);
-						$insert_id = $rows[0]['land_detail_id'];
-					}
-					else{
-						$sql = "INSERT into `land_detail` set 
-						`title`='".mysql_real_escape_string($title)."', 
-						`detail`='".mysql_real_escape_string($detail)."', 
-						`picture`='".mysql_real_escape_string($picture)."', 
-						`land_owner`='".mysql_real_escape_string($land_owner)."',
-						`folder`='".$_GET['f']."'";
-						$insert_id = dbQuery($sql, $_dblink);
-						$insert_id = $insert_id['mysql_insert_id'];
-					}
-					//update land_detail_id of rows
-					$tx = count($rows);
-					for($ix=0; $ix<$tx; $ix++){
-						$sql  = "update `land` set 
-						`land_detail_id`='".$insert_id ."',
-						`web_user_id`='".$web_user_id."'
-						where `id`='".$rows[$ix]['id']."'";
-						dbQuery($sql, $_dblink);
-					}
-				}
-				else{
-					$sql = "insert into `land` set 
-					`x`='".$plotCo[0]."',
-					`y`='".$plotCo[1]."'";
-					dbQuery($sql, $_dblink);
-				}
-				
-			}while(!$rows[0]['id']);
-			$plot_list[] = "(".$plotCo[0]."-".$plotCo[1].")";
-			
+	//set the land
+	//get the points
+	$coords = json_decode(stripslashes($post['coords']));
+	$points = $coords->points;
+	$strlatlongs = $coords->strlatlongs;
+	$t = count($points);
+	for($i=0; $i<$t; $i++){
+		list($x, $y) = explode("-", $points[$i]);
+		$sql = "select * from `land` where `x`='".$x."' and `y`='".$y."'";
+		$land = dbQuery($sql, $_dblink);
+		if($land[0]['id']){
+			$insertid = $land[0]['id'];
+			//update land detail id
+			$sql = "update `land` set `land_detail_id`='".$land_detail_id."' where `id`='".$insertid."'";
+			dbQuery($sql, $_dblink);
 		}
-		else { //if multiple plots
-			
-			$plotCoLT =  explode("-", $plots[0]);
-			$plotCoRB =  explode("-", $plots[1]);
-			$insert_id = "";
-			for ($i = $plotCoLT[0]; $i <= $plotCoRB[0]; $i++) {
-				for ($j = $plotCoLT[1]; $j <= $plotCoRB[1]; $j++) {
-					do{
-						$sql = "SELECT * FROM land WHERE x=".$i." AND y=".$j;
-						echo $sql."<br>"; 
-						$rows = dbQuery($sql, $_dblink);
-						if($rows[0]['id']){
-							$sql = "select `id` from `land_detail` where `id`='".$rows[0]['land_detail_id']."'";
-							$land_detail = dbQuery($sql, $_dblink);
-							//if detaul record exists
-							if($land_detail[0]['id']&&!$insert_id){
-								$sql = "UPDATE `land_detail` set 
-								`title`='".mysql_real_escape_string($title)."', 
-								`detail`='".mysql_real_escape_string($detail)."', 
-								`picture`='".mysql_real_escape_string($picture)."', 
-								`land_owner`='".mysql_real_escape_string($land_owner)."',
-								`folder`='".$_GET['f']."'
-								where `id`='".$rows[0]['land_detail_id']."'
-								";
-								dbQuery($sql, $_dblink);
-								$insert_id = $rows[0]['land_detail_id'];
-								
-							}
-							else if(!$insert_id){
-								$sql = "INSERT into `land_detail` set 
-								`title`='".mysql_real_escape_string($title)."', 
-								`detail`='".mysql_real_escape_string($detail)."', 
-								`picture`='".mysql_real_escape_string($picture)."', 
-								`land_owner`='".mysql_real_escape_string($land_owner)."',
-								`folder`='".$_GET['f']."'";
-								$insert_id = dbQuery($sql, $_dblink);
-								$insert_id = $insert_id['mysql_insert_id'];
-							}
-							
-							//update land_detail_id of rows
-							$tx = count($rows);
-							for($ix=0; $ix<$tx; $ix++){
-								$sql  = "update `land` set 
-								`land_detail_id`='".$insert_id ."',
-								`web_user_id`='".$web_user_id."'
-								where `id`='".$rows[$ix]['id']."'";
-								dbQuery($sql, $_dblink);
-							}
-						}
-						else{
-							$sql = "insert into `land` set 
-							`x`='".$i."',
-							`y`='".$j."'";
-							dbQuery($sql, $_dblink);
-						}
-						
-					}while(!$rows[0]['id']);
-				}
+		else{
+			$sql = "insert into `land` set 
+			`x`='".$x."',
+			`y`='".$y."',
+			`web_user_id`='".$web_user_id."',
+			`land_detail_id`='".$land_detail_id."'";
+			$insertid = dbQuery($sql, $_dblink);
+			$insertid  = $insertid ['mysql_insert_id'];
+		}
+		
+		if($i==0){
+			//move picture
+			if(is_file($post['filename'])){
+				@mkdir(dirname(__FILE__)."/_uploads2/land/".$insertid, 0777);
+				@mkdir(dirname(__FILE__)."/_uploads2/land/".$insertid."/images", 0777);
+				$imgfolder = dirname(__FILE__)."/_uploads2/land/".$insertid."/images";
+				copy($post['filename'], $imgfolder."/".basename($post['filename']));
+				$picture = "http%3A//www.pieceoftheworld.co/_uploads2/land/".$insertid."/images/".basename($post['filename']);
 			}
 		}
+		$sql = "delete from `pictures` where `land_id` = '".$insertid."'";
+		dbQuery($sql, $_dblink);
+		if(trim($picture)){
+			$sql = "insert into `pictures` set
+				`land_id` = '".$insertid."',
+				`picture` = '".$picture."',
+				`isMain` = 1,
+				`created_on` = NOW()
+			";
+			dbQuery($sql, $_dblink);
+		}
 	}
+
 	/*
 	if ($land_special_id != -1) {
 		$sql = "UPDATE land_special SET owner_user_id=".$owner_user_id.", title='".mysql_real_escape_string($title)."', detail='".mysql_real_escape_string($detail)."', picture='".$picture."' WHERE id=".$land_special_id;

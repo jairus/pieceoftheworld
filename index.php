@@ -1576,7 +1576,7 @@ if($_GET['px']!=""){
 			}
 			else{
 				jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
-				Query("#info-lightbox").attr("title", "" );
+				jQuery("#info-lightbox").attr("title", "" );
 				jQuery("#info-lightbox").colorbox({width:'550px'});
 				jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 				jQuery("#info-img").unbind();
@@ -1642,7 +1642,7 @@ if($_GET['px']!=""){
 		jQuery("#tabs").tabs("select",0);
 		//new update popup info
 		ret = getBlockInfoNew(event.latLng, strlatlong, worldCoordinate);
-		
+			
 		if(ret.colored){
 			unsetGZones();
 		}
