@@ -336,7 +336,7 @@ if(is_array($pictures)){
 }
 if($record){
 	foreach($record as $key=>$value){
-		if($key=="points"){
+		if($key=="points"||$key=="picture"){
 		}
 		else if($key=="active"){
 			if($value=="1"){

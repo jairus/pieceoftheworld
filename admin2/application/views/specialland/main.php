@@ -127,18 +127,7 @@ $t = count($records);
 	<?php
 	
 	for($i=0; $i<$t; $i++){
-		$post = array();
-		$imageurl = "";
-		$absfolder = dirname(__FILE__)."/../../../../_uploads/".trim($records[$i]['folder']);
-		$filename = $absfolder."/post.txt";
-		if(file_exists($filename)){
-			$post = (file_get_contents($filename));
-			$post = unserialize($post);
-			$records[$i]['title'] = $post['title_name'];
-			$records[$i]['detail'] = $post['detail_name'];
-			$records[$i]['land_owner'] = $post['land_owner'];
-			$records[$i]['useremail'] = $post['useremail'];
-			/*
+		/*
 			Array
 			(
 				[save] => 1
@@ -152,8 +141,22 @@ $t = count($records);
 				[button_name] =>   Submit  
 			)
 			*/
+		/*
+		$post = array();
+		$imageurl = "";
+		$absfolder = dirname(__FILE__)."/../../../../_uploads/".trim($records[$i]['folder']);
+		$filename = $absfolder."/post.txt";
+		if(file_exists($filename)){
+			$post = (file_get_contents($filename));
+			$post = unserialize($post);
+			$records[$i]['title'] = $post['title_name'];
+			$records[$i]['detail'] = $post['detail_name'];
+			$records[$i]['land_owner'] = $post['land_owner'];
+			$records[$i]['useremail'] = $post['useremail'];
+			
 			$imageurl = basename($post['filename']);
 		}
+		*/
 		?>
 		<tr id="tr<?php echo htmlentitiesX($records[$i]['id']); ?>" class="row" >
 			
