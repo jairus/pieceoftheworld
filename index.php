@@ -1612,6 +1612,11 @@ if($_GET['px']!=""){
 		globallink = link;
 		//link = encodeURIComponent(link);
 		sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+
+        // for facebook like button
+        var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
+        jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+        FB.XFBML.parse();
 		
 		jQuery("#fbsharelink").attr("href", sharelink);
 		jQuery("#fbsharelink").show();
@@ -2115,6 +2120,11 @@ if($_GET['px']!=""){
 		jQuery("#fbsharelink").attr("href", sharelink);
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
+
+        // for facebook like button
+        var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
+        jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+        FB.XFBML.parse();
 		
 		//temporarily hide buy button
 		jQuery("#buy-button").hide();
@@ -2501,6 +2511,7 @@ if($_GET['px']!=""){
 </head>
 
 <body style="cursor: auto; margin:0px;">
+<div id="fb-root"></div>
 <table style='z-index: 1010; width:300px; height:100px; position:absolute; background:white; top:-10000px' id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
 <div id="map_canvas" style='top:55px;'></div>
 <div class="cpanelwnd ui-dialog ui-widget ui-widget-content ui-corner-all" style="outline: 0px none; z-index: 1008; position: absolute; border: 0px !important;" tabindex="-1" role="dialog" aria-labelledby="ui-id-1">
