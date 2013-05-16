@@ -385,8 +385,9 @@ class specialland extends CI_Controller {
     public function ajax_saveVideo()
     {
         $result = $this->saveVideos($_POST['id'], 'land_special');
-        $response = json_encode($result);
-        die($response);
+        ?>
+        alertX("<?php echo $result['message']?>");
+        <?php
     }
 }
 ?>

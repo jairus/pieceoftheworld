@@ -1,1 +1,1 @@
-D:\xampp\htdocs\pieceoftheworld.co\admin2\media\js\uploadify/../../../media/uploads2/land/30035/images/images.jpg
+C:\xampp\htdocs\pieceoftheworld.co\admin2\media\js\uploadify/../../../../_uploads2/specialland/1184/images/habbits.png

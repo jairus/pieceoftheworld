@@ -36,7 +36,6 @@ function saveRecord(approve){
 }
 function saveVideo(){
     extra = "";
-    jQuery("#addMore").val("Saving...");
     formdata = jQuery("#record_form").serialize();
     jQuery.ajax({
         <?php
@@ -46,9 +45,9 @@ function saveVideo(){
 		?>
         type: "POST",
         data: formdata,
-        dataType: "json",
+        dataType: "script",
         success: function(data){
-            alert(data.message);
+            //alert(data);
         }
     });
 
@@ -96,7 +95,7 @@ function refreshPictures(filepath){
 		ss.push(filepath);
 		html = jQuery("#sspathhtml").html();	
 		html += "<div><a target='_blank' href='<?php echo site_url(); ?>media/image.php?p="+filepath+"'>"+file+"</a> <label><input type='radio' name='isMainPix' value='"+filepath+"' /> Set as Main Image</label>" +
-				"<br/><input type='text' name='picture_titles[]' /><input type='hidden' name='pictures[]' value='"+filepath+"' /><div class='hint'>Description</div>&nbsp;&nbsp;&nbsp;<a style='cursor:pointer; text-decoration:underline' class='red delete' onclick='delSS(this, \""+filepath+"\")' >Delete</a></div><br/>";
+				"<br/><input type='text' name='picture_titles[]' /><input type='hidden' name='pictures[]' value='"+filepath+"' /><div class='hint'>Description</div>&nbsp;&nbsp;&nbsp;<a style='cursor:pointer; text-decoration:underline' class='red delete' onclick='this.parentElement.outerHTML=\"\"' >Delete</a></div><br/>";
 		jQuery("#sspathhtml").html(html);
 	}
 	//jQuery("#logopath").val(filepath);
