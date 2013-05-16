@@ -376,11 +376,17 @@ class specialland extends CI_Controller {
                     $this->db->query($sql);
                 }
             }
-            $result = array('status' => true, 'message' => 'Videos saved successfully');
+            $result = array('status' => true, 'message' => 'Video saved successfully');
         } else {
-            $result = array('status' => false, 'message' => 'Cannot save videos');
+            $result = array('status' => false, 'message' => 'Cannot save video');
         }
         return $result;
+    }
+    public function ajax_saveVideo()
+    {
+        $result = $this->saveVideos($_POST['id'], 'land_special');
+        $response = json_encode($result);
+        die($response);
     }
 }
 ?>

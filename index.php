@@ -1613,11 +1613,9 @@ if($_GET['px']!=""){
 		//link = encodeURIComponent(link);
 		sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 
-        // for facebook like button
-        var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
-        jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
-        FB.XFBML.parse();
-		
+        //remove fb like button if the previously clicked land is valid
+        jQuery('#fbLikeHolder').html('');
+
 		jQuery("#fbsharelink").attr("href", sharelink);
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
@@ -2122,13 +2120,13 @@ if($_GET['px']!=""){
 		jQuery("#sharethisloc").show();
 
         // for facebook like button. only like sold land, sold specialland, unsold specialland
-        if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
+        //if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
             var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
             jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
             FB.XFBML.parse();
-        } else {
-            jQuery('#fbLikeHolder').html('');
-        }
+        //} else {
+        //    jQuery('#fbLikeHolder').html('');
+        //}
 
 		
 		//temporarily hide buy button

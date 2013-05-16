@@ -33,6 +33,25 @@ function saveRecord(approve){
 	});
 
 }
+function saveVideo(){
+    extra = "";
+    jQuery("#addMore").val("Saving...");
+    formdata = jQuery("#record_form").serialize();
+    jQuery.ajax({
+        <?php
+        if($record['id']){
+            ?>url: "<?php echo site_url(); echo $controller ?>/ajax_saveVideo/"+extra,<?php
+		}
+		?>
+        type: "POST",
+        data: formdata,
+        dataType: "json",
+        success: function(data){
+            alert(data.message);
+        }
+    });
+
+}
 function deleteRecord(co_id){
 	if(confirm("Are you sure you want to delete this record?")){
 		formdata = "id="+co_id;
@@ -178,7 +197,9 @@ jQuery(function(){
 	});
     $("#addMore").click(function(e){
         e.preventDefault();
-        $("#vidMainHolder").append( $("#baseVidHolder").html() );
+        //$("#vidMainHolder").append( $("#baseVidHolder").html() );
+        saveVideo();
+
     });
     $(".removeHolder").live('click',function(e){
         e.preventDefault();
@@ -311,7 +332,7 @@ else{
             <td>
                 <div id="baseVidHolder" style="display: none">
                     <div class="vidHolder">
-                        <label></label><a href='#' class='removeHolder'>remove this</a><br/>
+                        <!-- <label></label><a href='#' class='removeHolder'>remove this</a><br/> -->
                         <label>YouTube Embed Script: </label><br/>
                         <textarea name="video_link[]" rows="3" cols="10" class="videoLink"></textarea><br/>
                         <label>Title: </label><input type="text" name="video_title[]" class="videoLink" /><br/>
@@ -320,7 +341,7 @@ else{
                 </div>
 
                 <div id="vidMainHolder"></div>
-                <a href="#" id="addMore">Add Another Link</a><br/>
+                <input type="button" id="addMore" value="Add Video" />
             </td>
         </tr>
   </table>
@@ -356,7 +377,7 @@ if(!empty($videos)){
         foreach($videos as $row){
     ?>
     html = '<div class="vidHolder">' +
-        '<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
+        //'<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
         '<label>YouTube Embed Script:</label><br/><textarea name="video_link[]" class="videoLink"><?php echo $row['video']?></textarea><br/>' +
         '<label>Title: </label><input type="text" name="video_title[]" class="videoLink" value="<?php echo $row['title']?>" /><br/>' +
         '<br/>' +
