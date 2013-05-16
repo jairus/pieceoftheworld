@@ -2121,10 +2121,15 @@ if($_GET['px']!=""){
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
 
-        // for facebook like button
-        var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
-        jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
-        FB.XFBML.parse();
+        // for facebook like button. only like sold land, sold specialland, unsold specialland
+        if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
+            var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
+            jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+            FB.XFBML.parse();
+        } else {
+            jQuery('#fbLikeHolder').html('');
+        }
+
 		
 		//temporarily hide buy button
 		jQuery("#buy-button").hide();

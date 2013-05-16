@@ -158,7 +158,7 @@ class land extends CI_Controller {
 				$this->db->query($sql);					
 			}			
 
-			$sql = "delete from `pictures` where `land_id`=".$this->db->escape($landId);
+			$sql = "delete from `pictures` where `land_id`=".$this->db->escape($landDetailId);
 			$this->db->query($sql);
 			if(is_array($_POST['pictures'])){
 
@@ -170,13 +170,15 @@ class land extends CI_Controller {
 					
 					$isMain = ($mainPix == $value)? 1 : 0;
 					$sql = "insert into `pictures` set 
-					`land_id`=".$this->db->escape($landId).", 
+					`land_id`=".$this->db->escape($landDetailId).",
 					`title`=".$this->db->escape($_POST['picture_titles'][$key]).",
 					`isMain`='$isMain', 
 					`picture`=".$this->db->escape($value);
 					$this->db->query($sql);
 				}
 			}
+            $this->saveVideos($landDetailId, 'land_detail');
+
 			?>
 			alertX("Successfully Updated Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
 			// self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
@@ -184,7 +186,36 @@ class land extends CI_Controller {
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
 	}
-	
+    private function saveVideos($landId, $type)
+    {
+        $result = array();
+        if($type == 'land_detail'){
+            $table = 'videos';
+            $landField = 'land_id';
+        } else {
+            $table = 'videos_special';
+            $landField = 'land_special_id';
+        }
+
+        $sql = "delete from `$table` where `$landField`=".mysql_real_escape_string($landId);
+        $this->db->query($sql);
+        if(is_array($_POST['video_link'])){
+
+            foreach($_POST['video_link'] as $key => $value){
+                if($value){
+                    $sql = "insert into `$table` set
+                `$landField`='".mysql_real_escape_string($landId)."',
+                `title`='".mysql_real_escape_string($_POST['video_title'][$key])."',
+                `video`='".mysql_real_escape_string($value)."'";
+                    $this->db->query($sql);
+                }
+            }
+            $result = array('status' => true, 'message' => 'Videos saved successfully');
+        } else {
+            $result = array('status' => false, 'message' => 'Cannot save videos');
+        }
+        return $result;
+    }
 	public function edit($id){
 		$table = "land";
 		$controller = $table;
@@ -198,7 +229,7 @@ class land extends CI_Controller {
 		$record = $record[0];
         $data['record'] = $record;
 		
-		$sql = "select * from `pictures` where `land_id`=".$this->db->escape($id)." order by id asc";
+		$sql = "select * from `pictures` where `land_id`=".$this->db->escape($record['land_detail_id'])." order by id asc";
 		$q = $this->db->query($sql);
 		$pictures = $q->result_array();
 		$data['pictures'] = $pictures;
@@ -207,6 +238,11 @@ class land extends CI_Controller {
         $q = $this->db->query($sql);
         $categories = $q->result_array();
         $data['categories'] = $categories;
+
+        $sql = "select * from `videos` where `land_id`=".$this->db->escape($record['land_detail_id'])." order by id asc";
+        $q = $this->db->query($sql);
+        $videos = $q->result_array();
+        $data['videos'] = $videos;
 
 		$data['content'] = $this->load->view($controller.'/add', $data, true);
 		

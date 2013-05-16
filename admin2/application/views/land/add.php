@@ -3,6 +3,13 @@ $controller = "land";
 @session_start();
 $sid = session_id()."_".time();
 ?>
+<style>
+.vidHolder textarea{
+    width: 330px;
+    height: 50px;
+}
+</style>
+
 <script>
 function saveRecord(approve){
 	extra = "";
@@ -99,20 +106,6 @@ jQuery(function(){
 					mkdir($folder, 0777);
 				}
 			}
-			// else{
-				// $folder = dirname(__FILE__)."/../../../media/uploads/temp";
-				// if(!is_dir($folder)){
-					// mkdir($folder, 0777);
-				// }
-				// $folder = dirname(__FILE__)."/../../../media/uploads/temp/".$sid;
-				// if(!is_dir($folder)){
-					// mkdir($folder, 0777);
-				// }
-				// $folder = dirname(__FILE__)."/../../../media/uploads/temp/".$sid."/images";
-				// if(!is_dir($folder)){
-					// mkdir($folder, 0777);
-				// }
-			// }
 			echo str_replace(dirname(__FILE__)."/../../..", "", $folder);			
 		?>',
 		'auto'      : true,
@@ -162,13 +155,22 @@ jQuery(function(){
 			value = ui.item.value;
 			jQuery("#webuser_search").val(label);
 			return false;
-		},
+		}
 	});	
 	jQuery("#webuser_search").blur(function(e){
 		if( jQuery('#webuser_search').val() == '' || (jQuery('#webuser_search').val() != jQuery('#web_user_name').val()) ){
 			jQuery("#web_user_id").val('');
 		}
-	});	
+	});
+    $("#addMore").click(function(e){
+        e.preventDefault();
+        $("#vidMainHolder").append( $("#baseVidHolder").html() );
+    });
+    $(".removeHolder").live('click',function(e){
+        e.preventDefault();
+        $(this).parent().remove();
+    });
+
 });
 
 
@@ -241,33 +243,51 @@ else{
 				<input type="hidden" id="web_user_id" name="web_user_id" size="40" >
 				<input type="hidden" id="web_user_name" size="40" >
 		  </td>
-		</tr>			
+		</tr>
+        <tr class="even">
+            <td>Category:</td>
+            <td>
+                <select name="category_id" id="category_id">
+                    <option value=""></option>
+                    <?php foreach($categories as $cat){
+                        $selected = ($cat['id'] == $record['category_id'])? 'selected' : '';
+                        ?>
+                        <option value="<?php echo $cat['id']?>" <?php echo $selected ?> ><?php echo $cat['name']?></option>
+                    <?php } ?>
+                </select>
+            </td>
+        </tr>
 		
 	</table>
 </td>
 <td width='50%'>
 	<table width="100%">
-        <tr class="even">
-            <td>Category:</td>
-            <td>
-                <select name="category_id" id="category_id">
-                        <option value=""></option>
-                <?php foreach($categories as $cat){
-                        $selected = ($cat['id'] == $record['category_id'])? 'selected' : '';
-                ?>
-                        <option value="<?php echo $cat['id']?>" <?php echo $selected ?> ><?php echo $cat['name']?></option>
-                <?php } ?>
-                </select>
-            </td>
-        </tr>
         <tr class="odd required">
-		  <td>* Picture:</td>
+		  <td>Pictures:</td>
 		  <td>
 			  <div id='sspathhtml' style='padding-bottom:10px;'></div>
 			  <input type='text' id="co_pictures" />
 			  <input type='button' class='button normal' value='Upload' onclick="jQuery('#co_pictures').uploadifyUpload();" >			  
 		  </td>
 		</tr>
+        <tr><td colspan="2"><hr/></td></tr>
+        <tr class="odd required">
+            <td>Videos:</td>
+            <td>
+                <div id="baseVidHolder" style="display: none">
+                    <div class="vidHolder">
+                        <label></label><a href='#' class='removeHolder'>remove this</a><br/>
+                        <label>YouTube Embed Script: </label><br/>
+                        <textarea name="video_link[]" rows="3" cols="10" class="videoLink"></textarea><br/>
+                        <label>Title: </label><input type="text" name="video_title[]" class="videoLink" /><br/>
+                        <br/>
+                    </div>
+                </div>
+
+                <div id="vidMainHolder"></div>
+                <a href="#" id="addMore">Add Another Link</a><br/>
+            </td>
+        </tr>
   </table>
 </td>
 </tr>
@@ -291,8 +311,28 @@ else{
 </td>
 </table>
 </form>
-
 <script>
+<?php
+if(!empty($videos)){
+?>
+    var html = "";
+    <?php
+    foreach($videos as $row){
+        ?>
+    html = '<div class="vidHolder">' +
+        '<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
+        '<label>YouTube Embed Script:</label><br/><textarea name="video_link[]" class="videoLink"><?php echo $row['video']?></textarea><br/>' +
+        '<label>Title: </label><input type="text" name="video_title[]" class="videoLink" value="<?php echo $row['title']?>" /><br/>' +
+        '<br/>' +
+        '</div>';
+    jQuery("#vidMainHolder").append(html);
+<?php    }
+} else {
+?>
+jQuery("#vidMainHolder").append( $("#baseVidHolder").html() );
+<?php
+}
+?>
 <?php
 
 if(is_array($pictures)){
@@ -336,5 +376,6 @@ if($record){
 		
 	}
 }
-?>	
+?>
+
 </script>
