@@ -144,9 +144,9 @@ function logout()
 function getLands($id)
 {
 	$rs = array();
-	$sql = "SELECT LD.id, LD.`title` , LD.`detail`, LD.category_id
+	$sql = "SELECT LD.id, LD.`title`, LD.`detail`, LD.category_id 
 			FROM  `land_detail` LD
-			LEFT JOIN land L ON LD.id = L.land_detail_id
+			LEFT JOIN land L ON LD.id = L.land_detail_id 
 			WHERE L.web_user_id =  '$id'
 			GROUP BY LD.id
 			ORDER BY LD.`id` DESC 			

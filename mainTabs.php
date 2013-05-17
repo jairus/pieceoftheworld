@@ -118,10 +118,10 @@ require_once('ajax/user_fxn.php')
 					<br /><br />
 					<!-- TyIExKljTfc is the ID of the video -->
 					
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/0.jpg" width="80" border="0" /></a> &nbsp;&nbsp; 
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/1.jpg" width="80" border="0" /></a> &nbsp;&nbsp; 
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/2.jpg" width="80" border="0" /></a> &nbsp;&nbsp; 
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/3.jpg" width="80" border="0" /></a>
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img1" width="80" border="0" /></a> &nbsp;&nbsp; 
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img2" width="80" border="0" /></a> &nbsp;&nbsp; 
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img3" width="80" border="0" /></a> &nbsp;&nbsp; 
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img4" width="80" border="0" /></a>
 				</div>
 				<!-- END OF DISPLAY THUMBS -->
 				
@@ -129,7 +129,7 @@ require_once('ajax/user_fxn.php')
 				<div id="video" style="display:none;">
 					<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video
 					<br /><br />
-					<iframe width="430" height="270" src="http://www.youtube.com/embed/TyIExKljTfc" frameborder="0" allowfullscreen></iframe>
+					<iframe width="430" height="270" src="" id="video1" frameborder="0" allowfullscreen></iframe>
 				</div>
 				<!-- END OF DISPLAY VIDEO -->
 				<!-- ZOI -->
@@ -171,7 +171,7 @@ require_once('ajax/user_fxn.php')
                                                   <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onClick="onBuyLand();"></td>
                                                   <td><input type="button" id="clicktozoom" value="Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
 												  <!-- ZOI -->
-												  <td><input type="button" id="clickvideo" value="Video" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onclick="showThumbs();"></td>
+												  <td><input type="button" id="clickvideo" value="Video" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none;" onclick="showThumbs();"></td>
 												  <!-- ZOI -->
                                                   <td><a id='fbsharelink' style='border:0px;' ><img style='border:0px;' src='fbshare.jpg' id='fbshare'></a></td>
                                                   <td valign='middle' id='sharethisloc'>Share this location</td>
