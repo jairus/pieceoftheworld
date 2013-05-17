@@ -565,7 +565,7 @@ if($_GET['px']!=""){
 		updatePopupWindowTabInfo(event.latLng, strlatlong);
 		
 		//consoleX(type);
-		if(type=='special'){
+		if(type=='special'){		
 			// Acquired Special Area or Special Area
 			$.ajax({
 				url:'ajax/get_minmaxareacoordinates.php?x='+WcNE.x+'&y='+WcSW.y+"&_=<?php echo time(); ?>",
@@ -1346,6 +1346,7 @@ if($_GET['px']!=""){
 	gsessiondetails = "";
 	gsessiondetails = "";
 	function updatePopupWindowTabInfoNew(){
+	
 		consoleX("updatePopupWindowTabInfoNew");
 		jQuery("#buy-button").hide();
 		if(!gzones.length){
@@ -1468,8 +1469,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Region: "+gzones[i].ret.region].count = 0;
 						}
 						detailsobjarr["Region: "+gzones[i].ret.region].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Region: "+gzones[i].ret.region].idx){
+							detailsobjarr["Region: "+gzones[i].ret.region].idx = "";
 						}
 						detailsobjarr["Region: "+gzones[i].ret.region].idx += i+",";
 						//details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1490,8 +1491,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Country: "+gzones[i].ret.country].count = 0;
 						}
 						detailsobjarr["Country: "+gzones[i].ret.country].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Country: "+gzones[i].ret.country].idx){
+							detailsobjarr["Country: "+gzones[i].ret.country].idx = "";
 						}
 						detailsobjarr["Country: "+gzones[i].ret.country].idx += i+",";
 						//details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1512,8 +1513,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Water Area: "].count = 0;
 						}
 						detailsobjarr["Water Area: "].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Water Area: "].idx){
+							detailsobjarr["Water Area: "].idx = "";
 						}
 						detailsobjarr["Water Area: "].idx += i+",";
 						//details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1534,8 +1535,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Land Area: "].count = 0;
 						}
 						detailsobjarr["Land Area: "].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Land Area: "].idx){
+							detailsobjarr["Land Area: "].idx = "";
 						}
 						detailsobjarr["Land Area: "].idx += i+",";
 						//details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1619,11 +1620,9 @@ if($_GET['px']!=""){
 		//link = encodeURIComponent(link);
 		sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 
-        // for facebook like button
-        var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
-        jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
-        FB.XFBML.parse();
-		
+        //remove fb like button if the previously clicked land is valid
+        jQuery('#fbLikeHolder').html('');
+
 		jQuery("#fbsharelink").attr("href", sharelink);
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
@@ -2023,6 +2022,7 @@ if($_GET['px']!=""){
 			document.getElementById('info-title').innerHTML = markerJSON[0].title;
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
 			
+			//ZOI
 			if(markerJSON[0].video){
 				var videoStr = markerJSON[0].video;
 				videoStr = videoStr.replace('http://www.youtube.com/watch?v=', '');
@@ -2043,7 +2043,7 @@ if($_GET['px']!=""){
 				
 				jQuery("#video1").attr("src", '');
 			}
-			
+			//ZOI
 
 			if(markerJSON[0].land_owner){
 				
@@ -2148,10 +2148,15 @@ if($_GET['px']!=""){
 		jQuery("#fbsharelink").show();
 		jQuery("#sharethisloc").show();
 
-        // for facebook like button
-        var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
-        jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
-        FB.XFBML.parse();
+        // for facebook like button. only like sold land, sold specialland, unsold specialland
+        //if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
+            var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
+            jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+            FB.XFBML.parse();
+        //} else {
+        //    jQuery('#fbLikeHolder').html('');
+        //}
+
 		
 		//temporarily hide buy button
 		jQuery("#buy-button").hide();
@@ -2293,12 +2298,14 @@ if($_GET['px']!=""){
 		for (var i = 0, len = markersJSON.length; i < len; ++i) {
 			pass = true;
 			// check your own id when possible and act according to this config setting
+			/*
 			if (config_showownedland == "false" && user_email != markersJSON[i].email) {
 				pass = false;
 			}
 			if (config_showownland == "false" && user_email == markersJSON[i].email) {
 				pass = false;
 			}
+			*/
 			if (pass == true) {
 				if (markersJSON[i].land_special_id == null) {
 					var marker = new google.maps.Marker({
@@ -2368,6 +2375,9 @@ if($_GET['px']!=""){
 		for (var i = 0, len = markersJSON.length; i < len; ++i) {
 			pass = true;
 			// check your own id when possible and act according to this config setting
+			//alert(markersJSON[i].email+"<>"+user_email+"<>"+markersJSON[i].email);
+			
+			/*
 			if (config_showownedland == "false" && (user_email != markersJSON[i].email && masterUser != markersJSON[i].email)) {
 				pass = false;
 			}
@@ -2377,6 +2387,7 @@ if($_GET['px']!=""){
 			if (config_showimportantplaces == "false" && masterUser == markersJSON[i].email) {
 				pass = false;
 			}
+			*/
 			if (pass == true) {
 				/*
 				var coordinates = ajaxGetRedMarkerCoordinates(markersJSON[i].id);
@@ -2413,14 +2424,16 @@ if($_GET['px']!=""){
 			var jqxhr = $.ajax('ajax/get_markers.php?type=special'+"&_=<?php echo time(); ?>")
 			.done(function() { 
 				if (jqxhr.status == 200) {
+					
 					var markers = [];
 					var markersJSON = JSON.parse(jqxhr.responseText);
 					globalRedMarkersResponseTextCacheJSON = markersJSON;
 					setRedMarkers(map, gMarkers, markersJSON);
+					//alert("complete1");
 				}
 			})
 			.fail(function() {
-				//alert("error");
+				alert("error");
 			})
 			.always(function() {
 				//alert("complete");
