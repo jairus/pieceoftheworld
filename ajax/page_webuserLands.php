@@ -85,6 +85,8 @@ You can now start buying your first pieces of land!
 				<p class='editableText' id='title-<?php echo $row['id']?>-land_detail'><?php echo $row["title"] ?></p>
 				<br/>
 				<a href='#' data-id='<?php echo $row['id'] ?>' class='manageImageLink'>manage images</a>
+                <br/><br/>
+                <a href='#' data-id='<?php echo $row['id'] ?>' class='manageVideoLink'>manage videos</a>
 				<br/><br/>
 				<a href='#' data-id='<?php echo $row['id'] ?>' class='manageTags'>manage tags</a><br/>
 			</td>

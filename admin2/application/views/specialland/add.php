@@ -3,6 +3,12 @@ $controller = "specialland";
 @session_start();
 $sid = session_id()."_".time();
 ?>
+<style>
+.vidHolder textarea{
+    width: 330px;
+    height: 50px;
+}
+</style>
 <script>
 function saveRecord(approve){
 	extra = "";
@@ -25,6 +31,24 @@ function saveRecord(approve){
 			//alert(data);
 		}
 	});
+
+}
+function saveVideo(){
+    extra = "";
+    formdata = jQuery("#record_form").serialize();
+    jQuery.ajax({
+        <?php
+        if($record['id']){
+            ?>url: "<?php echo site_url(); echo $controller ?>/ajax_saveVideo/"+extra,<?php
+		}
+		?>
+        type: "POST",
+        data: formdata,
+        dataType: "script",
+        success: function(data){
+            //alert(data);
+        }
+    });
 
 }
 function deleteRecord(co_id){
@@ -70,7 +94,7 @@ function refreshPictures(filepath){
 		ss.push(filepath);
 		html = jQuery("#sspathhtml").html();	
 		html += "<div><a target='_blank' href='<?php echo site_url(); ?>media/image.php?p="+filepath+"'>"+file+"</a> <label><input type='radio' name='isMainPix' value='"+filepath+"' /> Set as Main Image</label>" +
-				"<br/><input type='text' name='picture_titles[]' /><input type='hidden' name='pictures[]' value='"+filepath+"' /><div class='hint'>Description</div>&nbsp;&nbsp;&nbsp;<a style='cursor:pointer; text-decoration:underline' class='red delete' onclick='delSS(this, \""+filepath+"\")' >Delete</a></div><br/>";
+				"<br/><input type='text' name='picture_titles[]' /><input type='hidden' name='pictures[]' value='"+filepath+"' /><div class='hint'>Description</div>&nbsp;&nbsp;&nbsp;<a style='cursor:pointer; text-decoration:underline' class='red delete' onclick='this.parentElement.outerHTML=\"\"' >Delete</a></div><br/>";
 		jQuery("#sspathhtml").html(html);
 	}
 	//jQuery("#logopath").val(filepath);
@@ -163,13 +187,24 @@ jQuery(function(){
 			value = ui.item.value;
 			jQuery("#webuser_search").val(label);
 			return false;
-		},
+		}
 	});	
 	jQuery("#webuser_search").blur(function(e){
 		if( jQuery('#webuser_search').val() == '' || (jQuery('#webuser_search').val() != jQuery('#web_user_name').val()) ){
 			jQuery("#web_user_id").val('');
 		}
 	});
+    $("#addMore").click(function(e){
+        e.preventDefault();
+        //$("#vidMainHolder").append( $("#baseVidHolder").html() );
+        saveVideo();
+
+    });
+    $(".removeHolder").live('click',function(e){
+        e.preventDefault();
+        $(this).parent().remove();
+    });
+
 });
 
 
@@ -262,12 +297,7 @@ else{
 				<input type="hidden" id="web_user_id" name="web_user_id" size="40" >
 				<input type="hidden" id="web_user_name" size="40" >
 		  </td>
-		</tr>		
-		
-	</table>
-</td>
-<td width='50%'>
-	<table width="100%">
+		</tr>
         <tr class="even">
             <td>Category:</td>
             <td>
@@ -281,6 +311,12 @@ else{
                 </select>
             </td>
         </tr>
+		
+	</table>
+</td>
+<td width='50%'>
+	<table width="100%">
+
         <tr class="odd required">
 		  <td>Picture:</td>
 		  <td>
@@ -289,6 +325,24 @@ else{
 			  <input type='button' class='button normal' value='Upload' onclick="jQuery('#co_pictures').uploadifyUpload();" >			  
 		  </td>
 		</tr>
+        <tr><td colspan="2"><hr/></td></tr>
+        <tr class="odd required">
+            <td>Videos:</td>
+            <td>
+                <div id="baseVidHolder" style="display: none">
+                    <div class="vidHolder">
+                        <!-- <label></label><a href='#' class='removeHolder'>remove this</a><br/> -->
+                        <label>YouTube Embed Script: </label><br/>
+                        <textarea name="video_link[]" rows="3" cols="10" class="videoLink"></textarea><br/>
+                        <label>Title: </label><input type="text" name="video_title[]" class="videoLink" /><br/>
+                        <br/>
+                    </div>
+                </div>
+
+                <div id="vidMainHolder"></div>
+                <input type="button" id="addMore" value="Add Video" />
+            </td>
+        </tr>
   </table>
 </td>
 </tr>
@@ -314,6 +368,28 @@ else{
 </form>
 
 <script>
+<?php
+if(!empty($videos)){
+?>
+    var html = "";
+    <?php
+        foreach($videos as $row){
+    ?>
+    html = '<div class="vidHolder">' +
+        //'<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
+        '<label>YouTube Embed Script:</label><br/><textarea name="video_link[]" class="videoLink"><?php echo $row['video']?></textarea><br/>' +
+        '<label>Title: </label><input type="text" name="video_title[]" class="videoLink" value="<?php echo $row['title']?>" /><br/>' +
+        '<br/>' +
+        '</div>';
+    jQuery("#vidMainHolder").append(html);
+<?php
+        }
+} else {
+?>
+jQuery("#vidMainHolder").append( $("#baseVidHolder").html() );
+<?php
+}
+?>
 <?php
 
 if(is_array($pictures)){

@@ -6,12 +6,14 @@ $record['id'] = $_GET['id'];
 $record['type'] = $_GET['type'];
 
 $videos = getVideos($record['id'], $record['type']);
-?>	
+?>
 <style>
-.vidHolder label{
-    width: 100px;
-}
+    .vidHolder textarea{
+        width: 330px;
+        height: 50px;
+    }
 </style>
+
 <script>
 function saveRecord(approve){
 	extra = "";
@@ -60,7 +62,8 @@ jQuery(function(){
     <div id="baseVidHolder" class="hide">
         <div class="vidHolder">
             <label></label><a href='#' class='removeHolder'>remove this</a><br/>
-            <label>YouTube Link: </label><input type="text" name="video_link[]" class="videoLink" /><br/>
+            <label>YouTube Embed Script: </label><br/>
+            <textarea name="video_link[]" rows="3" cols="10" class="videoLink"></textarea><br/>
             <label>Title: </label><input type="text" name="video_title[]" class="videoLink" /><br/>
             <br/>
         </div>
@@ -85,7 +88,7 @@ if(!empty($videos)){
 		?>
 		html = '<div class="vidHolder">' +
                     '<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
-                    '<label>YouTube Link: </label><input type="text" name="video_link[]" class="videoLink" value="<?php echo $row['video']?>" /><br/>' +
+                    '<label>YouTube Embed Script:</label><br/><textarea name="video_link[]" class="videoLink"><?php echo $row['video']?></textarea><br/>' +
                     '<label>Title: </label><input type="text" name="video_title[]" class="videoLink" value="<?php echo $row['title']?>" /><br/>' +
                     '<br/>' +
                 '</div>';
@@ -93,7 +96,6 @@ if(!empty($videos)){
         <?php
 	}
 	?>
-	jQuery("#sspathhtml").html(html);		
 	<?php
 } else {
 ?>

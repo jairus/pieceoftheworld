@@ -163,6 +163,7 @@ class specialland extends CI_Controller {
 					$this->db->query($sql);
 				}
 			}
+            $this->saveVideos($landSpecialId, 'land_special');
 			?>
 			alertX("Successfully Updated Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
 			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
@@ -270,6 +271,7 @@ class specialland extends CI_Controller {
 				
 			
 			}
+            $this->saveVideos($insert_id, 'land_special');
 			?>
 			alertX("Successfully Added Special Land Details '<?php echo htmlentitiesX($_POST['title']); ?>'.");
 			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $insert_id; ?>";
@@ -308,6 +310,11 @@ class specialland extends CI_Controller {
         $categories = $q->result_array();
         $data['categories'] = $categories;
 
+        $sql = "select * from `videos_special` where `land_special_id`=".$this->db->escape($record['id'])." order by id asc";
+        $q = $this->db->query($sql);
+        $videos = $q->result_array();
+        $data['videos'] = $videos;
+
 		$data['content'] = $this->load->view($controller.'/add', $data, true);
 
 		
@@ -344,6 +351,43 @@ class specialland extends CI_Controller {
 		alertX("Successfully deleted.");
 		<?php		
 		exit();
-	}	
+	}
+    private function saveVideos($landId, $type)
+    {
+        $result = array();
+        if($type == 'land_detail'){
+            $table = 'videos';
+            $landField = 'land_id';
+        } else {
+            $table = 'videos_special';
+            $landField = 'land_special_id';
+        }
+
+        $sql = "delete from `$table` where `$landField`=".mysql_real_escape_string($landId);
+        $this->db->query($sql);
+        if(is_array($_POST['video_link'])){
+
+            foreach($_POST['video_link'] as $key => $value){
+                if($value){
+                    $sql = "insert into `$table` set
+                `$landField`='".mysql_real_escape_string($landId)."',
+                `title`='".mysql_real_escape_string($_POST['video_title'][$key])."',
+                `video`='".mysql_real_escape_string($value)."'";
+                    $this->db->query($sql);
+                }
+            }
+            $result = array('status' => true, 'message' => 'Video saved successfully');
+        } else {
+            $result = array('status' => false, 'message' => 'Cannot save video');
+        }
+        return $result;
+    }
+    public function ajax_saveVideo()
+    {
+        $result = $this->saveVideos($_POST['id'], 'land_special');
+        ?>
+        alertX("<?php echo $result['message']?>");
+        <?php
+    }
 }
 ?>
