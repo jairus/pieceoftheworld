@@ -1462,8 +1462,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Region: "+gzones[i].ret.region].count = 0;
 						}
 						detailsobjarr["Region: "+gzones[i].ret.region].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Region: "+gzones[i].ret.region].idx){
+							detailsobjarr["Region: "+gzones[i].ret.region].idx = "";
 						}
 						detailsobjarr["Region: "+gzones[i].ret.region].idx += i+",";
 						//details += gzones[i].ret.region+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1484,8 +1484,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Country: "+gzones[i].ret.country].count = 0;
 						}
 						detailsobjarr["Country: "+gzones[i].ret.country].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Country: "+gzones[i].ret.country].idx){
+							detailsobjarr["Country: "+gzones[i].ret.country].idx = "";
 						}
 						detailsobjarr["Country: "+gzones[i].ret.country].idx += i+",";
 						//details += gzones[i].ret.country+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1506,8 +1506,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Water Area: "].count = 0;
 						}
 						detailsobjarr["Water Area: "].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Water Area: "].idx){
+							detailsobjarr["Water Area: "].idx = "";
 						}
 						detailsobjarr["Water Area: "].idx += i+",";
 						//details += "Water Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -1528,8 +1528,8 @@ if($_GET['px']!=""){
 							detailsobjarr["Land Area: "].count = 0;
 						}
 						detailsobjarr["Land Area: "].count++;
-						if(!detailsobjarr["City: "+gzones[i].ret.city].idx){
-							detailsobjarr["City: "+gzones[i].ret.city].idx = "";
+						if(!detailsobjarr["Land Area: "].idx){
+							detailsobjarr["Land Area: "].idx = "";
 						}
 						detailsobjarr["Land Area: "].idx += i+",";
 						//details += "Land Area"+": USD "+gzones[i].ret.price.toFixed(2)+" <img src='images/x.png'  onclick='cancelBox("+i+")' style='cursor:pointer' /><br />";
@@ -2269,12 +2269,14 @@ if($_GET['px']!=""){
 		for (var i = 0, len = markersJSON.length; i < len; ++i) {
 			pass = true;
 			// check your own id when possible and act according to this config setting
+			/*
 			if (config_showownedland == "false" && user_email != markersJSON[i].email) {
 				pass = false;
 			}
 			if (config_showownland == "false" && user_email == markersJSON[i].email) {
 				pass = false;
 			}
+			*/
 			if (pass == true) {
 				if (markersJSON[i].land_special_id == null) {
 					var marker = new google.maps.Marker({
@@ -2344,6 +2346,9 @@ if($_GET['px']!=""){
 		for (var i = 0, len = markersJSON.length; i < len; ++i) {
 			pass = true;
 			// check your own id when possible and act according to this config setting
+			//alert(markersJSON[i].email+"<>"+user_email+"<>"+markersJSON[i].email);
+			
+			/*
 			if (config_showownedland == "false" && (user_email != markersJSON[i].email && masterUser != markersJSON[i].email)) {
 				pass = false;
 			}
@@ -2353,6 +2358,7 @@ if($_GET['px']!=""){
 			if (config_showimportantplaces == "false" && masterUser == markersJSON[i].email) {
 				pass = false;
 			}
+			*/
 			if (pass == true) {
 				/*
 				var coordinates = ajaxGetRedMarkerCoordinates(markersJSON[i].id);
@@ -2389,14 +2395,16 @@ if($_GET['px']!=""){
 			var jqxhr = $.ajax('ajax/get_markers.php?type=special'+"&_=<?php echo time(); ?>")
 			.done(function() { 
 				if (jqxhr.status == 200) {
+					
 					var markers = [];
 					var markersJSON = JSON.parse(jqxhr.responseText);
 					globalRedMarkersResponseTextCacheJSON = markersJSON;
 					setRedMarkers(map, gMarkers, markersJSON);
+					//alert("complete1");
 				}
 			})
 			.fail(function() {
-				//alert("error");
+				alert("error");
 			})
 			.always(function() {
 				//alert("complete");

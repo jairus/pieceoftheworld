@@ -113,8 +113,6 @@ $t = count($records);
 		<!--<th style="width:20px"></th>-->
 		<th>Land&nbsp;ID</th>
 		<th>Plot (X-Y)</th>
-		<th>Sold</th>
-		<th>Land Owner</th>
 		<th>E-mail</th>
 		<th>Title</th>
         <th>Category</th>
@@ -168,10 +166,6 @@ $t = count($records);
 			<td align='center'>
 			<a target='_blank' href='/?xy=<?php echo $records[$i]['x']."~".$records[$i]['y']?>'><?php echo $records[$i]['x']."-".$records[$i]['y']?></a>
 			</td>
-			<td><?php echo ($records[$i]['web_user_id'])? '<span style="color: green">Yes</span>' : '<span style="color: red">No</span>' ;	?></td>			
-			<td><?php 
-			echo $records[$i]['land_owner'];	
-			?></td>
 			<td><?php 
 			echo $records[$i]['useremail'];	
 			?></td>

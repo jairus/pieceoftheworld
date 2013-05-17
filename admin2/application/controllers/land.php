@@ -10,7 +10,7 @@ class land extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id, C.name as categoryName, L.totalLikes
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id, C.name as categoryName, L.totalLikes
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
@@ -48,7 +48,7 @@ class land extends CI_Controller {
 		$searchx = trim($_GET['search']);
 		
 		//$sql = "select * from `land` where ";
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`folder`, LD.`picture`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id, C.name as categoryName, L.totalLikes
+		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`email_resent` , LD.`land_owner` , WU.useremail, L.web_user_id, C.name as categoryName, L.totalLikes
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id

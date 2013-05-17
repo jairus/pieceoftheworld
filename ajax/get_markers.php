@@ -42,7 +42,6 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`b`.`title`, 
 				`b`.`land_owner`, 
 				`b`.`detail`, 
-				`b`.`folder`,
 				`c`.`useremail` 
 				FROM `land` as `a` 
 				LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
@@ -87,7 +86,6 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
-			`b`.`folder`, 
 			`c`.`useremail`
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`) 
@@ -110,7 +108,6 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
-			`b`.`folder`,
 			`c`.`useremail` 
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
@@ -133,7 +130,6 @@ else { //getting purchased lands (red)
 	`b`.`title`, 
 	`b`.`land_owner`, 
 	`b`.`detail`, 
-	`b`.`folder`,
 	`c`.`useremail` 
 	FROM `land` as `a` 
 	LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
