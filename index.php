@@ -468,6 +468,13 @@ if($_GET['px']!=""){
 		
 	}
 	function onMarkerClick(event, type) {
+		//ZOI
+		jQuery("#info table").show();
+		jQuery("#info #thumbs").hide();
+		jQuery("#info #video").hide();
+		jQuery("#clickvideo").show();
+		//ZOI
+	
 		//onColoredRectangleClick(event);
 		$("#tabs").tabs("select",0);//$("#tabs").tabs("select",1);
 		if (map.getZoom() >= ZOOM_LEVEL_CITY) {
@@ -558,7 +565,7 @@ if($_GET['px']!=""){
 		updatePopupWindowTabInfo(event.latLng, strlatlong);
 		
 		//consoleX(type);
-		if(type=='special'){		
+		if(type=='special'){
 			// Acquired Special Area or Special Area
 			$.ajax({
 				url:'ajax/get_minmaxareacoordinates.php?x='+WcNE.x+'&y='+WcSW.y+"&_=<?php echo time(); ?>",
@@ -2427,6 +2434,26 @@ if($_GET['px']!=""){
 		});
 		
 	}
+	
+	//ZOI
+	function showVideo() {
+		jQuery("#info table").hide();
+		jQuery("#info #thumbs").hide();
+		jQuery("#info #video").show();
+	}
+	
+	function showThumbs() {
+		jQuery("#info table").hide();
+		jQuery("#info #thumbs").show();
+		jQuery("#info #video").hide();
+	}
+	
+	function showInfo() {
+		jQuery("#info table").show();
+		jQuery("#info #thumbs").hide();
+		jQuery("#info #video").hide();
+	}
+	//ZOI
 	
 	function onBuyLand() {
 		calculateTotal(true); //second parameter to make the routine sync

@@ -110,6 +110,30 @@ require_once('ajax/user_fxn.php')
             <h3><span id="info-city"></span><span id="info-title"></span></h3>
                 <!-- to be replaced by index.php line 2114 -->
                 <div id="fbLikeHolder"></div>
+				
+				<!-- ZOI -->
+				<!-- DISPLAY THUMBS -->
+				<div id="thumbs" style="display:none;">
+					<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; Thumbnails
+					<br /><br />
+					<!-- TyIExKljTfc is the ID of the video -->
+					
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/0.jpg" width="80" border="0" /></a> &nbsp;&nbsp; 
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/1.jpg" width="80" border="0" /></a> &nbsp;&nbsp; 
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/2.jpg" width="80" border="0" /></a> &nbsp;&nbsp; 
+					<a style="cursor:pointer;" onclick="showVideo();"><img src="http://img.youtube.com/vi/TyIExKljTfc/3.jpg" width="80" border="0" /></a>
+				</div>
+				<!-- END OF DISPLAY THUMBS -->
+				
+				<!-- DISPLAY VIDEO -->
+				<div id="video" style="display:none;">
+					<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video
+					<br /><br />
+					<iframe width="430" height="270" src="http://www.youtube.com/embed/TyIExKljTfc" frameborder="0" allowfullscreen></iframe>
+				</div>
+				<!-- END OF DISPLAY VIDEO -->
+				<!-- ZOI -->
+				
               <table>
                   <tr>
                       <td valign=top><div class="img"><a id='info-lightbox' ><img id="info-img" border="0"></a></div></td>
@@ -146,6 +170,9 @@ require_once('ajax/user_fxn.php')
                                               <tr>
                                                   <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onClick="onBuyLand();"></td>
                                                   <td><input type="button" id="clicktozoom" value="Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
+												  <!-- ZOI -->
+												  <td><input type="button" id="clickvideo" value="Video" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onclick="showThumbs();"></td>
+												  <!-- ZOI -->
                                                   <td><a id='fbsharelink' style='border:0px;' ><img style='border:0px;' src='fbshare.jpg' id='fbshare'></a></td>
                                                   <td valign='middle' id='sharethisloc'>Share this location</td>
                                               </tr>
