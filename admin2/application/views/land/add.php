@@ -180,10 +180,36 @@ jQuery(function(){
 			jQuery("#web_user_id").val('');
 		}
 	});
-    $("#addMore").click(function(e){
+    $("#saveYTVideo").click(function(e){
         e.preventDefault();
         //$("#vidMainHolder").append( $("#baseVidHolder").html() );
         saveVideo();
+    });
+	$("#addMoreVideo").click(function(e){
+        e.preventDefault();
+        
+		var rowCount = jQuery('tr#videoHolder:last').attr('class');
+		rowCount = parseInt(rowCount.replace(/[^0-9]/g, ''));
+		var nextRowCount = rowCount+1;
+		
+		var nextRowYTVideo = '';
+		nextRowYTVideo += '';
+		
+		nextRowYTVideo += '<tr id="videoHolder" class="odd required videoHolder'+nextRowCount+'">';
+            nextRowYTVideo += '<td>Videos:</td>';
+            nextRowYTVideo += '<td>';
+                nextRowYTVideo += '<div id="vidMainHolder'+nextRowCount+'">';
+					nextRowYTVideo += '<div class="vidHolder">';
+                        nextRowYTVideo += '<label>YouTube Embed Script: </label><br/>';
+                        nextRowYTVideo += '<textarea name="video_link[]" rows="3" cols="10" class="videoLink"></textarea><br/>';
+                        nextRowYTVideo += '<label>Title: </label><input type="text" name="video_title[]" class="videoLink" /><br/>';
+                        nextRowYTVideo += '<br/>';
+                    nextRowYTVideo += '</div>';
+				nextRowYTVideo += '</div>';
+            nextRowYTVideo += '</td>';
+        nextRowYTVideo += '</tr>';
+		
+		jQuery('tr#videoHolder:last').after(nextRowYTVideo);
     });
     $(".removeHolder").live('click',function(e){
         e.preventDefault();
@@ -290,7 +316,7 @@ else{
 		  </td>
 		</tr>
         <tr><td colspan="2"><hr/></td></tr>
-        <tr class="odd required">
+        <tr id="videoHolder" class="odd required videoHolder1">
             <td>Videos:</td>
             <td>
                 <div id="baseVidHolder" style="display: none">
@@ -302,11 +328,24 @@ else{
                         <br/>
                     </div>
                 </div>
-
-                <div id="vidMainHolder"></div>
-                <input type="button" id="addMore" value="Add Video" />
+				
+				<?php
+				if(!empty($videos)){
+					$counter = 1;
+					foreach($videos as $row){
+						echo '<div id="vidMainHolder'.$counter.'"></div>';
+						
+						$counter++;
+					}
+				}else{
+					echo '<div id="vidMainHolder1"></div>';
+				}
+				?>
             </td>
         </tr>
+		<tr>
+			<td colspan="2"><input type="button" id="addMoreVideo" value="Add More Video" /> <input type="button" id="saveYTVideo" value="Save Video(s)" /></td>
+		</tr>
   </table>
 </td>
 </tr>
@@ -336,19 +375,22 @@ if(!empty($videos)){
 ?>
     var html = "";
     <?php
+	$counter = 1;
     foreach($videos as $row){
         ?>
-    html = '<div class="vidHolder">' +
-        // '<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
-        '<label>YouTube Embed Script:</label><br/><textarea name="video_link[]" class="videoLink"><?php echo $row['video']?></textarea><br/>' +
-        '<label>Title: </label><input type="text" name="video_title[]" class="videoLink" value="<?php echo $row['title']?>" /><br/>' +
-        '<br/>' +
-        '</div>';
-    jQuery("#vidMainHolder").append(html);
-<?php    }
+		html = '<div class="vidHolder">' +
+			// '<label></label><a href="#" class="removeHolder">remove this</a><br/>' +
+			'<label>YouTube Embed Script:</label><br/><textarea name="video_link[]" class="videoLink"><?php echo $row['video']?></textarea><br/>' +
+			'<label>Title: </label><input type="text" name="video_title[]" class="videoLink" value="<?php echo $row['title']?>" /><br/>' +
+			'<br/>' +
+			'</div>';
+		jQuery("#vidMainHolder"+<?php echo $counter; ?>).append(html);
+		<?php
+		$counter++;
+	}
 } else {
 ?>
-jQuery("#vidMainHolder").append( $("#baseVidHolder").html() );
+jQuery("#vidMainHolder1").append( $("#baseVidHolder").html() );
 <?php
 }
 ?>
