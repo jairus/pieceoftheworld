@@ -2023,7 +2023,36 @@ if($_GET['px']!=""){
 			document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
 			
 			//ZOI
-			if(markerJSON[0].video){
+			jQuery("#thumbs").empty();
+			
+			var videosJSON = null;
+			$.ajax({
+				url:'ajax/get_videos.php?action=get_videos&land_detail_id='+markerJSON[0].land_detail_id,
+				dataType:'html',
+				async:false,
+				success:function(data, textStatus, jqXHR){
+					videosJSON = data;
+				}
+			});
+			
+			if(videosJSON){
+				var videoJSON = JSON.parse(videosJSON);
+				var thumbs = '';
+				thumbs += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; Thumbnails<br /><br />';
+				
+				for(var i=0; i<videoJSON.length; i++){
+					var videoArr = videoJSON[i].video.split("v=");
+					var videoStr = videoArr[1];
+				
+					thumbs += '<a style="cursor:pointer;" onclick="showVideo(\''+videoStr+'\');"><img src="http://img.youtube.com/vi/'+videoStr+'/0.jpg" width="80" border="0" /></a> &nbsp;&nbsp; ';
+				}
+				
+				jQuery("#thumbs").append(thumbs);
+				
+				jQuery("#clickvideo").show();
+			}
+			
+			/*if(markerJSON[0].video){
 				var videoStr = markerJSON[0].video;
 				videoStr = videoStr.replace('http://www.youtube.com/watch?v=', '');
 				
@@ -2042,7 +2071,7 @@ if($_GET['px']!=""){
 				jQuery("#thumb_img4").attr("src", '');
 				
 				jQuery("#video1").attr("src", '');
-			}
+			}*/
 			//ZOI
 
 			if(markerJSON[0].land_owner){
@@ -2469,7 +2498,15 @@ if($_GET['px']!=""){
 	}
 	
 	//ZOI
-	function showVideo() {
+	function showVideo(videoStr) {
+		jQuery("#video").empty();
+	
+		var mainVideo = '';
+		mainVideo += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video<br /><br />';
+		mainVideo += '<iframe width="430" height="270" src="http://www.youtube.com/embed/'+videoStr+'" frameborder="0" allowfullscreen></iframe>';
+	
+		jQuery("#video").append(mainVideo);
+	
 		jQuery("#info table").hide();
 		jQuery("#info #thumbs").hide();
 		jQuery("#info #video").show();

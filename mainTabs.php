@@ -113,24 +113,11 @@ require_once('ajax/user_fxn.php')
 				
 				<!-- ZOI -->
 				<!-- DISPLAY THUMBS -->
-				<div id="thumbs" style="display:none;">
-					<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; Thumbnails
-					<br /><br />
-					<!-- TyIExKljTfc is the ID of the video -->
-					
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img1" width="80" border="0" /></a> &nbsp;&nbsp; 
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img2" width="80" border="0" /></a> &nbsp;&nbsp; 
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img3" width="80" border="0" /></a> &nbsp;&nbsp; 
-					<a style="cursor:pointer;" onclick="showVideo();"><img src="" id="thumb_img4" width="80" border="0" /></a>
-				</div>
+				<div id="thumbs"></div>
 				<!-- END OF DISPLAY THUMBS -->
 				
 				<!-- DISPLAY VIDEO -->
-				<div id="video" style="display:none;">
-					<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video
-					<br /><br />
-					<iframe width="430" height="270" src="" id="video1" frameborder="0" allowfullscreen></iframe>
-				</div>
+				<div id="video"></div>
 				<!-- END OF DISPLAY VIDEO -->
 				<!-- ZOI -->
 				

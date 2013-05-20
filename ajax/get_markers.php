@@ -38,16 +38,15 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`a`.`x`, 
 				`a`.`y`, 
 				`a`.`land_special_id`, 
+				`a`.`land_detail_id`, 
 				`a`.`web_user_id` as `owner_user_id`, 
 				`b`.`title`, 
 				`b`.`land_owner`, 
 				`b`.`detail`, 
-				`c`.`useremail`, 
-				`d`.`video` 
+				`c`.`useremail`
 				FROM `land` as `a` 
 				LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 				LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-				LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 				where 
 				`a`.`x`=$x1 and `a`.`y`=$y1 
 				";
@@ -84,6 +83,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`a`.`x`, 
 			`a`.`y`, 
 			`a`.`land_special_id`,
+			`a`.`land_detail_id`, 
 			`a`.`web_user_id` as `owner_user_id`, 
 			`b`.`title`, 
 			`b`.`land_owner`, 
@@ -108,16 +108,15 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`a`.`x`, 
 			`a`.`y`, 
 			`a`.`land_special_id`, 
+			`a`.`land_detail_id`, 
 			`a`.`web_user_id` as `owner_user_id`, 
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
-			`c`.`useremail`, 
-			`d`.`video` 
+			`c`.`useremail`
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-			LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 			where 
 			`a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
 			and 
@@ -132,16 +131,15 @@ else { //getting purchased lands (red)
 	`a`.`x`, 
 	`a`.`y`, 
 	`a`.`land_special_id`, 
+	`a`.`land_detail_id`, 
 	`a`.`web_user_id` as `owner_user_id`, 
 	`b`.`title`, 
 	`b`.`land_owner`, 
 	`b`.`detail`, 
-	`c`.`useremail`, 
-	`d`.`video` 
+	`c`.`useremail`
 	FROM `land` as `a` 
 	LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 	LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-	LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 	WHERE web_user_id <> 0";
 }
 
