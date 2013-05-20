@@ -186,7 +186,9 @@ else{
 	$uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
 
 	if($markers[0]['owner_user_id']||!$markers[0]['land_special_id']){ //
-		$sql = "select * from `pictures` where `land_id`='".$markers[0]['id']."' and isMain=1";
+		$sql = "select * from `pictures` where `land_id`='".$markers[0]['land_detail_id']."' and isMain=1";
+		
+		//echo $sql;
 		$pictures = dbQuery($sql, $_dblink);
 		$t = count($pictures);
 		if($t){

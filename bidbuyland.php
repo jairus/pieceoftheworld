@@ -463,6 +463,7 @@ else if(strtolower($_GET['type'])=='buy'){
 							<td>* E-mail</td>
 							<td>
 							<input type='hidden' name='email' value="<?php echo sanitizeX($_SESSION['userdata']['useremail']) ?>" >
+							<input type='hidden' name='web_user_id' value="<?php echo sanitizeX($_SESSION['userdata']['id']) ?>" >
 							<?php 
 							echo $_SESSION['userdata']['useremail'];
 							?>

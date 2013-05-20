@@ -1393,10 +1393,16 @@ if($_GET['px']!=""){
 		
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
+				consoleX("lalala");
+				consoleX(gzones[i].ret);
 				if(gzones[i].ret.json){ //if a special land or a bought land
 					jQuery("#info-title").html(gzones[i].ret.json.title);
 					jQuery("#info-detail").html(gzones[i].ret.json.detail);
 					jQuery("#info-city").show();
+					var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + gzones[i].ret.json['id'] + "&specialLandId=" + gzones[i].ret.json['land_special_id'];
+					//alert(fbLikeLink);
+					jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+					FB.XFBML.parse();
 					if(gzones[i].ret.city){
 						jQuery("#info-city").html(gzones[i].ret.city);
 					}
@@ -1422,7 +1428,27 @@ if($_GET['px']!=""){
 					if(firstindex==""){
 						firstindex = i;
 					}
+					
+					if (gzones[i].ret.json.email == masterUser) { //if unbought
+						detailsobjarr[gzones[i].ret.json.title] = {};
+						if(!detailsobjarr[gzones[i].ret.json.title].price){
+							detailsobjarr[gzones[i].ret.json.title].price = 0;
+						}
+						gzones[i].ret.price = gzones[i].ret.json.price * 1;
+						detailsobjarr[gzones[i].ret.json.title].price = gzones[i].ret.price.toFixed(2);
+						if(!detailsobjarr[gzones[i].ret.json.title].count){
+							detailsobjarr[gzones[i].ret.json.title].count = 0;
+						}
+						detailsobjarr[gzones[i].ret.json.title].count++;
+						if(!detailsobjarr[gzones[i].ret.json.title].idx){
+							detailsobjarr[gzones[i].ret.json.title].idx = "";
+						}
+						detailsobjarr[gzones[i].ret.json.title].idx += i+",";
+					}
+					
 					specialbought = true;
+					
+					
 					break;
 				}
 				else{ //selected blank blocks
@@ -1593,6 +1619,13 @@ if($_GET['px']!=""){
 					consoleX("special unbought");
 					price = gzones[i].ret.json.price;
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+					jQuery("#buy-button").val("Buy");
+					jQuery("#buy-button").show();
+					for(x in detailsobjarr){
+						detail = x + " USD " + detailsobjarr[x].price  + " x " + detailsobjarr[x].count ;
+						gsessiondetails += detail + "<br />";
+						//details += detail + " <img src='images/x.png'  onclick='cancelBox(\""+detailsobjarr[x].idx+"\")' style='cursor:pointer' /><br />" ;
+					}
 				}
 				else{
 					consoleX("special bought");
@@ -1714,14 +1747,14 @@ if($_GET['px']!=""){
 				}
 				worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
 				var block = getBlockLTRB(worldCoordinate);
-				consoleX("block = ");
-				consoleX(block);
 				var bounds = new google.maps.LatLngBounds(
 					new google.maps.LatLng(block[0].lat(),block[0].lng()),
 					new google.maps.LatLng(block[1].lat(),block[1].lng())
 				);
 				var LtLgNE = bounds.getNorthEast();
 				var LtLgSW = bounds.getSouthWest();
+				
+				//strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
 				
 				//put in the box
 				var zoneCoords = [
@@ -2455,12 +2488,38 @@ if($_GET['px']!=""){
 		datax = {};
 		datax.points = [];
 		datax.strlatlongs = [];
+		
+		
+		
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
 				datax.points.push(gzones[i].ret.points);
 				datax.strlatlongs.push(gzones[i].ret.strlatlong);
 			}
 		}
+		
+		if(gzones.length==1){
+			if(gzones[0].ret.attached){
+				ret = gzones[0].ret;
+				for(i=0; i<ret.attached.length; i++){
+					worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
+					var block = getBlockLTRB(worldCoordinate);
+					var bounds = new google.maps.LatLngBounds(
+						new google.maps.LatLng(block[0].lat(),block[0].lng()),
+						new google.maps.LatLng(block[1].lat(),block[1].lng())
+					);
+					var LtLgNE = bounds.getNorthEast();
+					var LtLgSW = bounds.getSouthWest();
+					strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+					
+					if(datax.points.indexOf(strlatlong)==-1){
+						datax.points.push(ret.attached[i].x+"-"+ret.attached[i].y);
+						datax.strlatlongs.push(strlatlong);
+					}
+				}
+			}
+		}
+		
 		str = JSON.stringify(datax);
 		
 		jQuery.ajax({
@@ -2473,6 +2532,8 @@ if($_GET['px']!=""){
 				
 			}
 		});
+		
+		
 		
 	}
 	
