@@ -279,16 +279,22 @@ if($_POST['step']==1){
 					<tr>
 						<td colspan=2>
 							<div style='text-align:center'>
-							<input type='radio' name='po' checked> Paypal&nbsp;&nbsp;&nbsp;
-							<input type='radio' name='po'> Credit Card
+							<script>
+							function showP(idx){
+								jQuery(".paymentform").hide();
+								jQuery("#"+idx).show();
+							}
+							</script>
+							<input type='radio' name='po' checked onclick='showP("paypal")'> Paypal&nbsp;&nbsp;&nbsp;
+							<input type='radio' name='po' onclick='showP("skrill")'> Skrill (CreditCard / Bank Transfer)
 							</div>
 							<br /><br />
-							<div id='paypal' style='padding:10px; text-align:center'>
+							<div id='paypal' style='padding:10px; text-align:center' class='paymentform'>
 								<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
 									<input type="hidden" value="_xclick" name="cmd">
 									<input type="hidden" value="pieceoftheworld2013@gmail.com" name="business">
 									<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>">
-									<input type="hidden" value="Land" name="item_name">
+									<input type="hidden" value="PieceofTheWorld.com Land" name="item_name">
 									<input type="hidden" value="<?php echo $paypalvalue; ?>" name="amount" id="amount_id">
 									<input type="hidden" value="http://www.pieceoftheworld.co/ppc2.php?f=<?php echo $foldername; ?>&step=1&pass=A631CD74-1D21-40b1-8602-346611127127&land=<?php echo @$_GET['land']; ?>&useremail=" name="return" id="paypal-return-url">
 									<input type="hidden" value="http://www.pieceoftheworld.co/" name="cancel_return">
@@ -298,6 +304,18 @@ if($_POST['step']==1){
 									<br>
 									<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 									<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+								</form>
+							</div>
+							<div id='skrill' style='padding:10px; text-align:center' class='paymentform'>
+								<form action="https://www.moneybookers.com/app/payment.pl" method="post" target="_blank">
+								  <input type="hidden" name="pay_to_email" value="pieceoftheworld2013@gmail.com"/>
+								  <input type="hidden" name="status_url" value="http://www.pieceoftheworld.co/ipn_skrill.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>"/> 
+								  <input type="hidden" name="language" value="EN"/>
+								  <input type="hidden" name="amount" value="<?php echo $paypalvalue; ?>"/>
+								  <input type="hidden" name="currency" value="USD"/>
+								  <input type="hidden" name="detail1_description" value="PieceofTheWorld.com Land"/>
+								  <input type="hidden" name="detail1_text" value=""/>
+								  <input type="submit" value="Pay Now!"/>
 								</form>
 							</div>
 						</td>
