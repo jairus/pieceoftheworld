@@ -42,10 +42,12 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`b`.`title`, 
 				`b`.`land_owner`, 
 				`b`.`detail`, 
-				`c`.`useremail` 
+				`c`.`useremail`, 
+				`d`.`video` 
 				FROM `land` as `a` 
 				LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 				LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+				LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 				where 
 				`a`.`x`=$x1 and `a`.`y`=$y1 
 				";
@@ -86,10 +88,12 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
-			`c`.`useremail`
+			`c`.`useremail`,
+			`d`.`video`
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`) 
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+			LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
 			and 
 			(web_user_id <> 0 or land_special_id <> 0)
@@ -108,10 +112,12 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
-			`c`.`useremail` 
+			`c`.`useremail`, 
+			`d`.`video` 
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+			LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 			where 
 			`a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
 			and 
@@ -130,10 +136,12 @@ else { //getting purchased lands (red)
 	`b`.`title`, 
 	`b`.`land_owner`, 
 	`b`.`detail`, 
-	`c`.`useremail` 
+	`c`.`useremail`, 
+	`d`.`video` 
 	FROM `land` as `a` 
 	LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 	LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+	LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
 	WHERE web_user_id <> 0";
 }
 
