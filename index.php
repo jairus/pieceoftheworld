@@ -2051,27 +2051,6 @@ if($_GET['px']!=""){
 				
 				jQuery("#clickvideo").show();
 			}
-			
-			/*if(markerJSON[0].video){
-				var videoStr = markerJSON[0].video;
-				videoStr = videoStr.replace('http://www.youtube.com/watch?v=', '');
-				
-				jQuery("#thumb_img1").attr("src", 'http://img.youtube.com/vi/'+videoStr+'/0.jpg');
-				jQuery("#thumb_img2").attr("src", 'http://img.youtube.com/vi/'+videoStr+'/1.jpg');
-				jQuery("#thumb_img3").attr("src", 'http://img.youtube.com/vi/'+videoStr+'/2.jpg');
-				jQuery("#thumb_img4").attr("src", 'http://img.youtube.com/vi/'+videoStr+'/3.jpg');
-				
-				jQuery("#video1").attr("src", 'http://www.youtube.com/embed/'+videoStr);
-				
-				jQuery("#clickvideo").show();
-			}else{
-				jQuery("#thumb_img1").attr("src", '');
-				jQuery("#thumb_img2").attr("src", '');
-				jQuery("#thumb_img3").attr("src", '');
-				jQuery("#thumb_img4").attr("src", '');
-				
-				jQuery("#video1").attr("src", '');
-			}*/
 			//ZOI
 
 			if(markerJSON[0].land_owner){
