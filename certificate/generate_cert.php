@@ -44,7 +44,7 @@ if(isset($_GET['f'])){
 	}
 	$sql = "select * from `land` where `x`='".$x."' and `y`='".$y."'";
 	$land = dbQuery($sql, $_dblink);
-	$theid = $land[0]["id"];
+	$theid = $land[0]["land_detail_id"];
 	
 	$post['filename'] = "";
 	
