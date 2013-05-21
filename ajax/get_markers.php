@@ -31,7 +31,27 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			";
 		$markers = dbQuery($sql, $_dblink);			
 		
-		if($markers[0]['web_user_id']||$markers[0]['land_special_id']){
+		if($markers[0]['land_special_id']){
+			$sql = "SELECT 
+				if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
+				`a`.`id` AS `id`, 
+				`a`.`x`, 
+				`a`.`y`, 
+				`a`.`land_special_id`, 
+				`a`.`land_detail_id`, 
+				`a`.`web_user_id` as `owner_user_id`, 
+				`b`.`title`, 
+				`b`.`land_owner`, 
+				`b`.`detail`, 
+				`c`.`useremail`
+				FROM `land` as `a` 
+				LEFT JOIN `land_special` as `b` ON (`a`.`land_special_id` = `b`.`id`)
+				LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+				where 
+				`a`.`x`=$x1 and `a`.`y`=$y1 
+				";
+		}
+		else if($markers[0]['web_user_id']){
 			$sql = "SELECT 
 				if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
 				`a`.`id` AS `id`, 
@@ -56,6 +76,8 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			echo "[[]]";
 			exit();
 		}
+		
+		//echo $sql;
 	}
 	else if ($type == 'special') {
 		$sql = "SELECT 
