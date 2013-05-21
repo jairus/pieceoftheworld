@@ -56,7 +56,8 @@
 		$sql = "update `land_special` set
 			`title` = '".mysql_real_escape_string($post['title'])."',
 			`detail` = '".mysql_real_escape_string($post['description'])."',
-			`land_owner` = '".mysql_real_escape_string($post['land_owner'])."'
+			`land_owner` = '".mysql_real_escape_string($post['land_owner'])."',
+			`web_user_id`='".$web_user_id."'
 			where `id` = '".$land_special_id."'
 		";
 		dbQuery($sql, $_dblink);
