@@ -6,6 +6,7 @@ if($_GET['special']){
 	exit();
 }
 require_once 'ajax/global.php';
+
 if($_GET['affid']){
 	$_SESSION['affid'] = $_GET['affid'];
 	$sql = "select * from `affiliates` where `id`='".$_SESSION['affid']."'  and `active`=1";
@@ -21,6 +22,61 @@ if($_GET['affid']){
 	}
 	header ('HTTP/1.1 301 Moved Permanently');
 	header ('Location: index.php');
+	exit();
+}
+else if($_GET['saveblockdetails']){
+	/*
+	stdClass Object
+	(
+		[points] => 526670-289189
+		[strlatlong] => 14.578996186780754,120.97291737107537
+		[city] => Manila
+		[region] => Metro Manila
+		[country] => Philippines
+		[areatype] => 
+	)
+	*/
+	$data = json_decode(stripslashes($_POST['data']));
+	print_r($data);
+	
+	list($x, $y) = explode("-", $data->points);
+	list($lat, $long) = explode(",", $data->strlatlong);
+	
+	$sql ="select * from `land` where 
+	`x` = '".mysql_real_escape_string($x)."' and 
+	`y` = '".mysql_real_escape_string($y)."'
+	"; 
+	$r = dbQuery($sql, $_dblink);
+	if($r[0]['id']){
+		print_r($r);
+		$sql = "update `land` set 
+		`country` = '".mysql_real_escape_string($data->country)."',
+		`city` = '".mysql_real_escape_string($data->city)."',
+		`region` = '".mysql_real_escape_string($data->region)."',
+		`areatype` = '".mysql_real_escape_string($data->areatype)."',
+		`lat` = '".mysql_real_escape_string($lat)."',
+		`long` = '".mysql_real_escape_string($long)."'
+		where 
+		`x` = '".mysql_real_escape_string($x)."' and 
+		`y` = '".mysql_real_escape_string($y)."'
+		";
+		$r = dbQuery($sql, $_dblink);
+	}
+	else{
+		$sql = "insert into `land` set 
+		`country` = '".mysql_real_escape_string($data->country)."',
+		`city` = '".mysql_real_escape_string($data->city)."',
+		`region` = '".mysql_real_escape_string($data->region)."',
+		`areatype` = '".mysql_real_escape_string($data->areatype)."',
+		`lat` = '".mysql_real_escape_string($lat)."',
+		`long` = '".mysql_real_escape_string($long)."',
+		`x` = '".mysql_real_escape_string($x)."',
+		`y` = '".mysql_real_escape_string($y)."'
+		";
+		$r = dbQuery($sql, $_dblink);
+	}
+	
+	echo $sql;
 	exit();
 }
 
@@ -1229,6 +1285,7 @@ if($_GET['px']!=""){
 	
 	function getBlockInfoNew(inLatLng, strlatlong, worldCoordinate){
 		var ret = {};
+		var retx = {};
 		ret.inLatLng = inLatLng;
 		ret.detail = "";
 		ret.title = "";
@@ -1260,6 +1317,13 @@ if($_GET['px']!=""){
 			ret.country = rtemp.country;
 			ret.areatype = rtemp.areatype;
 			
+			retx.points = worldCoordinate.x+"-"+worldCoordinate.y;
+			retx.strlatlong = strlatlong;
+			retx.city = rtemp.city;
+			retx.region = rtemp.region;
+			retx.country = rtemp.country;
+			retx.areatype = rtemp.areatype;
+			
 		}
 		else{
 			rtemp = getBlockMoreInfo(strlatlong);
@@ -1272,8 +1336,24 @@ if($_GET['px']!=""){
 			//set the points
 			ret.points = worldCoordinate.x+"-"+worldCoordinate.y;
 			ret.strlatlong = strlatlong;
-			consoleX(ret);
+			
+			retx.points = worldCoordinate.x+"-"+worldCoordinate.y;
+			retx.strlatlong = strlatlong;
+			retx.city = rtemp.city;
+			retx.region = rtemp.region;
+			retx.country = rtemp.country;
+			retx.areatype = rtemp.areatype;
 		}
+		jQuery.ajax({
+			dataType: "html",
+			async: true,
+			type: "POST",
+			data: "data="+JSON.stringify(retx),
+			url: "?saveblockdetails=1",
+			success: function(data){
+				
+			}
+		});
 		return ret; //returns ret object
 	}
 	

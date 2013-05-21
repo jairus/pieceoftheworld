@@ -1,4 +1,15 @@
 <?php 
+if(strtolower($_SERVER['HTTP_HOST'])=="pieceoftheworld.com"){
+	$url = "http://pieceoftheworld.co/".ltrim($_SERVER['REQUEST_URI'], "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}
+else if(strpos(strtolower($_SERVER['HTTP_HOST']), "www.")===0){
+	$url = "http://pieceoftheworld.co/".ltrim($_SERVER['REQUEST_URI'], "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}
+require_once 'ajax/global.php';
 error_reporting(E_ALL^E_NOTICE);
 session_start(); 
 if($_GET['coords']){
@@ -7,7 +18,62 @@ if($_GET['coords']){
 	print_r($_SESSION["coords"]);
 	exit();
 }
-require_once 'ajax/global.php';
+else if($_GET['saveblockdetails']){
+	/*
+	stdClass Object
+	(
+		[points] => 526670-289189
+		[strlatlong] => 14.578996186780754,120.97291737107537
+		[city] => Manila
+		[region] => Metro Manila
+		[country] => Philippines
+		[areatype] => 
+	)
+	*/
+	$data = json_decode(stripslashes($_POST['data']));
+	print_r($data);
+	
+	list($x, $y) = explode("-", $data->points);
+	list($lat, $long) = explode(",", $data->strlatlong);
+	
+	$sql ="select * from `land` where 
+	`x` = '".mysql_real_escape_string($x)."' and 
+	`y` = '".mysql_real_escape_string($y)."'
+	"; 
+	$r = dbQuery($sql, $_dblink);
+	if($r[0]['id']){
+		print_r($r);
+		$sql = "update `land` set 
+		`country` = '".mysql_real_escape_string($data->country)."',
+		`city` = '".mysql_real_escape_string($data->city)."',
+		`region` = '".mysql_real_escape_string($data->region)."',
+		`areatype` = '".mysql_real_escape_string($data->areatype)."',
+		`lat` = '".mysql_real_escape_string($lat)."',
+		`long` = '".mysql_real_escape_string($long)."'
+		where 
+		`x` = '".mysql_real_escape_string($x)."' and 
+		`y` = '".mysql_real_escape_string($y)."'
+		";
+		$r = dbQuery($sql, $_dblink);
+	}
+	else{
+		$sql = "insert into `land` set 
+		`country` = '".mysql_real_escape_string($data->country)."',
+		`city` = '".mysql_real_escape_string($data->city)."',
+		`region` = '".mysql_real_escape_string($data->region)."',
+		`areatype` = '".mysql_real_escape_string($data->areatype)."',
+		`lat` = '".mysql_real_escape_string($lat)."',
+		`long` = '".mysql_real_escape_string($long)."',
+		`x` = '".mysql_real_escape_string($x)."',
+		`y` = '".mysql_real_escape_string($y)."'
+		";
+		$r = dbQuery($sql, $_dblink);
+	}
+	
+	echo $sql;
+	exit();
+}
+
 if($_GET['affid']){
 	$_SESSION['affid'] = $_GET['affid'];
 	$sql = "select * from `affiliates` where `id`='".$_SESSION['affid']."'  and `active`=1";
@@ -36,7 +102,7 @@ if($_GET['px']!=""){
 <html lang="us">
 <head>
 
-<meta property='og:image' content='http://www.pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
+<meta property='og:image' content='http://pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
 <meta property='og:title' content='Piece of the World' />
 
 <meta charset="utf-8">
@@ -1252,6 +1318,7 @@ if($_GET['px']!=""){
 	
 	function getBlockInfoNew(inLatLng, strlatlong, worldCoordinate){
 		var ret = {};
+		var retx = {};
 		ret.inLatLng = inLatLng;
 		ret.detail = "";
 		ret.title = "";
@@ -1263,7 +1330,7 @@ if($_GET['px']!=""){
 		var markerJSON = JSON.parse(returnText);
 		//returnText = '[[]]';
 		if (returnText != '[[]]') {
-			if(markerJSON[0].email){ //if special land unpaid
+			if(markerJSON[0].points){ //if there are points (attached land)
 				consoleX(markerJSON[0].land_special_id);
 				consoleX(markerJSON[0].points);
 				ret.attached = markerJSON[0].points;
@@ -1286,6 +1353,13 @@ if($_GET['px']!=""){
 			ret.country = rtemp.country;
 			ret.areatype = rtemp.areatype;
 			
+			retx.points = worldCoordinate.x+"-"+worldCoordinate.y;
+			retx.strlatlong = strlatlong;
+			retx.city = rtemp.city;
+			retx.region = rtemp.region;
+			retx.country = rtemp.country;
+			retx.areatype = rtemp.areatype;
+			
 		}
 		else{
 			rtemp = getBlockMoreInfo(strlatlong);
@@ -1298,7 +1372,26 @@ if($_GET['px']!=""){
 			//set the points
 			ret.points = worldCoordinate.x+"-"+worldCoordinate.y;
 			ret.strlatlong = strlatlong;
+			
+			retx.points = worldCoordinate.x+"-"+worldCoordinate.y;
+			retx.strlatlong = strlatlong;
+			retx.city = rtemp.city;
+			retx.region = rtemp.region;
+			retx.country = rtemp.country;
+			retx.areatype = rtemp.areatype;
 		}
+		//jairea
+		//retx.json = "";
+		jQuery.ajax({
+			dataType: "html",
+			async: true,
+			type: "POST",
+			data: "data="+JSON.stringify(retx),
+			url: "?saveblockdetails=1",
+			success: function(data){
+				
+			}
+		});
 		return ret; //returns ret object
 	}
 	
@@ -1393,13 +1486,13 @@ if($_GET['px']!=""){
 		
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
-				consoleX("lalala");
-				consoleX(gzones[i].ret);
+				//consoleX("lalala");
+				//consoleX(gzones[i].ret);
 				if(gzones[i].ret.json){ //if a special land or a bought land
 					jQuery("#info-title").html(gzones[i].ret.json.title);
 					jQuery("#info-detail").html(gzones[i].ret.json.detail);
 					jQuery("#info-city").show();
-					var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + gzones[i].ret.json['id'] + "&specialLandId=" + gzones[i].ret.json['land_special_id'];
+					var fbLikeLink = "http://pieceoftheworld.co/viewLand.php?landId=" + gzones[i].ret.json['id'] + "&specialLandId=" + gzones[i].ret.json['land_special_id'];
 					//alert(fbLikeLink);
 					jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
 					FB.XFBML.parse();
@@ -1647,7 +1740,7 @@ if($_GET['px']!=""){
 		if(!sharetext){
 			sharetext = "Get your own piece of the world at pieceoftheworld.com";
 		}
-		link = "http://www.pieceoftheworld.co/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[firstindex].ret.inLatLng.lng();
+		link = "http://pieceoftheworld.co/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[firstindex].ret.inLatLng.lng();
 		
 		globallink = link;
 		//link = encodeURIComponent(link);
@@ -1671,6 +1764,7 @@ if($_GET['px']!=""){
 		}
 		var projection = new MercatorProjection();
 		var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
+		
 		worldCoordinate.x = Math.floor(worldCoordinate.x);
 		worldCoordinate.y = Math.floor(worldCoordinate.y);
 		var block = getBlockLTRB(worldCoordinate);
@@ -1745,6 +1839,7 @@ if($_GET['px']!=""){
 				if(ret.attached[i].x==thex && ret.attached[i].y==they){
 					continue;
 				}
+				//updateDetails(ret.attached[i].x, ret.attached[i].y);
 				worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
 				var block = getBlockLTRB(worldCoordinate);
 				var bounds = new google.maps.LatLngBounds(
@@ -2179,7 +2274,7 @@ if($_GET['px']!=""){
 		if(!sharetext){
 			sharetext = "Get your own piece of the world at pieceoftheworld.com";
 		}
-		link = "http://www.pieceoftheworld.co/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+		link = "http://pieceoftheworld.co/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
 		
 		globallink = link;
 		//link = encodeURIComponent(link);
@@ -2191,7 +2286,7 @@ if($_GET['px']!=""){
 
         // for facebook like button. only like sold land, sold specialland, unsold specialland
         //if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
-            var fbLikeLink = "http://www.pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
+            var fbLikeLink = "http://pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
             jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
             FB.XFBML.parse();
         //} else {
@@ -2328,6 +2423,27 @@ if($_GET['px']!=""){
 	}
 	
 	
+	function updateDetails(x, y){
+		worldCoordinate = new google.maps.Point(x-1, y-1);
+		worldCoordinate.x = Math.floor(worldCoordinate.x);
+		worldCoordinate.y = Math.floor(worldCoordinate.y);
+		var block = getBlockLTRB(worldCoordinate);
+		var bounds = new google.maps.LatLngBounds(
+			new google.maps.LatLng(block[0].lat(),block[0].lng()),
+			new google.maps.LatLng(block[1].lat(),block[1].lng())
+		);
+		var LtLgNE = bounds.getNorthEast();
+		var LtLgSW = bounds.getSouthWest();
+		
+		strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+		//new update popup info
+		var projection = new MercatorProjection();
+		var point = {};
+		point.x = x;
+		point.y = y;
+		var inLatLng = projection.fromPointToLatLng(point);
+		ret = getBlockInfoNew(inLatLng, strlatlong, worldCoordinate);
+	}
 	
 	function setGreenMarkers(map, gMarkers, markersJSON){
 		var config_showownland = getCookie("config_showownland");
@@ -2336,6 +2452,7 @@ if($_GET['px']!=""){
 		
 		var pass = false;
 		//alert(JSON.stringify(markersJSON));
+		var landspecialids = []
 		for (var i = 0, len = markersJSON.length; i < len; ++i) {
 			pass = true;
 			// check your own id when possible and act according to this config setting
@@ -2346,9 +2463,25 @@ if($_GET['px']!=""){
 			if (config_showownland == "false" && user_email == markersJSON[i].email) {
 				pass = false;
 			}
+			jairea
 			*/
+			//update details
+			<?php
+			if($_GET['updatedetails']){
+				?>
+				updateDetails(markersJSON[i].x, markersJSON[i].y);
+				<?php
+			}
+			
+			?>
 			if (pass == true) {
-				if (markersJSON[i].land_special_id == null) {
+				if(markersJSON[i].land_special_id){ 
+					if(landspecialids.indexOf(markersJSON[i].land_special_id)!=-1){ //if special land for sure it has attached lands so skip if marker is already there
+						continue;
+					}
+					landspecialids.push(markersJSON[i].land_special_id)
+				}
+				if (markersJSON[i].web_user_id || markersJSON[i].owner_user_id) {
 					var marker = new google.maps.Marker({
 						position: getBlockMarker(parseInt(markersJSON[i].x), parseInt(markersJSON[i].y)),
 						map: map,

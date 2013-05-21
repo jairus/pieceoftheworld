@@ -64,8 +64,8 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				title, 
 				'masteruser@gmail.com' as `email`,
 				detail,
-				(SELECT avg(x) FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS x,
-				(SELECT avg(y) FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS y
+				(SELECT x FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS x,
+				(SELECT y FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS y
 				FROM land_special WHERE 1";
 	}
 	else if (!empty($land_special_id)) {
@@ -185,9 +185,25 @@ else{
 	}
 	$uploads_dir = dirname(__FILE__).'/../_uploads/'.$markers[0]['folder'];
 
-	if($markers[0]['owner_user_id']||!$markers[0]['land_special_id']){ //
+	if($markers[0]['owner_user_id']){ //
+	
+		if($markers[0]['land_special_id']){ //if the block was a special land get the attached land
+			$sql = "select `x`, `y` from `land` where `land_special_id`='".$markers[0]['land_special_id']."'";
+			$points = dbQuery($sql, $_dblink);
+			if(count($points)){
+				$markers[0]['points'] = $points;
+			}
+		}
+		/*
+		if($markers[0]['land_detail_id']){ //if user bought multiple lands
+			$sql = "select `x`, `y` from `land` where `land_special_id`='".$markers[0]['land_special_id']."'";
+			$points = dbQuery($sql, $_dblink);
+			if(count($points)){
+				$markers[0]['points'] = $points;
+			}
+		}
+		*/
 		$sql = "select * from `pictures` where `land_id`='".$markers[0]['land_detail_id']."' and isMain=1";
-		
 		//echo $sql;
 		$pictures = dbQuery($sql, $_dblink);
 		$t = count($pictures);
@@ -198,46 +214,27 @@ else{
 			//$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
 			$picture = explode("/_uploads2/", $pictures[0]['picture']);
 			$dir = dirname($picture[1]);
-			$picture = dirname(__FILE__)."/../_uploads2/".$picture[1];
-			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
-			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-			//if not special land
-			$markers[0]['thumb_url'] = "/_uploads2/".$dir."/thumb_".basename($picture.".png");
-			$markers[0]['img_url'] = "/_uploads2/".$dir."/450_".basename($picture.".png");
-		}
-	}
-	if(trim($markers[0]['folder'])&&!$t){ //if no picture
-		$post = unserialize(@file_get_contents($uploads_dir."/post.txt"));
-		$post['filename'] = str_replace("/var/www/vhosts/s15331327.onlinehome-server.com/httpdocs/_uploads/", "/home/pieceoft/public_html/_uploads/", $post['filename']);
-		
-		if(!trim($markers[0]['land_owner'])){
-			$markers[0]['land_owner'] = $post['land_owner'];
-		}
-		//overide email
-		if(!trim($markers[0]['email'])){
-			$markers[0]['email'] = $post['email'];
-		}
-		//overide title
-		if(!trim($markers[0]['title'])){
-			$markers[0]['title'] = $post['title_name'];
-		}
-		//overide description
-		if(!trim($markers[0]['detail'])){
-			$markers[0]['detail'] = $post['detail_name'];
-		}
-		if(trim($post['filename'])){
-			showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
-			showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
-			$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png");
-			$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png");
 			
-			/*
-			if(trim($markers[0]['land_owner'])==""){
-				$markers[0]['land_owner'] = $post['useremail'];
+			
+			$picturex = dirname(__FILE__)."/../_uploads2/".$picture[1];
+			if(!file_exists($picturex)){
+				$picturex = dirname(__FILE__)."/../_uploads2/".urldecode($picture[1]);
 			}
-			*/
+			
+			$picture = $picturex;
+			if(file_exists($picture)){
+				showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+				showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
+				//if not special land
+				$markers[0]['thumb_url'] = "/_uploads2/".$dir."/thumb_".basename($picture.".png");
+				$markers[0]['img_url'] = "/_uploads2/".$dir."/450_".basename($picture.".png");
+			}
+			else{
+				
+			}
 		}
 	}
+	
 }
 if(isset($_GET['print'])){
 	echo "<pre>";

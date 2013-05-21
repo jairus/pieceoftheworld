@@ -15,7 +15,7 @@ class land extends CI_Controller {
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
 				left join categories C on C.id = LD.category_id
-				where L.`land_special_id` is NULL order by L.`id` desc limit $start, $limit";
+				where L.`land_special_id` is NULL and (L.web_user_id is NULL or L.web_user_id<1) order by L.`id` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -53,7 +53,7 @@ class land extends CI_Controller {
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
 				left join categories C on C.id = LD.category_id
-				where L.`land_special_id` is NULL and " ;
+				where L.`land_special_id` is NULL and (L.web_user_id is NULL or L.web_user_id<1) and " ;
 		
 		if($filter=='id'){
 			$sql .= "L.id = '".mysql_real_escape_string($search)."' ";

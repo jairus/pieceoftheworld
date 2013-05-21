@@ -228,12 +228,28 @@ class specialland extends CI_Controller {
 			if(count($_POST['points'])){
 				foreach($_POST['points'] as $value){
 					list($x, $y) = explode("-", $value);
-					$sql = "insert into `land` set 
-					`x`='".mysql_real_escape_string($x)."',
-					`y`='".mysql_real_escape_string($y)."',
-					`land_special_id`='".mysql_real_escape_string($insert_id)."'
-					";
-					$this->db->query($sql);	
+					
+					$sql ="select * from `land` where 
+					`x` = '".mysql_real_escape_string($x)."' and 
+					`y` = '".mysql_real_escape_string($y)."'
+					"; 
+					$q = $this->db->query($sql);
+					$rl = $q->result_array();
+					if($rl[0]['id']){
+						$sql = "update`land` set 
+						`land_special_id`='".mysql_real_escape_string($insert_id)."'
+						where `id` = '".$rl[0]['id']."'
+						";
+						$this->db->query($sql);	
+					}
+					else{
+						$sql = "insert into `land` set 
+						`x`='".mysql_real_escape_string($x)."',
+						`y`='".mysql_real_escape_string($y)."',
+						`land_special_id`='".mysql_real_escape_string($insert_id)."'
+						";
+						$this->db->query($sql);	
+					}
 				}
 			}
 			
