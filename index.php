@@ -1513,6 +1513,7 @@ if($_GET['px']!=""){
 					}
 					xx = jQuery("#info-city").html();
 					jQuery("#info-city").html(xx+": ");
+					jQuery("#info-city").hide();
 					
 					if(gzones[i].ret.json.land_owner){
 						jQuery("#info-land_owner_container").show();
