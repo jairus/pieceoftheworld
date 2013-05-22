@@ -286,7 +286,7 @@ if($_POST['step']==1){
 							}
 							</script>
 							<input type='radio' name='po' checked onclick='showP("paypal")'> Paypal&nbsp;&nbsp;&nbsp;
-							<input type='radio' name='po' onclick='showP("skrill")'> Skrill (CreditCard / Bank Transfer)
+							<input type='radio' name='po' onclick='showP("skrill")'> Skrill (Bank Transfer)
 							</div>
 							<br /><br />
 							<div id='paypal' style='padding:10px; text-align:center' class='paymentform'>
