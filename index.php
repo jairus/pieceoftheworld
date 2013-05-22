@@ -662,32 +662,7 @@ if($_GET['px']!=""){
 		}
 		else{
 			blocksAvailableInDraggableRect = WcNE.x+'-'+WcSW.y;
-			/*
-			var BlSW = getBlockLTRB(WcSW);
-			var BlNE = getBlockLTRB(WcNE);
-			if (BlSW[2].y < BlNE[2].y) {
-				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y-1;
-			}
-			else {
-				blocksAvailableInDraggableRect = BlSW[2].x+"-"+BlNE[2].y+"_"+(BlNE[2].x-1)+"-"+(BlSW[2].y-1);
-			}
-			*/
 		}
-
-		
-		
-		
-		//onDraggableRectangleChanged(bounds);
-		
-		
-		
-		//window.searchMarker.setPosition(location);
-		//window.map.setZoom(ZOOM_LEVEL_CITY);
-		//window.map.setCenter(location);
-		
-		//scheduleDelayedCallback();
-		//document.getElementById('buy-button').disabled = false;
-		
 	}
 	
 	var numblocks = 0;
@@ -1709,7 +1684,7 @@ if($_GET['px']!=""){
 				jQuery("#info-img").unbind();
 			}
 			if(gzones[i].ret.json.land_special_id){
-				if (gzones[i].ret.json.email == masterUser) {
+				if (gzones[i].ret.json.email == masterUser) { //if unbought
 					consoleX("special unbought");
 					price = gzones[i].ret.json.price;
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
@@ -2107,6 +2082,7 @@ if($_GET['px']!=""){
 	var globallink;
 	function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 		consoleX("updatePopupWindowTabInfo");
+		jQuery("#buy-button").hide();
 		shareowner = "";
 		sharetitle = "";
 		sharedetail = "";
@@ -2227,8 +2203,14 @@ if($_GET['px']!=""){
 			consoleX(markerJSON[0]);
 			consoleX(markerJSON[0].email+"="+masterUser);
 			if (markerJSON[0].email == masterUser) {
-				if(markerJSON[0].land_special_id){
+				if(markerJSON[0].land_special_id){ //special unbought land
+					gBuyOnMarker = true; //flasg to indicate that buy button was pressed from a marker
 					price = markerJSON[0].price;
+					gsessiondetails=document.getElementById('info-detail').innerHTML;
+					setCoordsForMarkers(markerJSON[0]);
+					setSessionPrice(price, true);
+					jQuery("#buy-button").val("Buy");
+					jQuery("#buy-button").show();
 					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
 				else if(numblocks > 0){
@@ -2296,7 +2278,7 @@ if($_GET['px']!=""){
 
 		
 		//temporarily hide buy button
-		jQuery("#buy-button").hide();
+		//jQuery("#buy-button").hide();
 	}
 	
 	function updatePopupWindowTabConfig(update) {
@@ -2617,21 +2599,18 @@ if($_GET['px']!=""){
 		
 	}
 	
+	//set coordinates for boxes
 	function setCoords(){
 		total = 0;
 		datax = {};
 		datax.points = [];
 		datax.strlatlongs = [];
-		
-		
-		
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
 				datax.points.push(gzones[i].ret.points);
 				datax.strlatlongs.push(gzones[i].ret.strlatlong);
 			}
 		}
-		
 		if(gzones.length==1){
 			if(gzones[0].ret.attached){
 				ret = gzones[0].ret;
@@ -2653,9 +2632,7 @@ if($_GET['px']!=""){
 				}
 			}
 		}
-		
 		str = JSON.stringify(datax);
-		
 		jQuery.ajax({
 			dataType: "html",
 			async: false,
@@ -2666,9 +2643,46 @@ if($_GET['px']!=""){
 				
 			}
 		});
+	}
+	
+	function setCoordsForMarkers(json){
 		
-		
-		
+		consoleX("setCoordsForMarkers");
+		consoleX(json);
+		total = 0;
+		datax = {};
+		datax.points = [];
+		datax.strlatlongs = [];
+		if(json.points){
+			ret = json.points;
+			for(i=0; i<ret.length; i++){
+				worldCoordinate = new google.maps.Point(ret[i].x-1, ret[i].y-1);
+				var block = getBlockLTRB(worldCoordinate);
+				var bounds = new google.maps.LatLngBounds(
+					new google.maps.LatLng(block[0].lat(),block[0].lng()),
+					new google.maps.LatLng(block[1].lat(),block[1].lng())
+				);
+				var LtLgNE = bounds.getNorthEast();
+				var LtLgSW = bounds.getSouthWest();
+				strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+				
+				if(datax.points.indexOf(strlatlong)==-1){
+					datax.points.push(ret[i].x+"-"+ret[i].y);
+					datax.strlatlongs.push(strlatlong);
+				}
+			}
+		}
+		str = JSON.stringify(datax);
+		jQuery.ajax({
+			dataType: "html",
+			async: false,
+			type: "POST",
+			data: "data="+str+"&buydetails="+gsessiondetails,
+			url: "?coords=1",
+			success: function(data){
+				
+			}
+		});
 	}
 	
 	//ZOI
@@ -2699,9 +2713,13 @@ if($_GET['px']!=""){
 	}
 	//ZOI
 	
+	gBuyOnMarker = false;
 	function onBuyLand() {
-		calculateTotal(true); //second parameter to make the routine sync
-		setCoords();
+		if(!gBuyOnMarker){
+			calculateTotal(true); //second parameter to make the routine sync
+			setCoords();
+		}
+		gBuyOnMarker = false;
 		
 		var url = "";
 		if (document.getElementById('buy-button').value == "Buy") {
