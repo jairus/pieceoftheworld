@@ -47,6 +47,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`a`.`areatype`, 
 				`b`.`title`, 
 				`b`.`land_owner`, 
+				`b`.`price`,
 				`b`.`detail`, 
 				`c`.`useremail`
 				FROM `land` as `a` 
@@ -99,16 +100,36 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 	}
 	else if ($type == 'special') {
 		$sql = "SELECT 
-				land_special.id as id, 
+				id, 
 				owner_user_id, 
-				title, 
 				'masteruser@gmail.com' as `email`,
-				detail,
-				(SELECT x FROM land WHERE land_special_id=land_special.id order by `id` asc LIMIT 1) AS x,
-				(SELECT y FROM land WHERE land_special_id=land_special.id order by `id` asc LIMIT 1) AS y
+				(SELECT x FROM land WHERE land_special_id=land_special.id LIMIT 1) AS x,
+				(SELECT y FROM land WHERE land_special_id=land_special.id LIMIT 1) AS y,
+				(SELECT areatype FROM land WHERE land_special_id=land_special.id order by `id` asc LIMIT 1) AS areatype
 				FROM land_special WHERE 
 				`web_user_id`=0
-				";
+		";
+		$markers = dbQuery($sql, $_dblink);
+		if(count($markers)){
+			echo json_encode($markers);
+		}
+		else{
+			echo "[[]]";
+		}
+		exit();
+		/*
+		$sql = "SELECT 
+				`a`.`id`, 
+				`a`.`owner_user_id`, 
+				'masteruser@gmail.com' as `email`,
+				left join `land` as `b`
+				on (`a`.`id` = `b`.`land_special_id`)
+				FROM 
+				`land_special` as `a` 
+				WHERE 
+				`web_user_id`=0
+		";
+		*/
 	}
 	else if (!empty($land_special_id)) {
 		$sql = "SELECT 
@@ -184,10 +205,11 @@ else { //getting purchased lands (red)
 	LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
 	WHERE web_user_id <> 0";
 }
-
+$sqlx = $sql;
 $markers = dbQuery($sql, $_dblink);
 //check if special and unbought
 if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$markers[0]['land_special_id']>0){
+	
 	$sql = "select 
 		if(`web_user_id`=0, 'masteruser@gmail.com', '') as `email`, 
 		`id` as `land_special_id`,
@@ -195,17 +217,22 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 		from 
 		`land_special` where 
 		`id`='".$markers[0]['land_special_id']."'";
-	$markers = dbQuery($sql, $_dblink);
+	$markerstemp = dbQuery($sql, $_dblink);
+	foreach($markerstemp[0] as $key=>$value){
+		$markers[0][$key] = $value;
+	}
 	
-	$sql = "select * from `pictures_special` where `land_special_id`='".$markers[0]['id']."' and isMain=1";
+	
+	$sql = "select * from `pictures_special` where `land_special_id`='".$markers[0]['land_special_id']."' and isMain=1";
 	$pictures = dbQuery($sql, $_dblink);
 	$t = count($pictures);
 	
-	$sql = "select `x`, `y` from `land` where `land_special_id`='".$markers[0]['id']."'";
+	$sql = "select `x`, `y` from `land` where `land_special_id`='".$markers[0]['land_special_id']."'";
 	$points = dbQuery($sql, $_dblink);
 	if(count($points)){
 		$markers[0]['points'] = $points;
 	}
+	
 	
 	if($t){
 		//showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
@@ -213,13 +240,28 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 		//$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
 		//$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
 		$picture = explode("/_uploads2/", $pictures[0]['picture']);
-		$picture = dirname(__FILE__)."/../_uploads2/".$picture[1];
-	
-		showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
-		showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-		$markers[0]['thumb_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/thumb_".basename($picture.".png");
-		$markers[0]['img_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/450_".basename($picture.".png");
+		$dir = dirname($picture[1]);
+		
+		
+		$picturex = dirname(__FILE__)."/../_uploads2/".$picture[1];
+		if(!file_exists($picturex)){
+			$picturex = dirname(__FILE__)."/../_uploads2/".urldecode($picture[1]);
+		}
+		
+		$picture = $picturex;
+		if(file_exists($picture)){
+			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
+			//if not special land
+			$markers[0]['thumb_url'] = "/_uploads2/".$dir."/thumb_".basename($picture.".png");
+			$markers[0]['img_url'] = "/_uploads2/".$dir."/450_".basename($picture.".png");
+		}
+		else{
+			
+		}
 	}
+		
+
 }
 else if($markers[0]['owner_user_id']){ //if bought
 	if($markers[0]['id']){
@@ -280,7 +322,7 @@ else if($markers[0]['owner_user_id']){ //if bought
 }
 if(isset($_GET['print'])){
 	echo "<pre>";
-	echo $sql."\n";
+	echo $sqlx."\n";
 	echo $uploads_dir;
 	print_r($post);
 	echo "<hr>";

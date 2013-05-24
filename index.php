@@ -1110,6 +1110,7 @@ if($_GET['px']!=""){
 		}
 		else {
 			unsetGZones();
+			//alert("5");
 			if(!blocksHidden){
 				consoleX("hide blocks");
 				var i = 0;
@@ -1309,14 +1310,18 @@ if($_GET['px']!=""){
 		ret.title = "";
 		ret.points = "";
 		ret.json = "";
+		ret.attached = "";
 		hasdetails = false;
 		var blockInfo = getBlockInfo(inLatLng);
 		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
+		if(markerJSON[0].points){
+			ret.attached = markerJSON[0].points;
+		}
 		specialbought = false;
 		try{
 			owner_user_id = markerJSON[0].owner_user_id;
-			land_special_id = markerJSON[0].owner_user_id;
+			land_special_id = markerJSON[0].land_special_id;
 			if(isset(owner_user_id)||isset(land_special_id)){
 				specialbought = true;
 			}
@@ -1438,6 +1443,7 @@ if($_GET['px']!=""){
 			retx.country = rtemp.country;
 			retx.areatype = rtemp.areatype;
 		}
+		//alert(hasdetails);
 		if(!hasdetails){
 			jQuery.ajax({
 				dataType: "html",
@@ -1548,7 +1554,7 @@ if($_GET['px']!=""){
 				//consoleX(gzones[i].ret);
 				try{
 					owner_user_id = gzones[i].ret.json.owner_user_id;
-					land_special_id = gzones[i].ret.json.owner_user_id;
+					land_special_id = gzones[i].ret.json.land_special_id;
 					if(isset(owner_user_id)||isset(land_special_id)){
 						specialbought = true;
 					}
@@ -1829,6 +1835,7 @@ if($_GET['px']!=""){
 		//disable block clicking when zoomed out
 		if(map.getZoom()<17){
 			unsetGZones();
+			//alert("1");
 			return 0;
 		}
 		var projection = new MercatorProjection();
@@ -1851,6 +1858,7 @@ if($_GET['px']!=""){
 			
 		if(ret.colored){
 			unsetGZones();
+			//alert("2");
 		}
 		else{
 			//remove all colored selections
@@ -1890,9 +1898,12 @@ if($_GET['px']!=""){
 			this.ret.price = 0;
 			this.ret.active = 0;
 			this.setMap(); //remove the box
+			//consoleX(this.ret.attached);
 			if(isset(this.ret.attached)){
-				if(isset(this.ret.attached.length)){
+				//alert(this.ret.attached.length);
+				if(this.ret.attached.length > 0){
 					unsetGZones();
+					//alert("3");
 				}
 			}
 			calculateTotal(); //calculate total of 
@@ -1941,8 +1952,8 @@ if($_GET['px']!=""){
 				});
 				gattached.push(zone);
 				google.maps.event.addListener(zone, 'click', function(event){
-					
 					unsetGZones();
+					//alert("4");
 					calculateTotal(); //calculate total of 
 					updatePopupWindowTabInfoNew();
 				});
@@ -2657,18 +2668,22 @@ if($_GET['px']!=""){
 				<?php
 				if($_GET['updatedetailsspecial']){
 					?>
-					updateDetails(markersJSON[i].x, markersJSON[i].y);
+					if(markersJSON[i].areatype==""){
+						updateDetails(markersJSON[i].x, markersJSON[i].y);
+					}
 					<?php
 				}
 				
 				?>
-				var marker = new google.maps.Marker({
-					position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
-					map: map,
-					icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/gmarker.png' //'images/dgmarker.png'
-				});
-				google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, "special"); });
-				markers.push(marker);
+				if(markersJSON[i].x&&markersJSON[i].y){
+					var marker = new google.maps.Marker({
+						position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
+						map: map,
+						icon: (markersJSON[i].email == masterUser) ? 'images/gmarker.png' : 'images/gmarker.png' //'images/dgmarker.png'
+					});
+					google.maps.event.addListener(marker, 'click', function(event) { onMarkerClick(event, "special"); });
+					markers.push(marker);
+				}
 			}
 		}
 		gMarkers.push.apply(gMarkers, markers);
