@@ -140,7 +140,22 @@ if($_GET['px']!=""){
 
 	var TILE_SIZE = 629961;
 	var SAVED_POSITION = new google.maps.LatLng(51.5, 0.1); // new google.maps.LatLng(37.09024, -95.71289); //new google.maps.LatLng(31.41576, 74.26804);
-
+	function isset(){
+		var a = arguments,
+		l = a.length,
+		i = 0,
+		undef;
+		if (l === 0){
+			throw new Error('Empty isset');
+		}
+		while (i !== l){
+			if (a[i] === undef || a[i] === null){
+				return false;
+			}
+			i++;
+		}
+		return true;
+	}
 	function bound(value, opt_min, opt_max) {
 		if (opt_min != null) value = Math.max(value, opt_min);
 		if (opt_max != null) value = Math.min(value, opt_max);
@@ -1210,6 +1225,15 @@ if($_GET['px']!=""){
 							}
 						}
 					}
+					url = "/checkwater.php/?latlong="+LatLng;
+					jQuery.ajax({
+						dataType: "html",
+						url: url,
+						async:false,
+						success: function(data){
+							areatype = data;
+						}
+					});
 					if(city){
 						price = 9.90;
 					}
@@ -1217,21 +1241,12 @@ if($_GET['px']!=""){
 						price = 5.90;
 					}
 					else{
-						url = "/checkwater.php/?latlong="+LatLng;
-						jQuery.ajax({
-							dataType: "html",
-							url: url,
-							async:false,
-							success: function(data){
-								areatype = data;
-								if(areatype=="water"){
-									price = 0.90;
-								}
-								else{
-									price = 10.90;
-								}
-							}
-						});
+						if(areatype=="water"){
+							price = 0.90;
+						}
+						else{
+							price = 10.90;
+						}
 					}
 					
 					//consoleX(city); //address_components[0].long_name+"<---");
@@ -1294,8 +1309,18 @@ if($_GET['px']!=""){
 		var blockInfo = getBlockInfo(inLatLng);
 		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
-		//returnText = '[[]]';
-		if (returnText != '[[]]') {
+		specialbought = false;
+		try{
+			owner_user_id = markerJSON[0].owner_user_id;
+			land_special_id = markerJSON[0].owner_user_id;
+			if(isset(owner_user_id)||isset(land_special_id)){
+				specialbought = true;
+			}
+		}
+		catch(e){
+			specialbought = false;
+		}		
+		if (specialbought) { //if bought or special
 			if(markerJSON[0].email){ //if special land unpaid
 				consoleX(markerJSON[0].land_special_id);
 				ret.price = markerJSON[0].price;
@@ -1432,7 +1457,18 @@ if($_GET['px']!=""){
 		specialbought = false;
 		for(i=0; i<gzones.length; i++){
 			if(gzones[i].ret.active){
-				if(gzones[i].ret.json){ //if a special land or a bought land
+			
+				try{
+					owner_user_id = gzones[i].ret.json.owner_user_id;
+					land_special_id = gzones[i].ret.json.owner_user_id;
+					if(isset(owner_user_id)||isset(land_special_id)){
+						specialbought = true;
+					}
+				}
+				catch(e){
+					specialbought = false;
+				}
+				if(specialbought){ //if a special land or a bought land
 					jQuery("#info-title").html(gzones[i].ret.json.title);
 					jQuery("#info-detail").html(gzones[i].ret.json.detail);
 					jQuery("#info-city").show();

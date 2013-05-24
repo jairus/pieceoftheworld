@@ -31,6 +31,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			";
 		$markers = dbQuery($sql, $_dblink);			
 		
+		
 		if($markers[0]['land_special_id']){
 			$sql = "SELECT 
 				if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
@@ -40,6 +41,10 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`a`.`land_special_id`, 
 				`a`.`land_detail_id`, 
 				`a`.`web_user_id` as `owner_user_id`, 
+				`a`.`country`, 
+				`a`.`region`, 
+				`a`.`city`, 
+				`a`.`areatype`, 
 				`b`.`title`, 
 				`b`.`land_owner`, 
 				`b`.`detail`, 
@@ -60,6 +65,10 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`a`.`land_special_id`, 
 				`a`.`land_detail_id`, 
 				`a`.`web_user_id` as `owner_user_id`, 
+				`a`.`country`, 
+				`a`.`region`, 
+				`a`.`city`, 
+				`a`.`areatype`, 
 				`b`.`title`, 
 				`b`.`land_owner`, 
 				`b`.`detail`, 
@@ -72,9 +81,18 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				";
 		}
 		else{
-			//return blank
-			echo "[[]]";
-			exit();
+			$sql = "SELECT 
+				`a`.`id` AS `id`, 
+				`a`.`x`, 
+				`a`.`y`, 
+				`a`.`country`, 
+				`a`.`region`, 
+				`a`.`city`, 
+				`a`.`areatype`
+				FROM `land` as `a` 
+				where 
+				`a`.`x`=$x1 and `a`.`y`=$y1 
+				";
 		}
 		
 		//echo $sql;
@@ -86,9 +104,11 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				title, 
 				'masteruser@gmail.com' as `email`,
 				detail,
-				(SELECT x FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS x,
-				(SELECT y FROM land WHERE land_special_id=land_special.id and `web_user_id`=0 LIMIT 1) AS y
-				FROM land_special WHERE 1";
+				(SELECT x FROM land WHERE land_special_id=land_special.id order by `id` asc LIMIT 1) AS x,
+				(SELECT y FROM land WHERE land_special_id=land_special.id order by `id` asc LIMIT 1) AS y
+				FROM land_special WHERE 
+				`web_user_id`=0
+				";
 	}
 	else if (!empty($land_special_id)) {
 		$sql = "SELECT 
@@ -201,7 +221,7 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 		$markers[0]['img_url'] = "/_uploads2/specialland/".$markers[0]['id']."/images/450_".basename($picture.".png");
 	}
 }
-else{
+else if($markers[0]['owner_user_id']){ //if bought
 	if($markers[0]['id']){
 		$markers[0]['email'] = $markers[0]['useremail'];
 	}

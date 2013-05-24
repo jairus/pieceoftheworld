@@ -162,6 +162,14 @@ if($_GET['px']!=""){
 	var TILE_SIZE = 629961;
 	var SAVED_POSITION = new google.maps.LatLng(51.5, 0.1); // new google.maps.LatLng(37.09024, -95.71289); //new google.maps.LatLng(31.41576, 74.26804);
 
+	function isset(v){
+		if(typeof(v)!='undefined'){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
 	function bound(value, opt_min, opt_max) {
 		if (opt_min != null) value = Math.max(value, opt_min);
 		if (opt_max != null) value = Math.min(value, opt_max);
@@ -1185,6 +1193,7 @@ if($_GET['px']!=""){
 		return result;
 	}
 	var blockmoreinfocache = {};
+	
 	function getBlockMoreInfo(LatLng){
 		if(blockmoreinfocache[LatLng]){
 			return blockmoreinfocache[LatLng];
@@ -1218,6 +1227,15 @@ if($_GET['px']!=""){
 							}
 						}
 					}
+					url = "/checkwater.php/?latlong="+LatLng;
+					jQuery.ajax({
+						dataType: "html",
+						url: url,
+						async:false,
+						success: function(data){
+							areatype = data;
+						}
+					});
 					if(city){
 						price = 9.90;
 					}
@@ -1225,21 +1243,12 @@ if($_GET['px']!=""){
 						price = 5.90;
 					}
 					else{
-						url = "/checkwater.php/?latlong="+LatLng;
-						jQuery.ajax({
-							dataType: "html",
-							url: url,
-							async:false,
-							success: function(data){
-								areatype = data;
-								if(areatype=="water"){
-									price = 0.90;
-								}
-								else{
-									price = 10.90;
-								}
-							}
-						});
+						if(areatype=="water"){
+							price = 0.90;
+						}
+						else{
+							price = 10.90;
+						}
 					}
 					
 					//consoleX(city); //address_components[0].long_name+"<---");
@@ -1292,6 +1301,7 @@ if($_GET['px']!=""){
 	
 	
 	function getBlockInfoNew(inLatLng, strlatlong, worldCoordinate){
+		consoleX("getBlockInfoNew");
 		var ret = {};
 		var retx = {};
 		ret.inLatLng = inLatLng;
@@ -1299,16 +1309,24 @@ if($_GET['px']!=""){
 		ret.title = "";
 		ret.points = "";
 		ret.json = "";
-		ret.attached = "";
+		hasdetails = false;
 		var blockInfo = getBlockInfo(inLatLng);
-		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y, blockInfo[2].x, blockInfo[2].y);
+		var returnText = ajaxGetMarker2(map, blockInfo[2].x, blockInfo[2].y);
 		var markerJSON = JSON.parse(returnText);
-		//returnText = '[[]]';
-		if (returnText != '[[]]') {
-			if(markerJSON[0].points){ //if there are points (attached land)
+		specialbought = false;
+		try{
+			owner_user_id = markerJSON[0].owner_user_id;
+			land_special_id = markerJSON[0].owner_user_id;
+			if(isset(owner_user_id)||isset(land_special_id)){
+				specialbought = true;
+			}
+		}
+		catch(e){
+			specialbought = false;
+		}		
+		if (specialbought) { //if bought or special
+			if(markerJSON[0].email){ //if special land unpaid
 				consoleX(markerJSON[0].land_special_id);
-				consoleX(markerJSON[0].points);
-				ret.attached = markerJSON[0].points;
 				ret.price = markerJSON[0].price;
 			}
 			else{ //for bidding only
@@ -1322,7 +1340,41 @@ if($_GET['px']!=""){
 			ret.title = markerJSON[0].title;
 			ret.detail = markerJSON[0].detail;
 			ret.json = markerJSON[0];
-			rtemp = getBlockMoreInfo(strlatlong);
+			
+			if(
+				isset(markerJSON[0].country)
+				||isset(markerJSON[0].region)
+				||isset(markerJSON[0].city)
+				||isset(markerJSON[0].areatype)
+				){
+				rtemp = {};
+				hasdetails = true;
+				if(isset(markerJSON[0].city)){
+					price = 9.90;
+				}
+				else if(isset(markerJSON[0].country)||isset(markerJSON[0].region)){
+					price = 5.90;
+				}
+				else{
+					if(markerJSON[0].areatype=="water"){
+						price = 0.90;
+					}
+					else{
+						price = 10.90;
+					}
+				}
+				
+				rtemp.country = markerJSON[0].country;
+				rtemp.region = markerJSON[0].region;
+				rtemp.city = markerJSON[0].city;
+				rtemp.areatype = markerJSON[0].areatype;
+				rtemp.price = price;
+			}
+			else{
+				rtemp = getBlockMoreInfo(strlatlong); //more info
+			}
+			
+			
 			ret.city = rtemp.city;
 			ret.region = rtemp.region;
 			ret.country = rtemp.country;
@@ -1337,7 +1389,38 @@ if($_GET['px']!=""){
 			
 		}
 		else{
-			rtemp = getBlockMoreInfo(strlatlong);
+			if(
+				isset(markerJSON[0].country)
+				||isset(markerJSON[0].region)
+				||isset(markerJSON[0].city)
+				||isset(markerJSON[0].areatype)
+				){
+				rtemp = {};
+				hasdetails = true;
+				if(isset(markerJSON[0].city)){
+					price = 9.90;
+				}
+				else if(isset(markerJSON[0].country)||isset(markerJSON[0].region)){
+					price = 5.90;
+				}
+				else{
+					if(markerJSON[0].areatype=="water"){
+						price = 0.90;
+					}
+					else{
+						price = 10.90;
+					}
+				}
+				
+				rtemp.country = markerJSON[0].country;
+				rtemp.region = markerJSON[0].region;
+				rtemp.city = markerJSON[0].city;
+				rtemp.areatype = markerJSON[0].areatype;
+				rtemp.price = price;
+			}
+			else{
+				rtemp = getBlockMoreInfo(strlatlong); //more info
+			}
 			ret.price = rtemp.price;
 			ret.city = rtemp.city;
 			ret.region = rtemp.region;
@@ -1355,18 +1438,18 @@ if($_GET['px']!=""){
 			retx.country = rtemp.country;
 			retx.areatype = rtemp.areatype;
 		}
-		//jairea
-		//retx.json = "";
-		jQuery.ajax({
-			dataType: "html",
-			async: true,
-			type: "POST",
-			data: "data="+JSON.stringify(retx),
-			url: "?saveblockdetails=1",
-			success: function(data){
-				
-			}
-		});
+		if(!hasdetails){
+			jQuery.ajax({
+				dataType: "html",
+				async: true,
+				type: "POST",
+				data: "data="+JSON.stringify(retx),
+				url: "?saveblockdetails=1",
+				success: function(data){
+					
+				}
+			});
+		}
 		return ret; //returns ret object
 	}
 	
@@ -1463,7 +1546,17 @@ if($_GET['px']!=""){
 			if(gzones[i].ret.active){
 				//consoleX("lalala");
 				//consoleX(gzones[i].ret);
-				if(gzones[i].ret.json){ //if a special land or a bought land
+				try{
+					owner_user_id = gzones[i].ret.json.owner_user_id;
+					land_special_id = gzones[i].ret.json.owner_user_id;
+					if(isset(owner_user_id)||isset(land_special_id)){
+						specialbought = true;
+					}
+				}
+				catch(e){
+					specialbought = false;
+				}
+				if(specialbought){ //if a special land or a bought land
 					jQuery("#info-title").html(gzones[i].ret.json.title);
 					jQuery("#info-detail").html(gzones[i].ret.json.detail);
 					jQuery("#info-city").show();
@@ -1797,8 +1890,10 @@ if($_GET['px']!=""){
 			this.ret.price = 0;
 			this.ret.active = 0;
 			this.setMap(); //remove the box
-			if(this.ret.attached.length){
-				unsetGZones();
+			if(isset(this.ret.attached)){
+				if(isset(this.ret.attached.length)){
+					unsetGZones();
+				}
 			}
 			calculateTotal(); //calculate total of 
 			updatePopupWindowTabInfoNew();
@@ -2428,7 +2523,7 @@ if($_GET['px']!=""){
 		ret = getBlockInfoNew(inLatLng, strlatlong, worldCoordinate);
 	}
 	
-	function setGreenMarkers(map, gMarkers, markersJSON){
+	function setGreenMarkers(map, gMarkers, markersJSON){ //this are actually red markers (bought lands)
 		var config_showownland = getCookie("config_showownland");
 		var config_showownedland = getCookie("config_showownedland");
 		var user_email = getCookie("user_email");
@@ -2521,7 +2616,7 @@ if($_GET['px']!=""){
 	}
 	
 	
-	function setRedMarkers(map, gMarkers, markersJSON){
+	function setRedMarkers(map, gMarkers, markersJSON){ //this are actually green markers (special land)
 		var config_showownland = getCookie("config_showownland");
 		var config_showownedland = getCookie("config_showownedland");
 		var config_showimportantplaces = getCookie("config_showimportantplaces");
@@ -2559,6 +2654,14 @@ if($_GET['px']!=""){
 					markers.push(marker);
 				}
 				*/
+				<?php
+				if($_GET['updatedetailsspecial']){
+					?>
+					updateDetails(markersJSON[i].x, markersJSON[i].y);
+					<?php
+				}
+				
+				?>
 				var marker = new google.maps.Marker({
 					position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
 					map: map,
