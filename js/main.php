@@ -1,3 +1,7 @@
+<?php
+session_start();
+header('Content-Type: application/javascript');
+?>
 var fillColorAcquiredPlot = "#FF0000";
 var fillColorAcquiredSpecialArea = "#FF0000";
 var fillColorSpecialArea = "#00FF00";
@@ -216,6 +220,7 @@ function setCoordsForMarkers(json){
 
 /************************show functions******************************/
 function showWorldView(object) {
+	//alert('test');
 	if (map) {
 		map.setZoom(ZOOM_LEVEL_WORLD);
 		map.setMapTypeId(google.maps.MapTypeId.HYBRID);
@@ -253,8 +258,16 @@ function showInfo() {
 //ZOI
 
 function showPopupWindowTabInfo(isSelected) {
-	document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
-	document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
+	if(isSelected){
+		jQuery("#info-span").show();
+		jQuery("#info-span-noselection").hide();
+	}
+	else{
+		jQuery("#info-span-noselection").show();
+		jQuery("#info-span").hide();
+	}
+	//document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
+	//document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
 }
 
 /*******************************************************************/
@@ -1075,7 +1088,8 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 			if (gzones[i].ret.json.email == masterUser) { //if unbought
 				consoleX("special unbought");
 				price = gzones[i].ret.json.price;
-				document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+				jQuery("#info-detail").html(jQuery("#info-detail").html()+ '<br /><br />Price: $<span id="theprice">'+price+"</span>");
+				//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				jQuery("#buy-button").val("Buy");
 				jQuery("#buy-button").show();
 				for(x in detailsobjarr){
@@ -1108,7 +1122,8 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	
 	globallink = link;
 	//link = encodeURIComponent(link);
-	sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+	sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+jQuery('#info-img').attr("src")+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+	//sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 
 	//remove fb like button if the previously clicked land is valid
 	jQuery('#fbLikeHolder').html('');
@@ -1449,10 +1464,10 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 	jQuery("#fbsharelink").hide();
 	jQuery("#sharethisloc").hide();
 	showPopupWindowTabInfo(true);
-	document.getElementById('info-latitude').innerHTML = inLatLng.lat().toFixed(5);
-	document.getElementById('info-longitude').innerHTML = inLatLng.lng().toFixed(5);
-	
-	
+	jQuery('#info-latitude').html(inLatLng.lat().toFixed(5));
+	jQuery('#info-longitude').html(inLatLng.lng().toFixed(5));
+	//document.getElementById('info-latitude').innerHTML = inLatLng.lat().toFixed(5);
+	//document.getElementById('info-longitude').innerHTML = inLatLng.lng().toFixed(5);
 	
 	
 	//document.getElementById('buy-latitude').innerHTML = inLatLng.lat().toFixed(5);
@@ -1481,11 +1496,15 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			consoleX(updateproc[x1+"-"+y1]);
 			returnText = data;
 			markerJSON = JSON.parse(returnText);
-			document.getElementById('info-land_owner_container').style.display="none";
-			document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
+			jQuery("#info-land_owner_container").hide();
+			jQuery("#info-img").attr("src", "images/place_holder_small.png?_=1");
+			//document.getElementById('info-land_owner_container').style.display="none";
+			//document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
 			if (returnText != '[[]]') {
-				document.getElementById('info-title').innerHTML = markerJSON[0].title;
-				document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
+				jQuery('#info-title').html(markerJSON[0].title);
+				jQuery('#info-detail').html(markerJSON[0].detail);
+				//document.getElementById('info-title').innerHTML = markerJSON[0].title;
+				//document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
 				
 				//ZOI
 				jQuery("#thumbs").empty();					
@@ -1517,17 +1536,21 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				//ZOI
 
 				if(markerJSON[0].land_owner){
-					document.getElementById('info-land_owner').innerHTML = markerJSON[0].land_owner;
-					document.getElementById('info-land_owner_container').style.display="";
+					jQuery("#info-land_owner").html(markerJSON[0].land_owner);
+					jQuery('#info-land_owner_container').show();
+					//document.getElementById('info-land_owner').innerHTML = markerJSON[0].land_owner;
+					//document.getElementById('info-land_owner_container').style.display="";
 				}
 				else{
-					document.getElementById('info-land_owner').innerHTML = "";
+					jQuery("#info-land_owner").html("");
+					//document.getElementById('info-land_owner').innerHTML = "";
 				}
 				//ajaxExtractLandPicture(markerJSON[0].id);
 				//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 				//alert(markerJSON[0].thumb_url);
 				if(markerJSON[0].thumb_url){
-					document.getElementById('info-img').src = markerJSON[0].thumb_url;
+					jQuery("#info-img").attr("src", markerJSON[0].thumb_url);
+					//document.getElementById('info-img').src = markerJSON[0].thumb_url;
 					jQuery("#info-lightbox").attr("href", markerJSON[0].img_url );
 					xtitle = "";
 					if(markerJSON[0].land_owner){
@@ -1563,47 +1586,58 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 					if(markerJSON[0].land_special_id){ //special unbought land
 						gBuyOnMarker = true; //flasg to indicate that buy button was pressed from a marker
 						price = markerJSON[0].price;
-						gsessiondetails=document.getElementById('info-detail').innerHTML;
+						gsessiondetails=jQuery('#info-detail').html();
+						//gsessiondetails=document.getElementById('info-detail').innerHTML;
 						setCoordsForMarkers(markerJSON[0]);
 						setSessionPrice(price, true);
 						jQuery("#buy-button").val("Buy");
 						jQuery("#buy-button").show();
-						document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+						jQuery("#info-detail").html(jQuery("#info-detail").html()+'<br /><br />Price: $<span id="theprice">'+price+"</span>");
+						//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 					}
 					else if(numblocks > 0){
 						price = "";
 						//price = (numblocks*9.90);
 						//price = price.toFixed(2);
-						document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+						jQuery("#info-detail").html(jQuery("#info-detail").html()+'<br /><br />Price: $<span id="theprice">'+price+"</span>");
+						//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 						setCity(strlatlong, 1, numblocks);
 					}
-					document.getElementById('buy-button').value = "Buy";
+					jQuery("#buy-button").val("Buy");
+					//document.getElementById('buy-button').value = "Buy";
 				}
 				else {
-					document.getElementById('buy-button').value = "Bid";
+					jQuery("#buy-button").val("Bid");
+					//document.getElementById('buy-button').value = "Bid";
 					setCity(strlatlong);
 				}
 				//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 			}
 			else {
 				//alert(updatePopupWindowTabInfo);
-				document.getElementById('info-title').innerHTML = 'Your title here.';
-				document.getElementById('info-detail').innerHTML = 'Your description here.';
+				jQuery("#info-title").html('Your title here.');
+				jQuery("#info-detail").html('Your description here.');
+				//document.getElementById('info-title').innerHTML = 'Your title here.';
+				//document.getElementById('info-detail').innerHTML = 'Your description here.';
 				
 				if(markerJSON[0].land_special_id){
 					price = markerJSON[0].price;
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+					jQuery("#info-detail").html(jQuery("#info-detail").html()+ '<br /><br />Price: $<span id="theprice">'+price+"</span>");
+					//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 				}
 				else if(numblocks > 0){
 					price = "";
 					//price = (numblocks*9.90);
 					//price = price.toFixed(2);
-					document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
+					jQuery("#info-detail").html(jQuery("#info-detail").html()+ '<br /><br />Price: $<span id="theprice">'+price+"</span>");
+					//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 					setCity(strlatlong, 1, numblocks);
 				}
-
-				document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
-				document.getElementById('buy-button').value = "Buy";
+				
+				jQuery("#info-img").attr("src", 'images/place_holder_small.png?_=1');
+				jQuery("#buy-button").val("Buy");
+				//document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
+				//document.getElementById('buy-button').value = "Buy";
 
 				//document.getElementById('buy-img').src = 'images/place_holder.png';
 			}
@@ -1618,7 +1652,8 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			
 			globallink = link;
 			//link = encodeURIComponent(link);
-			sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+			sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+jQuery("#info-img").attr("src")+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+			//sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 			
 			jQuery("#fbsharelink").attr("href", sharelink);
 			jQuery("#fbsharelink").show();
@@ -1641,47 +1676,9 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 	
 }
 
-function updatePopupWindowTabConfig(update) {
-	if (update == false) {
-		document.getElementById("config_showownland").checked = (getCookie("config_showownland") == "false") ? false : true;
-		document.getElementById("config_showimportantplaces").checked = (getCookie("config_showimportantplaces") == "false") ? false : true;
-		document.getElementById("config_showownedland").checked = (getCookie("config_showownedland") == "false") ? false : true;
-		document.getElementById("config_showgrid").checked = (getCookie("config_showgrid") == "false") ? false : true;
-	}
-	else {
-		if (document.getElementById("config_showownland").checked == true && getCookie("config_showownland") == "false") {
-			var user_email = getCookie("user_email");
-			if (user_email == "false" || user_email == "") {
-				document.getElementById("config_showownland").checked = false;
-				alert("You can not view your own land unless you provide us\nyour registered email address. Please use 'Settings' screen\nto enter your registered email address.");
-			}
-			/*
-			var msg = "";
-			if (user_email == "false" || user_email == "") {
-				user_email = "";
-				var user_email = window.prompt("Enter your registered email address?", user_email);
-				if (user_email != "") {
-					setCookie("user_email", user_email, 365);
-				}
-			}
-			else {
-				var user_email = window.prompt("Please confirm that this your registered email address?", user_email);
-				if (user_email != "") {
-					setCookie("user_email", user_email, 365);
-				}
-			}
-			*/
-		}
-		setCookie("config_showownland", document.getElementById("config_showownland").checked.toString(), 365);
-		setCookie("config_showimportantplaces", document.getElementById("config_showimportantplaces").checked.toString(), 365);
-		setCookie("config_showownedland", document.getElementById("config_showownedland").checked.toString(), 365);
-		setCookie("config_showgrid", document.getElementById("config_showgrid").checked.toString(), 365);
-		onIdle(true);
-	}
-}
-
 function updatePopupWindowTabSearch() {
-	var place = document.getElementById("search_topplaces").value;
+	var place = jQuery("#search_topplaces").val();
+	//var place = document.getElementById("search_topplaces").value;
 	var location;
 	var zoom;
 	if (place == "Atlantis") {
@@ -2009,13 +2006,13 @@ function onBuyLand() {
 	gBuyOnMarker = false;
 	
 	var url = "";
-	if (document.getElementById('buy-button').value == "Buy") {
-		//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
-		url = "bidbuyland.php?type=buy&thumb="+document.getElementById('info-img').src+"&link="+globallink;
+	if (jQuery('#buy-button').val() == "Buy") {
+		//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+		url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 	}
 	else {
-		//url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+document.getElementById('info-img').src+"&link="+globallink;
-		url = "bidbuyland.php?type=bid&thumb="+document.getElementById('info-img').src+"&link="+globallink;
+		//url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+		url = "bidbuyland.php?type=bid&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 	}
 	//window.open(url);
 	jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
@@ -2063,7 +2060,7 @@ var lastEvent;
 
 function initialize(zoomVal, mapTypeIdVal) {
 	//updatePopupWindowTabNews();
-	updatePopupWindowTabConfig(false);
+	//updatePopupWindowTabConfig(false);
 	if (map) {
 		SAVED_POSITION = map.getCenter();
 	}
@@ -2147,7 +2144,8 @@ function initialize(zoomVal, mapTypeIdVal) {
 }
 google.maps.event.addDomListener(window, 'load', showWorldView);
 jQuery(function() {
-	document.getElementById('config_email').value = getCookie('user_email');
+	//alert('testsss');
+	jQuery('#config_email').val(getCookie('user_email'));
 	jQuery('.cpanelwnd').draggable();
 	xleft = jQuery(window).width() - jQuery('.cpanelwnd').width();
 	jQuery('.cpanelwnd').css({left: xleft, top: '60px'});
@@ -2178,3 +2176,5 @@ jQuery(function() {
 		}
 	});
 });
+
+//alert('test here');

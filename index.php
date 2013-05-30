@@ -94,7 +94,11 @@ if($_GET['px']!=""){
 	$_SESSION['px'] = $_GET['px'];
 	exit();
 }
-
+if(!trim($_GET['latlong'])&&!trim($_GET['xy'])){
+	if (!isset($_GET['skip'])&&(isset($_SESSION['showTutorial']) == false || $_SESSION['showTutorial'] != 1)) {
+		
+	}
+}
 ?>
 <!doctype html>
 <html lang="us">
@@ -115,7 +119,7 @@ if($_GET['px']!=""){
 <link href="http://cdn.pieceoftheworld.co/css/main.css" rel="stylesheet">
 
 <!-- main javascript file -->
-<link href="http://pieceoftheworld.co/js/main.js" rel="stylesheet">
+<script src="http://pieceoftheworld.co/js/main.php?_<?php echo time(); ?>" type="text/javascript"></script>
 
 
 <script type="text/javascript" src="jquery-lightbox-0.5/js/jquery.lightbox-0.5.js"></script>
@@ -148,6 +152,8 @@ if($_GET['px']!=""){
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   jQuery(".cboxiframe").colorbox({iframe:true, width:"80%", height:"80%"});
+  
+  
 </script>
 </head>
 
