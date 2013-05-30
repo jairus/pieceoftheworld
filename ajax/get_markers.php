@@ -6,6 +6,11 @@ $x1 = @$_GET['x1'];
 $y1 = @$_GET['y1'];
 $x2 = @$_GET['x2'];
 $y2 = @$_GET['y2'];
+
+if($x1>$x2){
+	$x2 = 630000;
+}
+
 $conOptions = GetGlobalConnectionOptions();
 $con = mysql_connect($conOptions['server'], $conOptions['username'], $conOptions['password']);
 if (!$con) { die('[[]]'); }
@@ -24,7 +29,11 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`x`, 
 			`y`, 
 			`land_special_id`, 
-			`web_user_id`
+			`web_user_id`,
+			`a`.`country`, 
+			`a`.`region`, 
+			`a`.`city`, 
+			`a`.`areatype`
 			FROM `land` as `a` 
 			where 
 			`x`=$x1 and `y`=$y1 
@@ -99,6 +108,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 		//echo $sql;
 	}
 	else if ($type == 'special') {
+		/*
 		$sql = "SELECT 
 				id, 
 				owner_user_id, 
@@ -109,7 +119,49 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				FROM land_special WHERE 
 				`web_user_id`=0
 		";
+		*/
+		$sql = "SELECT 
+				id, 
+				owner_user_id, 
+				if((`web_user_id`=0), 'masteruser@gmail.com', '') as `email`,
+				`web_user_id` as `owner_user_id`, 
+				`web_user_id`,
+				(SELECT x FROM land WHERE land_special_id=land_special.id LIMIT 1) AS x,
+				(SELECT y FROM land WHERE land_special_id=land_special.id LIMIT 1) AS y,
+				(SELECT country FROM land WHERE land_special_id=land_special.id LIMIT 1) AS country
+				FROM land_special
+		";
 		$markers = dbQuery($sql, $_dblink);
+		
+		$sql = "SELECT 
+			`a`.`id` AS `id`, 
+			`a`.`x`, 
+			`a`.`y`, 
+			`a`.`land_special_id`, 
+			`a`.`land_detail_id`, 
+			`a`.`web_user_id` as `owner_user_id`, 
+			`b`.`title`, 
+			`b`.`land_owner`, 
+			`b`.`detail`, 
+			`c`.`useremail`
+			FROM `land` as `a` 
+			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
+			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+			WHERE web_user_id <> 0 group by `a`.`land_detail_id`";
+		$markers2 = dbQuery($sql, $_dblink);	
+		$markers = array_merge($markers, $markers2);
+	
+		
+		if($_GET['bounded']){
+			$markers = clipMarkers($markers, $x1, $x2, $y1, $y2);
+		}
+		
+		//echo count($markers)."<br>";
+		if($_GET['trim']){
+			$markers = trimMarkers($markers);
+		}
+		//echo count($markers)."<--<br>";
+		
 		if(count($markers)){
 			echo json_encode($markers);
 		}
@@ -138,16 +190,16 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				FROM land 
 				WHERE land_special_id=".$land_special_id;
 	}
-	else { //non special blocks
+	else {
 		if($_GET['multi']){
 			$sql = "SELECT 
-			if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`,
+			if((`a`.`land_special_id` IS NOT NULL and `e`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`,
+			if((`a`.`land_special_id` IS NOT NULL), `e`.`web_user_id`, `a`.`web_user_id`) as `owner_user_id`,
 			`a`.`id` AS `id`, 
 			`a`.`x`, 
 			`a`.`y`, 
 			`a`.`land_special_id`,
 			`a`.`land_detail_id`, 
-			`a`.`web_user_id` as `owner_user_id`, 
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
@@ -157,9 +209,10 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`) 
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
 			LEFT JOIN `videos` as `d` ON (`b`.`id` = `d`.`land_id`) 
+			LEFT JOIN `land_special` as `e` ON (`a`.`land_special_id` = `e`.`id`) 
 			where `a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
 			and 
-			(web_user_id <> 0 or land_special_id <> 0)
+			(a.web_user_id <> 0 or a.land_special_id <> 0)
 			
 			";
 			
@@ -167,12 +220,12 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 		else{
 			$sql = "SELECT 
 			if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
+			if((`a`.`land_special_id` IS NOT NULL), `e`.`web_user_id`, `a`.`web_user_id`) as `owner_user_id`,
 			`a`.`id` AS `id`, 
 			`a`.`x`, 
 			`a`.`y`, 
 			`a`.`land_special_id`, 
 			`a`.`land_detail_id`, 
-			`a`.`web_user_id` as `owner_user_id`, 
 			`b`.`title`, 
 			`b`.`land_owner`, 
 			`b`.`detail`, 
@@ -180,10 +233,11 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+			LEFT JOIN `land_special` as `e` ON (`a`.`land_special_id` = `e`.`id`) 
 			where 
 			`a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
 			and 
-			(web_user_id <> 0 or land_special_id <> 0)
+			(`a`.`web_user_id` <> 0 or `a`.`land_special_id` <> 0)
 			";
 		}
 	}
@@ -207,6 +261,10 @@ else { //getting purchased lands (red)
 }
 $sqlx = $sql;
 $markers = dbQuery($sql, $_dblink);
+if($_GET['trim']){
+	$markers = trimMarkers($markers);
+}
+
 //check if special and unbought
 if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$markers[0]['land_special_id']>0){
 	
@@ -253,8 +311,8 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 			//if not special land
-			$markers[0]['thumb_url'] = "/_uploads2/".$dir."/thumb_".basename($picture.".png");
-			$markers[0]['img_url'] = "/_uploads2/".$dir."/450_".basename($picture.".png");
+			$markers[0]['thumb_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
+			$markers[0]['img_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
 		}
 		else{
 			
@@ -310,8 +368,8 @@ else if($markers[0]['owner_user_id']){ //if bought
 				showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 				showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 				//if not special land
-				$markers[0]['thumb_url'] = "/_uploads2/".$dir."/thumb_".basename($picture.".png");
-				$markers[0]['img_url'] = "/_uploads2/".$dir."/450_".basename($picture.".png");
+				$markers[0]['thumb_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
+				$markers[0]['img_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
 			}
 			else{
 				
@@ -349,8 +407,7 @@ else{
 
 /************* FUNCTIONS BELOW ****************/
 
-function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $returnim = false) 
-{
+function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $returnim = false) {
 	$info = pathinfo($src);
 
 	$img = @imagecreatefromjpeg( $src );
@@ -471,5 +528,71 @@ function updateLandViewCounter($x, $y)
 		}	
 	
 	}
+}
+
+function inMarkers($marker, $marr){
+	$t = count($marr);
+	if($_GET['trim']){
+		$d = $_GET['trim'];
+	}
+	else{
+		$d = 10000;
+	}
+	for($i=0; $i<$t; $i++){
+		if(
+			$marr[$i]['x'] + $d >= $marker['x'] && $marr[$i]['x'] - $d <= $marker['x'] && 
+			$marr[$i]['y'] + $d >= $marker['y'] && $marr[$i]['y'] - $d <= $marker['y'] 
+		){
+			return $i;
+			break;
+		}
+	}
+	return -1;
+}
+function clipMarkers($markers, $x1, $x2, $y1, $y2){
+	$marr = array();
+	$t = count($markers);
+	$d = 0;
+	//echo $x1."-", $x2."-", $y1."-", $y2."-","<br>";
+	//echo "<pre>";
+	//print_r($markers);
+	for($i=0; $i<$t; $i++){
+		if(
+			$markers[$i]['x'] >= $x1 && $markers[$i]['x'] <= $x2 && 
+			$markers[$i]['y'] >= $y1 && $markers[$i]['y'] <= $y2
+		){
+			$marr[] = $markers[$i];
+		}
+	}
+	//echo "<hr>";
+	//print_r($marr);
+	return $marr;
+}
+function trimMarkers($markers){
+	$m = array();
+	$marr = array();
+	$t = count($markers);
+	//echo "<pre>";
+	//print_r($markers);
+	
+	for($i=0; $i<$t; $i++){
+		$ret = inMarkers($markers[$i], $marr);
+		//echo "<pre>";
+		//print_r($markers[$i]);
+		//echo $ret."<-<br>";
+		if($ret==-1){
+			$m = $markers[$i];
+			$m['count'] = 1;
+			$marr[] = $m;
+			//echo $m['country']."= 1<br>";
+		}
+		else{
+			//echo $marr[$ret]['country']."++<br>";
+			$marr[$ret]['count']++;
+		}
+		//echo "<hr>";
+	}
+	return array_values($marr); 
+	
 }
 ?>

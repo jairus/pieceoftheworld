@@ -1197,6 +1197,17 @@ if($_GET['px']!=""){
 			return blockmoreinfocache[LatLng];
 		}
 		ret = {};
+		
+		
+		/*
+		ret.city = "block";
+		ret.region = "block";
+		ret.country = "block";
+		ret.areatype = "block";
+		ret.price = 0;
+		return ret;
+		*/
+		
 		url = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+LatLng+"&sensor=true";
 		var price = 0;
 		var city = "";
