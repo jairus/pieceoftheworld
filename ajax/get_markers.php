@@ -8,7 +8,7 @@ $x2 = @$_GET['x2'];
 $y2 = @$_GET['y2'];
 
 if($x1>$x2){
-	$x2 = 630000;
+	$x2 = 629961;
 }
 
 $conOptions = GetGlobalConnectionOptions();
