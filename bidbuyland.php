@@ -1,4 +1,5 @@
 <?php
+include_once(dirname(__FILE__)."/emailer/email.php");
 require_once('ajax/user_fxn.php');
 session_start();
 
@@ -622,6 +623,43 @@ else if(strtolower($_GET['type'])=='buy'){
 	<?php
 }
 else if(strtolower($_GET['type'])=='bid'){
+	if($_GET['type']&&$_GET['thumb']&&$_GET['link']){
+		$_SESSION["GET"] = $_GET;
+	}
+
+	$sql = "SELECT * FROM `land` WHERE `id`='".$_SESSION["GET"]['land_id']."' LIMIT 0,1";
+	$land = dbQuery($sql, $_dblink);
+	
+	$sql = "SELECT * FROM `land_detail` WHERE `id`='".$land[0]['land_detail_id']."' LIMIT 0,1";
+	$land_detail = dbQuery($sql, $_dblink);
+
+	if($_POST['register']){
+		if(!checkEmail(trim($_POST['user_email']))){
+			?> <script>self.location="?f=<?php echo $_GET['f']; ?>&error=Invalid E-mail address&type=bid";</script> <?php
+			exit();
+		}else if(!trim($_POST['user_bid'])){
+			?> <script>self.location="?f=<?php echo $_GET['f']; ?>&error=Please enter your Bid&type=bid";</script> <?php
+			exit();
+		}else{
+			$from = $_POST['user_email'];
+			$fromname = $_POST['user_email'];
+			$bouncereturn = $_POST['user_email']; //where the email will forward in cases of bounced email
+			$subject = "Bid for ".$land_detail[0]['title'];
+			$message = '<b>User Bid: </b>'.$_POST['user_bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
+			/*$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
+			$emails[0]['name'] = "PieceOfTheWorld.Co";*/
+			$emails[0]['email'] = "zbsjr@yahoo.com";
+			$emails[0]['name'] = "Zoilo Bravo";
+			$attachments[0] = "";
+			$attachments[1] = "";
+			emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1);
+			?>
+			<script>self.location="?f=<?php echo $_GET['f']; ?>&success=You have successfully submitted your Bid&type=bid";</script>
+			<?php
+			
+			exit();
+		}
+	}
 	?>
 	<script>
 	function addCommas(nStr){
@@ -677,32 +715,50 @@ else if(strtolower($_GET['type'])=='bid'){
 		font-family:verdana;
 	}
 	</style>
-	<form enctype="multipart/form-data" method='post' action='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>' id='theform' style='margin:0px'>
-	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	<form enctype="multipart/form-data" method='post' action='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>' id='theform' name='theform' style='margin:0px'>
+	<table width="350" border="0" cellspacing="0" cellpadding="0">
+	  <?php if(isset($_GET['error'])){ ?>
 	  <tr>
-		<td width="150">* Email</td>
-		<td><input type='text' id='user_email' placeholder="e.g. john@email.com" /></td>
+		<td colspan="2" style='color:red; font-weight:bold;'><?php echo $_GET['error']; ?></td>
+	  </tr>
+	  <tr>
+		<td colspan="2">&nbsp;</td>
+	  </tr>
+	  <?php } ?>
+	  
+	  <?php if(isset($_GET['success'])){ ?>
+	  <tr>
+		<td colspan="2" style='color:#00FF00; font-weight:bold;'><?php echo $_GET['success']; ?></td>
+	  </tr>
+	  <tr>
+		<td colspan="2">&nbsp;</td>
+	  </tr>
+	  <?php }else{ ?>
+	  <tr>
+		<td width="100">* Email</td>
+		<td><input type='hidden' name='register' value="1"><input type='text' id='user_email' name='user_email' placeholder="e.g. john@email.com" /></td>
 	  </tr>
 	  <tr>
 		<td colspan="2">&nbsp;</td>
 	  </tr>
 	  <tr>
-		<td width="150">* Bid (<i>USD</i>)</td>
-		<td><input type='text' id='user_bid' placeholder="e.g. 500.00" style="width:80px;" onBlur="this.value=fNum(this.value);" /></td>
+		<td>* Bid (<i>USD</i>)</td>
+		<td><input type='text' id='user_bid' name='user_bid' placeholder="e.g. 500.00" style="width:80px;" onBlur="this.value=fNum(this.value);" /></td>
 	  </tr>
 	  <tr>
 		<td colspan="2">&nbsp;</td>
 	  </tr>
 	  <tr>
-		<td>* Message</td>
-		<td><textarea name='description' placeholder="e.g. I would like to bid for this land"></textarea></td>
+		<td>Message</td>
+		<td><textarea id='user_message' name='user_message' placeholder="e.g. I would like to bid for this land"></textarea></td>
 	  </tr>
 	  <tr>
 		<td colspan="2">&nbsp;</td>
 	  </tr>
 	  <tr>
-		<td colspan="2"><input type='submit' id='submitbidbutton' class='longbutton' value="Submit your bid" style='width:100%;'></td>
+		<td colspan="2"><input type='submit' id='submitbidbutton' class='longbutton' value="Submit your bid" style='width:100%;' /></td>
 	  </tr>
+	  <?php } ?>
 	</table>
 	</form>
 	<?php

@@ -45,6 +45,7 @@
 			<input class='longbutton' type='button' id='loading-button' value="Loading..." style='cursor:default; display:none' />
 			<input class='longbutton' type='button' id='buy-button' onClick="onBuyLand();" value="Click to Buy" />
 			<input class='longbutton' type="button" id="clicktozoom" value="Click to Zoom" style="display:none">
+			<input type="hidden" id="land_id" name="land_id" />
 		</td>
 	  </tr>
 	  <tr>
