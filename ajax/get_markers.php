@@ -8,7 +8,7 @@ $x2 = @$_GET['x2'];
 $y2 = @$_GET['y2'];
 
 if($x1>$x2){
-	$x2 = 629961;
+	$x2 = 630000;
 }
 
 $conOptions = GetGlobalConnectionOptions();
@@ -42,6 +42,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 		
 		
 		if($markers[0]['land_special_id']){
+			/*
 			$sql = "SELECT 
 				if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
 				`a`.`id` AS `id`, 
@@ -49,7 +50,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`a`.`y`, 
 				`a`.`land_special_id`, 
 				`a`.`land_detail_id`, 
-				`a`.`web_user_id` as `owner_user_id`, 
+				`b`.`web_user_id` as `owner_user_id`, 
 				`a`.`country`, 
 				`a`.`region`, 
 				`a`.`city`, 
@@ -65,6 +66,23 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				where 
 				`a`.`x`=$x1 and `a`.`y`=$y1 
 				";
+			*/
+			$sql = "select 
+				`a`.`id`,
+				`a`.`id` as `land_special_id`,
+				`a`.`web_user_id` as `owner_user_id`, 
+				`a`.`title`,
+				`a`.`land_owner`, 
+				`a`.`price`,
+				`a`.`detail`,
+				`b`.`useremail`,
+				'".$x1."' as `x`,
+				'".$y1."' as `y`,
+				'' as `email`
+				FROM `land_special` as `a`
+				LEFT JOIN `web_users` as `b` ON (`a`.`web_user_id` = `b`.`id`) 
+				where `a`.`id`='".$markers[0]['land_special_id']."'
+			";
 		}
 		else if($markers[0]['web_user_id']){
 			$sql = "SELECT 
@@ -163,7 +181,9 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 		//echo count($markers)."<--<br>";
 		
 		if(count($markers)){
-			echo json_encode($markers);
+			$r = json_encode($markers);
+			file_put_contents(dirname(__FILE__)."/cache/test.txt", $r);
+			echo $r;
 		}
 		else{
 			echo "[[]]";
@@ -200,9 +220,9 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`a`.`y`, 
 			`a`.`land_special_id`,
 			`a`.`land_detail_id`, 
-			`b`.`title`, 
-			`b`.`land_owner`, 
-			`b`.`detail`, 
+			if((`a`.`land_special_id` IS NULL), `b`.`title`, `e`.`title`) as `title`, 
+			if((`a`.`land_special_id` IS NULL), `b`.`land_owner`, `e`.`land_owner`) as `land_owner`, 
+			if((`a`.`land_special_id` IS NULL), `b`.`detail`, `e`.`detail`) as `detail`, 
 			`c`.`useremail`,
 			`d`.`video`
 			FROM `land` as `a` 
@@ -220,25 +240,26 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 		else{
 			$sql = "SELECT 
 			if((`a`.`land_special_id` IS NOT NULL and `a`.`web_user_id`=0), 'masteruser@gmail.com', '') as `email`, 
-			if((`a`.`land_special_id` IS NOT NULL), `e`.`web_user_id`, `a`.`web_user_id`) as `owner_user_id`,
+			if((`a`.`land_special_id` IS NOT NULL), `d`.`web_user_id`, `a`.`web_user_id`) as `owner_user_id`,
 			`a`.`id` AS `id`, 
 			`a`.`x`, 
 			`a`.`y`, 
 			`a`.`land_special_id`, 
 			`a`.`land_detail_id`, 
-			`b`.`title`, 
-			`b`.`land_owner`, 
-			`b`.`detail`, 
+			if((`a`.`land_special_id` IS NULL), `b`.`title`, `d`.`title`) as `title`, 
+			if((`a`.`land_special_id` IS NULL), `b`.`land_owner`, `d`.`land_owner`) as `land_owner`, 
+			if((`a`.`land_special_id` IS NULL), `b`.`detail`, `d`.`detail`) as `detail`, 
 			`c`.`useremail`
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-			LEFT JOIN `land_special` as `e` ON (`a`.`land_special_id` = `e`.`id`) 
+			LEFT JOIN `land_special` as `d` ON (`a`.`land_special_id` = `d`.`id`) 
 			where 
 			`a`.`x`>=$x1 and `a`.`x`<=$x2 and `a`.`y`>=$y1 and `a`.`y`<=$y2
 			and 
 			(`a`.`web_user_id` <> 0 or `a`.`land_special_id` <> 0)
 			";
+			//echo $sql;
 		}
 	}
 }
@@ -250,16 +271,19 @@ else { //getting purchased lands (red)
 	`a`.`land_special_id`, 
 	`a`.`land_detail_id`, 
 	`a`.`web_user_id` as `owner_user_id`, 
-	`b`.`title`, 
-	`b`.`land_owner`, 
-	`b`.`detail`, 
+	if((`b`.`title`), `b`.`title`, `d`.`title`) as `title`, 
+	if((`b`.`land_owner`), `b`.`land_owner`, `d`.`land_owner`) as `land_owner`, 
+	if((`b`.`detail`), `b`.`detail`, `d`.`detail`) as `detail`, 
 	`c`.`useremail`
 	FROM `land` as `a` 
 	LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 	LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
+	LEFT JOIN `land_special` as `d` ON (`a`.`land_special_id` = `d`.`id`)
 	WHERE web_user_id <> 0";
 }
 $sqlx = $sql;
+
+//echo $sqlx;
 $markers = dbQuery($sql, $_dblink);
 if($_GET['trim']){
 	$markers = trimMarkers($markers);
@@ -308,11 +332,11 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 		
 		$picture = $picturex;
 		if(file_exists($picture)){
-			showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+			showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 			//if not special land
-			$markers[0]['thumb_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
-			$markers[0]['img_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
+			$markers[0]['thumb_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
+			$markers[0]['img_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
 		}
 		else{
 			
@@ -322,6 +346,8 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 
 }
 else if($markers[0]['owner_user_id']){ //if bought
+	
+	
 	if($markers[0]['id']){
 		$markers[0]['email'] = $markers[0]['useremail'];
 	}
@@ -336,43 +362,60 @@ else if($markers[0]['owner_user_id']){ //if bought
 				$markers[0]['points'] = $points;
 			}
 		}
-		/*
-		if($markers[0]['land_detail_id']){ //if user bought multiple lands
-			$sql = "select `x`, `y` from `land` where `land_special_id`='".$markers[0]['land_special_id']."'";
-			$points = dbQuery($sql, $_dblink);
-			if(count($points)){
-				$markers[0]['points'] = $points;
+		
+		if($markers[0]['land_special_id']){ //if special bought
+			$sql = "select * from `pictures_special` where `land_special_id`='".$markers[0]['land_special_id']."' and isMain=1";
+			$pictures = dbQuery($sql, $_dblink);
+			$t = count($pictures);
+			
+			if($t){
+				$picture = explode("/_uploads2/", $pictures[0]['picture']);
+				$dir = dirname($picture[1]);	
+				$picturex = dirname(__FILE__)."/../_uploads2/".$picture[1];
+				if(!file_exists($picturex)){
+					$picturex = dirname(__FILE__)."/../_uploads2/".urldecode($picture[1]);
+				}
+				
+				$picture = $picturex;
+				if(file_exists($picture)){
+					showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
+					//if not special land
+					$markers[0]['thumb_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
+					$markers[0]['img_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
+				}
+				else{
+					
+				}
 			}
 		}
-		*/
-		$sql = "select * from `pictures` where `land_id`='".$markers[0]['land_detail_id']."' and isMain=1";
-		//echo $sql;
-		$pictures = dbQuery($sql, $_dblink);
-		$t = count($pictures);
-		if($t){
-			//showThumb($post['filename'], 120, 120*1.3, dirname($post['filename'])."/"."thumb_".basename($post['filename']).".png", true);
-			//showThumb($post['filename'], "450", "300", dirname($post['filename'])."/"."450_".basename($post['filename']).".png", false);
-			//$markers[0]['thumb_url'] = "/_uploads/".$markers[0]['folder']."/thumb_".basename($post['filename'].".png?_=".time());
-			//$markers[0]['img_url'] = "/_uploads/".$markers[0]['folder']."/450_".basename($post['filename'].".png?_=".time());
-			$picture = explode("/_uploads2/", $pictures[0]['picture']);
-			$dir = dirname($picture[1]);
-			
-			
-			$picturex = dirname(__FILE__)."/../_uploads2/".$picture[1];
-			if(!file_exists($picturex)){
-				$picturex = dirname(__FILE__)."/../_uploads2/".urldecode($picture[1]);
-			}
-			
-			$picture = $picturex;
-			if(file_exists($picture)){
-				showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
-				showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-				//if not special land
-				$markers[0]['thumb_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
-				$markers[0]['img_url'] = "http://cdn.pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
-			}
-			else{
+		else{
+			$sql = "select * from `pictures` where `land_id`='".$markers[0]['land_detail_id']."' and isMain=1";
+			//echo $sql;
+			$pictures = dbQuery($sql, $_dblink);
+			$t = count($pictures);
+			if($t){
+				$picture = explode("/_uploads2/", $pictures[0]['picture']);
+				$dir = dirname($picture[1]);
 				
+				
+				$picturex = dirname(__FILE__)."/../_uploads2/".$picture[1];
+				if(!file_exists($picturex)){
+					$picturex = dirname(__FILE__)."/../_uploads2/".urldecode($picture[1]);
+				}
+				
+				$picture = $picturex;
+				if(file_exists($picture)){
+					//showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+					showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
+					//if not special land
+					$markers[0]['thumb_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
+					$markers[0]['img_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
+				}
+				else{
+					
+				}
 			}
 		}
 	}
@@ -407,7 +450,7 @@ else{
 
 /************* FUNCTIONS BELOW ****************/
 
-function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $returnim = false) {
+function showThumb_force($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $returnim = false) {
 	$info = pathinfo($src);
 
 	$img = @imagecreatefromjpeg( $src );
@@ -475,7 +518,12 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 		$side2 = $thumbHeight;
 		$tmp_img = imagecreatetruecolor( $side1, $side2 );
 		$white = imagecolorallocate($tmp_img, 255, 255, 255);
-		imagefill($tmp_img, 0, 0, $white);
+		//imagefill($tmp_img, 0, 0, $white);
+		$dstTransparent = imagecolorallocatealpha($tmp_img, 0, 0, 0, 127);
+		imagefill($tmp_img, 0, 0, $dstTransparent);
+        imagecolortransparent($tmp_img, $dstTransparent);
+		imagealphablending($tmp_img, true);	
+		imagesavealpha($tmp_img, true);
 		
 		imagecopyresampled( $tmp_img, $img, (($side1-$new_width)/2), (($side2-$new_height)/2), 0, 0, $new_width, $new_height, $width, $height );
 	}
@@ -484,7 +532,12 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 		$side2 = $thumbHeight;
 		$tmp_img = imagecreatetruecolor( $side1, $side2 );
 		$white = imagecolorallocate($tmp_img, 255, 255, 255);
-		imagefill($tmp_img, 0, 0, $white);
+		//imagefill($tmp_img, 0, 0, $white);
+		$dstTransparent = imagecolorallocatealpha($tmp_img, 0, 0, 0, 127);
+		imagefill($tmp_img, 0, 0, $dstTransparent);
+        imagecolortransparent($tmp_img, $dstTransparent);
+		imagealphablending($tmp_img, true);	
+		imagesavealpha($tmp_img, true);
 		
 		imagecopyresampled( $tmp_img, $img, (($side1-$new_width)/2), (($side2-$new_height)/2), 0, 0, $new_width, $new_height, $width, $height );
 	}
@@ -509,6 +562,85 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 	}
 	else{
 		return $tmp_img;
+	}
+	// save thumbnail into a file
+	
+}
+
+function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $returnim = false) {
+	$img = @imagecreatefromjpeg( $src );
+	if(!$img){
+		$img = @imagecreatefrompng ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgif ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromwbmp ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgd2 ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgd2part ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgd ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromstring ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromxbm ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromxpm ( $src );
+	}
+	
+	if(!$img){
+		
+		return false;
+	}	
+	$width = imagesx( $img );
+	$height = imagesy( $img );
+	$new_width = $width;
+	$new_height = $height;
+	// calculate thumbnail size
+	if($width>$height)
+	{
+		if($thumbWidth<$width)
+		{
+			$new_width = $thumbWidth;
+			$new_height = floor( $height * ( $thumbWidth / $width ) );
+		}
+	}
+	else
+	{
+		if($thumbHeight<$height)
+		{
+			$new_height = $thumbHeight;
+			$new_width = floor( $width * ( $thumbHeight / $height ) );
+		}
+	}
+	// create a new temporary image
+	$tmp_img = imagecreatetruecolor( $new_width, $new_height );
+	$white = imagecolorallocate($tmp_img, 255, 255, 255);
+	imagefill($tmp_img, 0, 0, $white);
+	// copy and resize old image into new image 
+	$dstTransparent = imagecolorallocatealpha($tmp_img, 0, 0, 0, 127);
+	imagefill($tmp_img, 0, 0, $dstTransparent);
+	imagecolortransparent($tmp_img, $dstTransparent);
+	imagealphablending($tmp_img, true);	
+	imagesavealpha($tmp_img, true);
+	imagecopyresampled( $tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
+	
+	
+	if(!trim($dest)){
+		imagepng( $tmp_img , null, 0);
+	}
+	else{
+		@imagepng ( $tmp_img , $dest, 0);
+		//imagepng ( $tmp_img , null, 0);
 	}
 	// save thumbnail into a file
 	

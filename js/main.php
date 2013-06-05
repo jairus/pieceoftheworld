@@ -10,7 +10,7 @@ var strokeColor = "#5D5D5D";
 var strokeOpacity = "1";
 var strokeWeight = "0.4";
 var masterUser = 'masteruser@gmail.com';	
-var enableGeoLoc = true;
+var enableGeoLoc = false;
 var geoLoc;
 if (enableGeoLoc != false) {
 	// Try HTML5 geolocation
@@ -266,6 +266,13 @@ function showPopupWindowTabInfo(isSelected) {
 		jQuery("#info-span-noselection").show();
 		jQuery("#info-span").hide();
 	}
+	
+	try{
+		openClosePopUp('info');
+	}
+	catch(e){
+		consoleX(e.message);
+	}
 	//document.getElementById('info-span-noselection').style.display = (isSelected == true) ? 'none' : 'block';
 	//document.getElementById('info-span').style.display = (isSelected == true) ? 'block' : 'none';
 }
@@ -275,7 +282,7 @@ function showPopupWindowTabInfo(isSelected) {
 /*************************   events     ****************************/
 
 function onClick(event) { //onclick on anywhere in map
-	showPopupWindowTabInfo(false); //hide info tab
+	// showPopupWindowTabInfo(false); //hide info tab
 }
 var numblocks = 0;
 function onZoomChanged(){
@@ -397,6 +404,9 @@ function setCity(LatLng, box, numblocks){
 	
 }
 function onMarkerClick(event, type) {
+	consoleX("onMarkerClick");
+	jQuery('#image-button').show();
+	jQuery("#loading-button").show();
 	//ZOI
 	jQuery("#info table").show();
 	jQuery("#info #thumbs").hide();
@@ -432,6 +442,7 @@ function onMarkerClick(event, type) {
 	var projection = new MercatorProjection();
 	strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
 	updatePopupWindowTabInfo(event.latLng, strlatlong);
+	jQuery("#loading-button").hide();
 }
 
 
@@ -467,11 +478,7 @@ function onIdle(manualCall) {
 			for(i=0; i<globalRedMarkers.length; i++){
 				globalRedMarkers[i].setMap(null);
 			}
-			for(i=0; i<globalGreenMarkers.length; i++){
-				globalGreenMarkers[i].setMap(null);
-			}
 			globalRedMarkers = [];
-			globalGreenMarkers = [];
 		}
 		else{ //if marker mode
 			ajaxAddMarkers(map);
@@ -776,7 +783,9 @@ function unsetGZones(){ //unset global selected blocks (zones)
 		gattached[i].setMap(null);
 	}
 	gattached = [];
-	updatePopupWindowTabInfoNew();
+	if(map.getZoom()>=17){ //if block view only
+		updatePopupWindowTabInfoNew();
+	}
 }
 
 function calculateTotal(sync){ //calculated total blocks
@@ -806,7 +815,11 @@ function cancelBox(i){
 
 
 function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
+	consoleX("updatePopupWindowTabInfoNew");
+	jQuery("#loading-button").hide();
 	jQuery("#buy-button").hide();
+	jQuery('#image-button').hide();
+	jQuery('#likecolumn_id').hide();
 	if(!gzones.length){
 		showPopupWindowTabInfo(false);
 		return false;
@@ -818,6 +831,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	sharedetail = "";
 	sharetext = "";
 	
+	jQuery("#likecolumn_id").hide();
 	jQuery("#fbsharelink").hide();
 	jQuery("#sharethisloc").hide();
 	showPopupWindowTabInfo(false);
@@ -870,8 +884,8 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				jQuery("#info-city").show();
 				var fbLikeLink = "http://pieceoftheworld.co/viewLand.php?landId=" + gzones[i].ret.json['id'] + "&specialLandId=" + gzones[i].ret.json['land_special_id'];
 				//alert(fbLikeLink);
-				jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
-				FB.XFBML.parse();
+				//jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+				//FB.XFBML.parse();
 				if(gzones[i].ret.city){
 					jQuery("#info-city").html(gzones[i].ret.city);
 				}
@@ -917,7 +931,6 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				}
 				
 				specialbought = true;
-				
 				
 				break;
 			}
@@ -1056,7 +1069,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 		jQuery("#info-img").unbind();
 			
-		jQuery("#buy-button").val("Buy");
+		jQuery("#buy-button").val("Click to Buy");
 		jQuery("#buy-button").show();
 		details += "<hr />Total: USD "+total.toFixed(2);
 		jQuery("#info-title").html("Buy Land");
@@ -1090,7 +1103,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				price = gzones[i].ret.json.price;
 				jQuery("#info-detail").html(jQuery("#info-detail").html()+ '<br /><br />Price: $<span id="theprice">'+price+"</span>");
 				//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
-				jQuery("#buy-button").val("Buy");
+				jQuery("#buy-button").val("Click to Buy");
 				jQuery("#buy-button").show();
 				for(x in detailsobjarr){
 					detail = x + " USD " + detailsobjarr[x].price  + " x " + detailsobjarr[x].count ;
@@ -1099,12 +1112,16 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				}
 			}
 			else{
+				jQuery("#buy-button").val("Click to Bid");
+				jQuery("#buy-button").show();
+			
 				consoleX("special bought");
 			}
 		}
 		else{
 			consoleX("not special bought");
 		}
+		
 		showPopupWindowTabInfo(true);
 	}
 	else{
@@ -1126,6 +1143,9 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	//sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 
 	//remove fb like button if the previously clicked land is valid
+	likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='+link+'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+	jQuery("#likecolumn_id").html(likehtml);
+	jQuery("#likecolumn_id").show();
 	jQuery('#fbLikeHolder').html('');
 
 	jQuery("#fbsharelink").attr("href", sharelink);
@@ -1136,7 +1156,8 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 var gzones = []; //selected blocks
 var gattached = []; //attached blocks from 1 block
 
-function putBox(event){ //event when a block is clicked
+function putBox(event, inLatLng){ //event when a block is clicked
+	consoleX("putBox");
 	//disable block clicking when zoomed out
 	if(map.getZoom()<17){
 		unsetGZones();
@@ -1144,8 +1165,13 @@ function putBox(event){ //event when a block is clicked
 		return 0;
 	}
 	var projection = new MercatorProjection();
-	var worldCoordinate = projection.fromLatLngToPoint(event.latLng);
-	
+	if(isset(inLatLng)){
+		xlatLng = inLatLng;
+	}
+	else{
+		xlatLng = event.latLng;
+	}
+	var worldCoordinate = projection.fromLatLngToPoint(xlatLng);
 	worldCoordinate.x = Math.floor(worldCoordinate.x);
 	worldCoordinate.y = Math.floor(worldCoordinate.y);
 	var block = getBlockLTRB(worldCoordinate);
@@ -1160,7 +1186,8 @@ function putBox(event){ //event when a block is clicked
 	jQuery("#tabs").tabs("select",0);
 	
 	
-	showPopupWindowTabInfo(false);
+	jQuery("#buy-button").hide();
+	jQuery("#loading-button").show();
 	/***************************/
 	ret = {};
 	//put in the box
@@ -1203,12 +1230,17 @@ function putBox(event){ //event when a block is clicked
 	setTimeout(
 	function(){
 		//new update popup info
-		ret = getBlockInfoNew(event.latLng, strlatlong, worldCoordinate);
+		ret = getBlockInfoNew(xlatLng, strlatlong, worldCoordinate);
 		if(ret.colored){
 			unsetGZones();
 			//alert("2");
 		}
 		else{
+			if(isset(inLatLng)){
+				zone.setMap(null);
+				unsetGZones();
+				return 0;
+			}
 			//remove all colored selections
 			for(i=0; i<gzones.length; i++){
 				if(gzones[i].ret.colored==1){
@@ -1289,6 +1321,10 @@ function drawRect(lt, rb, color, opacity) { //draw the actual graphic in the goo
 		opacity = 0;
 	}
 	strokeColor = "#ffff00"; //yellow
+	//consoleX("-");
+	//consoleX("strokeColor "+strokeColor);
+	//consoleX("color "+color);
+	//consoleX("opacity "+opacity);
 	//strokeColor = "#00fff0"; //light blue
 	//consoleX(strokeOpacity);
 	strokeOpacity = 0.9;
@@ -1332,6 +1368,7 @@ function drawBlocks(map) {// draw the blocks
 	returnText = inreturnTextCache(hStart, vStart, hEnd, vEnd);
 	//consoleX(returnText);
 	if(!returnText){
+		//consoleX("!returnText");
 		allowance = 0.20;
 		returnText = ajaxGetBlocks(map, (hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance));
 		rtc = new returnTextClass((hStart*1)-Math.round(hStart*allowance), (vStart*1)-Math.round(vStart*allowance), (hEnd*1)+Math.round(hEnd*allowance), (vEnd*1)+Math.round(vEnd*allowance), returnText);
@@ -1351,7 +1388,7 @@ function drawBlocks(map) {// draw the blocks
 					color = "";
 					opacity = 0;
 					var result = getBlockLTRB(new google.maps.Point(cnt2, cnt1));
-					
+					//consoleX(result[0]+"-"+result[1]);
 					if(window.rectanglesxy.indexOf(result[0]+"-"+result[1])<0){
 						
 						if (returnText != '[[]]') {
@@ -1397,6 +1434,7 @@ function drawBlocks(map) {// draw the blocks
 			}
 		}
 	}
+	process0();
 }
 /****************************************************************/
 
@@ -1457,10 +1495,13 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 	jQuery("#info-land_owner_container").hide();
 	jQuery("#info-land_owner").html("");
 	jQuery("#info-city").hide();
-	jQuery("#info-title").html("");
+	jQuery("#info-title").html("Loading...");
 	jQuery("#info-detail").html("");
 	
+	jQuery("#info-img").attr("src", "images/place_holder_small.png?_=1");
+	jQuery("#clicktozoom").hide();
 	
+	jQuery("#likecolumn_id").hide();
 	jQuery("#fbsharelink").hide();
 	jQuery("#sharethisloc").hide();
 	showPopupWindowTabInfo(true);
@@ -1590,7 +1631,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 						//gsessiondetails=document.getElementById('info-detail').innerHTML;
 						setCoordsForMarkers(markerJSON[0]);
 						setSessionPrice(price, true);
-						jQuery("#buy-button").val("Buy");
+						jQuery("#buy-button").val("Click to Buy");
 						jQuery("#buy-button").show();
 						jQuery("#info-detail").html(jQuery("#info-detail").html()+'<br /><br />Price: $<span id="theprice">'+price+"</span>");
 						//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
@@ -1603,12 +1644,12 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 						//document.getElementById('info-detail').innerHTML  = document.getElementById('info-detail').innerHTML + '<br /><br />Price: $<span id="theprice">'+price+"</span>";
 						setCity(strlatlong, 1, numblocks);
 					}
-					jQuery("#buy-button").val("Buy");
-					//document.getElementById('buy-button').value = "Buy";
+					jQuery("#buy-button").val("Click to Buy");
+					//document.getElementById('buy-button').value = "Click to Buy";
 				}
 				else {
-					jQuery("#buy-button").val("Bid");
-					//document.getElementById('buy-button').value = "Bid";
+					jQuery("#buy-button").val("Click to Bid");
+					jQuery("#buy-button").show();
 					setCity(strlatlong);
 				}
 				//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
@@ -1635,9 +1676,9 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				}
 				
 				jQuery("#info-img").attr("src", 'images/place_holder_small.png?_=1');
-				jQuery("#buy-button").val("Buy");
+				jQuery("#buy-button").val("Click to Buy");
 				//document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
-				//document.getElementById('buy-button').value = "Buy";
+				//document.getElementById('buy-button').value = "Click to Buy";
 
 				//document.getElementById('buy-img').src = 'images/place_holder.png';
 			}
@@ -1655,6 +1696,11 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+jQuery("#info-img").attr("src")+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 			//sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 			
+			
+			likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='+link+'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+			jQuery("#likecolumn_id").html(likehtml);
+			jQuery("#likecolumn_id").show();
+	
 			jQuery("#fbsharelink").attr("href", sharelink);
 			jQuery("#fbsharelink").show();
 			jQuery("#sharethisloc").show();
@@ -1662,8 +1708,8 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			// for facebook like button. only like sold land, sold specialland, unsold specialland
 			//if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
 			var fbLikeLink = "http://pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
-			jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
-			FB.XFBML.parse();
+			//jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
+			//FB.XFBML.parse();
 			//} else {
 			//    jQuery('#fbLikeHolder').html('');
 			//}
@@ -1671,6 +1717,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			
 			//temporarily hide buy button
 			//jQuery("#buy-button").hide();
+			jQuery("#clicktozoom").show();
 		}
 	});
 	
@@ -1830,28 +1877,50 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				if(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y].map!=map){
 					markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y].setMap(map);
 				}
+				
 				if(isset(markersJSON[i].count)){
 					icon = 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
+					//zoomshell
+					google.maps.event.clearListeners(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click');
+					google.maps.event.addListener(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click', function(event) { 
+						consoleX("zoomshell")
+						var projection = new MercatorProjection();
+						var point = {};
+						point.x = this.ret.x;
+						point.y = this.ret.y;
+						var inLatLng = projection.fromPointToLatLng(point);
+						var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
+						//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+						if(map.getZoom()<8){
+							map.setZoom(8);
+						}
+						else if(map.getZoom()<10){
+							map.setZoom(10);
+						}
+						
+						map.setCenter(loc);
+					});
 				}
 				else{
 					if(markersJSON[i].owner_user_id>0){
-						icon = 'http://cdn.pieceoftheworld.co/images/marker_blue.png';
+						icon = 'http://pieceoftheworld.co/images/marker_blue_30.png';
 						if(isset(markersJSON[i].land_detail_id)){
 							if(markersJSON[i].land_detail_id>0){
-								icon = 'http://cdn.pieceoftheworld.co/images/marker_blue.png';
+								icon = 'http://pieceoftheworld.co/images/marker_blue_30.png';
 							}
 						}
 					}
 					else{
-						icon = 'http://cdn.pieceoftheworld.co/images/marker_blue.png';
+						icon = 'http://pieceoftheworld.co/images/marker_blue_30.png';
 					}
+					google.maps.event.clearListeners(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click');
 					google.maps.event.addListener(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click', function(event) { 
 						onMarkerClick(event, "special"); 
 					});
 					
 				}
 				markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y].setIcon(icon);
-				consoleX(markersJSON[i].x+"-"+markersJSON[i].y+" nakalagay na so skip "+markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y].ret.count);
+				//consoleX(markersJSON[i].x+"-"+markersJSON[i].y+" nakalagay na so skip "+markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y].ret.count);
 				pass = false;
 			}
 			if(pass){
@@ -1864,13 +1933,34 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 						icon: 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : ""),
 						ret: markersJSON[i]
 					});
+					//zoomshell
+					google.maps.event.addListener(marker, 'click', function(event) { 
+						consoleX("zoomshell")
+						var projection = new MercatorProjection();
+						var point = {};
+						point.x = this.ret.x;
+						point.y = this.ret.y;
+						var inLatLng = projection.fromPointToLatLng(point);
+						var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
+						//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+						if(map.getZoom()<8){
+							map.setZoom(8);
+						}
+						else if(map.getZoom()<10){
+							map.setZoom(10);
+						}
+						
+						map.setCenter(loc);
+					});
+					
+					
 				}
 				else{
 					if(markersJSON[i].owner_user_id>0){
-						img = 'http://cdn.pieceoftheworld.co/images/marker_blue.png';
+						img = 'http://pieceoftheworld.co/images/marker_blue_30.png';
 						if(isset(markersJSON[i].land_detail_id)){
 							if(markersJSON[i].land_detail_id>0){
-								img = 'http://cdn.pieceoftheworld.co/images/marker_blue.png';
+								img = 'http://pieceoftheworld.co/images/marker_blue_30.png';
 							}
 						}
 						
@@ -1886,7 +1976,7 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 						});
 					}
 					else{
-						img = 'http://cdn.pieceoftheworld.co/images/marker_blue.png';
+						img = 'http://pieceoftheworld.co/images/marker_blue_30.png';
 						consoleX(img);
 						var marker = new google.maps.Marker({
 							position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
@@ -1908,10 +1998,10 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 	consoleX("hide markers not in markersrefnew");
 	for(key in markersref){
 		if(isset(markersrefnew[key])){
-			consoleX(key+" is in count "+markersref[key].ret.count);
+			//consoleX(key+" is in count "+markersref[key].ret.count);
 		}
 		else{
-			consoleX(key+" should be out count "+markersref[key].ret.count);
+			//consoleX(key+" should be out count "+markersref[key].ret.count);
 			markersref[key].setMap(null);
 		}
 	}
@@ -1977,6 +2067,21 @@ function ajaxAddRedMarkers(map, force) { //they are not actually red markers... 
 			url = 'ajax/get_markers.php?type=special&trim=2000&'+bounds;
 		}
 		else{
+			<?php
+			/*
+			if($_GET['test']){
+				$_GET['type']='special';
+				$_GET['trim']='10000';
+				include_once("../ajax/get_markers.php");
+			}
+			*/
+			?>
+			data = "<?php echo addslashes(file_get_contents(dirname(__FILE__)."/../ajax/cache/test_.txt")); ?>";
+			var markersJSON = JSON.parse(data);
+			globalRedJSONArr[z] = markersJSON;
+			setRedMarkers(map, markersJSON);
+			loadedrz = z;
+			return 1;
 			url = 'ajax/get_markers.php?type=special&trim=10000';
 		}
 		z = url;
@@ -2006,7 +2111,7 @@ function onBuyLand() {
 	gBuyOnMarker = false;
 	
 	var url = "";
-	if (jQuery('#buy-button').val() == "Buy") {
+	if (jQuery('#buy-button').val() == "Click to Buy") {
 		//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 		url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 	}
@@ -2130,14 +2235,17 @@ function initialize(zoomVal, mapTypeIdVal) {
 		?>
 		var projection = new MercatorProjection();
 		var point = {};
-		point.x = <?php echo $x;?>;
-		point.y = <?php echo $y;?>;
+		point.x = <?php echo $x-1;?>;
+		point.y = <?php echo $y-1;?>;
 		var inLatLng = projection.fromPointToLatLng(point);
 		var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
 		//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
 		map.setZoom(17);
 		map.setCenter(loc);
-		jQuery("#clicktozoom").hide();
+		var result = getBlockLTRB(new google.maps.Point(point.x, point.y));
+		putBox(null, result[0]);
+		//updatePopupWindowTabInfo(inLatLng);
+		//jQuery("#clicktozoom").hide();
 		<?php
 	}
 	?>

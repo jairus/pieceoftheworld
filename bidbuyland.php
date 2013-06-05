@@ -144,7 +144,37 @@ else if($_GET['f']){
 }
 .header{
 	padding:10px;
-	background:#f0f0f0;
+	background-color: #006A9B;
+	color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+	
+}
+.longbutton{
+	background-color: #006A9B;
+	float: left;
+	height: auto;
+	padding: 5px;
+	text-align: center;
+	width: 290px;
+	color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+	border:0px;
+	cursor:pointer;
+	margin-bottom:3px;
+	border:2px solid white;
+}
+body{
+	background: #008aba;
+}
+a:link, a:hover, a:visited{
+	color:white;
+}
+td{
+	color: white;
 }
 </style>
 <script>
@@ -197,7 +227,7 @@ function cancelLogin(){
 	jQuery("#continuebutton").attr("disabled", false);
 }
 </script>
-<body style="cursor: auto; background-color: white;">
+<body style="cursor: auto;">
 <?php
 if($_POST['step']==1){
 	$discount = 0;
@@ -352,7 +382,7 @@ if($_POST['step']==1){
 		
 		</tr>
 		<tr>
-			<td colspan=3 align='center'><input type='button' value='Back' onclick='self.location="bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $foldername; ?>"' style='width:100%; height: 25px;'></td>
+			<td colspan=3 align='center'><input type='button' value='Back' class='longbutton' onclick='self.location="bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $foldername; ?>"' style='width:100%; '></td>
 		</tr>
 		</table>
 	</td></tr></table>
@@ -583,7 +613,7 @@ else if(strtolower($_GET['type'])=='buy'){
 		
 		</tr>
 		<tr>
-			<td colspan=3 align='center'><input type='submit' id='continuebutton' value="Proceed" style='width:100%; height: 25px;'></td>
+			<td colspan=3 align='center'><input type='submit' id='continuebutton' class='longbutton' value="Proceed" style='width:100%;'></td>
 		</tr>
 		</table>
 		</form>
