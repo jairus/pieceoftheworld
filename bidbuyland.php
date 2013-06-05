@@ -320,7 +320,7 @@ if($_POST['step']==1){
 							</div>
 							<br /><br />
 							<div id='paypal' style='padding:10px; text-align:center' class='paymentform'>
-								<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onsubmit="return onSubmit();">
+								<form name="paypal" action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_blank" onSubmit="return onSubmit();">
 									<input type="hidden" value="_xclick" name="cmd">
 									<input type="hidden" value="pieceoftheworld2013@gmail.com" name="business">
 									<input type="hidden" name="notify_url" value="http://www.pieceoftheworld.co/ipn.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>">
@@ -330,7 +330,7 @@ if($_POST['step']==1){
 									<input type="hidden" value="http://www.pieceoftheworld.co/" name="cancel_return">
 									<input type="hidden" value="USD" name="currency_code">
 									<input type="hidden" value="US" name="lc">
-									Upon pressing Buy Now button I accept PieceoftheWorld's all <a href="#" onclick="window.showModalDialog('tac.php',0, 'dialogWidth:600px; dialogHeight:400px; center:yes; resizable: no; status: no');">terms and conditions</a><br>
+									Upon pressing Buy Now button I accept PieceoftheWorld's all <a href="#" onClick="window.showModalDialog('tac.php',0, 'dialogWidth:600px; dialogHeight:400px; center:yes; resizable: no; status: no');">terms and conditions</a><br>
 									<br>
 									<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
 									<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
@@ -619,6 +619,92 @@ else if(strtolower($_GET['type'])=='buy'){
 		</form>
 	</td></tr></table>
 	</center>
+	<?php
+}
+else if(strtolower($_GET['type'])=='bid'){
+	?>
+	<script>
+	function addCommas(nStr){
+		nStr += '';
+	
+		x = nStr.split('.');
+		x1 = x[0];
+		x2 = x.length > 1 ? '.' + x[1] : '';
+	
+		var rgx = /(\d+)(\d{3})/;
+	
+		while (rgx.test(x1)) {
+			x1 = x1.replace(rgx, '$1' + ',' + '$2');
+		}
+	
+		return x1 + x2;
+	}
+	
+	function fNum(num){
+		num = uNum(num);
+	
+		if(num==0){ return ""; }
+	
+		num = num.toFixed(2);
+	
+		return addCommas(num);
+	}
+	
+	function uNum(num){
+		if(!num){
+			num = 0;
+		}else if(isNaN(num)){
+			num = num.replace(/[^0-9\.]/g, "");
+	
+			if(isNaN(num)){ num = 0; }
+		}
+	
+		return num*1;
+	}
+	</script>
+	<style>
+	td{
+		vertical-align:top;
+	}
+	input[type='text']{
+		width:200px;
+	}
+	textarea{
+		width:200px;
+	}
+	*{
+		font-size:11px;
+		font-family:verdana;
+	}
+	</style>
+	<form enctype="multipart/form-data" method='post' action='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>' id='theform' style='margin:0px'>
+	<table width="100%" border="0" cellspacing="0" cellpadding="0">
+	  <tr>
+		<td width="150">* Email</td>
+		<td><input type='text' id='user_email' placeholder="e.g. john@email.com" /></td>
+	  </tr>
+	  <tr>
+		<td colspan="2">&nbsp;</td>
+	  </tr>
+	  <tr>
+		<td width="150">* Bid (<i>USD</i>)</td>
+		<td><input type='text' id='user_bid' placeholder="e.g. 500.00" style="width:80px;" onBlur="this.value=fNum(this.value);" /></td>
+	  </tr>
+	  <tr>
+		<td colspan="2">&nbsp;</td>
+	  </tr>
+	  <tr>
+		<td>* Message</td>
+		<td><textarea name='description' placeholder="e.g. I would like to bid for this land"></textarea></td>
+	  </tr>
+	  <tr>
+		<td colspan="2">&nbsp;</td>
+	  </tr>
+	  <tr>
+		<td colspan="2"><input type='submit' id='submitbidbutton' class='longbutton' value="Submit your bid" style='width:100%;'></td>
+	  </tr>
+	</table>
+	</form>
 	<?php
 }
 ?>
