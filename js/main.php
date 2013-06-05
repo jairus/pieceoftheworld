@@ -2068,20 +2068,18 @@ function ajaxAddRedMarkers(map, force) { //they are not actually red markers... 
 		}
 		else{
 			<?php
-			/*
 			if($_GET['test']){
-				$_GET['type']='special';
-				$_GET['trim']='10000';
-				include_once("../ajax/get_markers.php");
+				?>
+				data = "<?php echo addslashes(file_get_contents(dirname(__FILE__)."/../ajax/cache/test_.txt")); ?>";
+				var markersJSON = JSON.parse(data);
+				globalRedJSONArr[z] = markersJSON;
+				setRedMarkers(map, markersJSON);
+				loadedrz = z;
+				return 1;
+				<?php
 			}
-			*/
 			?>
-			data = "<?php echo addslashes(file_get_contents(dirname(__FILE__)."/../ajax/cache/test_.txt")); ?>";
-			var markersJSON = JSON.parse(data);
-			globalRedJSONArr[z] = markersJSON;
-			setRedMarkers(map, markersJSON);
-			loadedrz = z;
-			return 1;
+			
 			url = 'ajax/get_markers.php?type=special&trim=10000';
 		}
 		z = url;
