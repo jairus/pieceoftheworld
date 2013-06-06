@@ -34,6 +34,7 @@ $t = count($records);
 <table>
 	<tr>
 		<th style="width:20px"></th>
+		<th>Title</th>
 		<th>Total Views</th>
 		<th>Plot (X-Y)</th>		
 		<th>Sold</th>
@@ -46,6 +47,7 @@ $t = count($records);
 		<tr id="tr<?php echo htmlentitiesX($records[$i]['id']); ?>" class="row" >
 			
 			<td><?php echo $start+$i+1; ?></td>
+			<td align="right"><?php echo $records[$i]['title']; ?></td>
 			<td align="right"><?php echo $records[$i]['viewCtr']; ?></td>
 			<td><a target='_blank' href='/?xy=<?php echo $records[$i]['x']."~".$records[$i]['y']?>'><?php echo $records[$i]['x']."-".$records[$i]['y']?></a></td>			
 			<td><?php echo ($records[$i]['web_user_id'])? '<span style="color: green">Yes</span>' : '<span style="color: red">No</span>' ;	?></td>			

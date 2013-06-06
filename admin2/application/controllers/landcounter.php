@@ -10,9 +10,10 @@ class landcounter extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select LV.* , L.land_special_id, L.land_detail_id, L.web_user_id, format(viewCtr, 0) as viewCtr
+		$sql = "select LV.* , L.land_special_id, L.land_detail_id, L.web_user_id, format(viewCtr, 0) as viewCtr, LD.title
 				from `land_view` LV 
-				left join land L on LV.land_id = L.id				
+				left join land L on LV.land_id = L.id 
+				left join land_detail LD on L.land_detail_id = LD.id 
 				order by LV.`viewCtr` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
