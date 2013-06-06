@@ -165,7 +165,7 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			FROM `land` as `a` 
 			LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 			LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
-			WHERE web_user_id <> 0 group by `a`.`land_detail_id`";
+			WHERE `a`.web_user_id <> 0 group by `a`.`land_detail_id`";
 		$markers2 = dbQuery($sql, $_dblink);	
 		$markers = array_merge($markers, $markers2);
 	
@@ -279,7 +279,7 @@ else { //getting purchased lands (red)
 	LEFT JOIN `land_detail` as `b` ON (`a`.`land_detail_id` = `b`.`id`)
 	LEFT JOIN `web_users` as `c` ON (`a`.`web_user_id` = `c`.`id`) 
 	LEFT JOIN `land_special` as `d` ON (`a`.`land_special_id` = `d`.`id`)
-	WHERE web_user_id <> 0";
+	WHERE `a`.web_user_id <> 0";
 }
 $sqlx = $sql;
 

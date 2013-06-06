@@ -848,6 +848,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	*/
 	//initialize
 	jQuery("#info-land_owner_container").hide();
+	jQuery("#info-land_bid_container").hide();
 	jQuery("#info-land_owner").html("");
 	jQuery("#info-city").hide();
 	jQuery("#info-title").html("");
@@ -911,6 +912,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 					jQuery("#info-land_owner_container").show();
 					jQuery("#info-land_owner").html(gzones[i].ret.json.land_owner);
 				}
+				getHighestBid(gzones[i].ret.json.id);
 				if(firstindex==""){
 					firstindex = i;
 				}
@@ -1502,6 +1504,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 	*/
 	//initialize
 	jQuery("#info-land_owner_container").hide();
+	jQuery("#info-land_bid_container").hide();
 	jQuery("#info-land_owner").html("");
 	jQuery("#info-city").hide();
 	jQuery("#info-title").html("Loading...");
@@ -1547,6 +1550,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			returnText = data;
 			markerJSON = JSON.parse(returnText);
 			jQuery("#info-land_owner_container").hide();
+			jQuery("#info-land_bid_container").hide();
 			jQuery("#info-img").attr("src", "images/place_holder_small.png?_=1");
 			//document.getElementById('info-land_owner_container').style.display="none";
 			//document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
@@ -1596,6 +1600,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 					jQuery("#info-land_owner").html("");
 					//document.getElementById('info-land_owner').innerHTML = "";
 				}
+				getHighestBid(markerJSON[0].id);
 				//ajaxExtractLandPicture(markerJSON[0].id);
 				//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
 				//alert(markerJSON[0].thumb_url);
@@ -2295,3 +2300,25 @@ jQuery(function() {
 });
 
 //alert('test here');
+
+function getHighestBid(land_id){
+	jQuery("#info-land_bid_container").hide();
+	jQuery("#info-land_bid").html("");			
+	var bidsJSON = null;
+	jQuery.ajax({
+		url:"ajax/get_highest_bid.php?land_id="+land_id,
+		dataType:'html',
+		async:true,
+		success:function(data, textStatus, jqXHR){
+			bidsJSON = data;
+			if(bidsJSON){
+				var bidJSON = JSON.parse(bidsJSON);
+				
+				if(bidJSON[0].bid){
+					jQuery("#info-land_bid_container").show();
+					jQuery("#info-land_bid").html("USD "+bidJSON[0].bid);
+				}
+			}
+		}
+	});
+}

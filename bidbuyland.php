@@ -627,12 +627,6 @@ else if(strtolower($_GET['type'])=='bid'){
 		$_SESSION["GET"] = $_GET;
 	}
 
-	$sql = "SELECT * FROM `land` WHERE `id`='".$_SESSION["GET"]['land_id']."' LIMIT 0,1";
-	$land = dbQuery($sql, $_dblink);
-	
-	$sql = "SELECT * FROM `land_detail` WHERE `id`='".$land[0]['land_detail_id']."' LIMIT 0,1";
-	$land_detail = dbQuery($sql, $_dblink);
-
 	if($_POST['register']){
 		if(!checkEmail(trim($_POST['user_email']))){
 			?> <script>self.location="?f=<?php echo $_GET['f']; ?>&error=Invalid E-mail address&type=bid";</script> <?php
@@ -641,10 +635,21 @@ else if(strtolower($_GET['type'])=='bid'){
 			?> <script>self.location="?f=<?php echo $_GET['f']; ?>&error=Please enter your Bid&type=bid";</script> <?php
 			exit();
 		}else{
+			$sql = "SELECT * FROM `land` WHERE `id`='".$_SESSION["GET"]['land_id']."' LIMIT 0,1";
+			$land = dbQuery($sql, $_dblink);
+			
+			$sql = "SELECT * FROM `land_detail` WHERE `id`='".$land[0]['land_detail_id']."' LIMIT 0,1";
+			$land_detail = dbQuery($sql, $_dblink);
+			
+			$land_name = 'Land';
+			if($land_detail[0]['title']){
+				$land_name = $land_detail[0]['title'];
+			}
+		
 			$from = $_POST['user_email'];
 			$fromname = $_POST['user_email'];
-			$bouncereturn = $_POST['user_email']; //where the email will forward in cases of bounced email
-			$subject = "Bid for ".$land_detail[0]['title'];
+			$bouncereturn = $_POST['user_email'];
+			$subject = "Bid for ".$land_name;
 			$message = '<b>User Bid: </b>'.$_POST['user_bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
 			/*$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
 			$emails[0]['name'] = "PieceOfTheWorld.Co";*/
@@ -653,6 +658,9 @@ else if(strtolower($_GET['type'])=='bid'){
 			$attachments[0] = "";
 			$attachments[1] = "";
 			emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1);
+			
+			$sql = "INSERT INTO `land_bids` (`bidder`, `bid`, `message`, `land_id`) VALUES ('".$_POST['user_email']."', '".$_POST['user_bid']."', '".$_POST['user_message']."', '".$_SESSION["GET"]['land_id']."')";
+			dbQuery($sql, $_dblink);
 			?>
 			<script>self.location="?f=<?php echo $_GET['f']; ?>&success=You have successfully submitted your Bid&type=bid";</script>
 			<?php
