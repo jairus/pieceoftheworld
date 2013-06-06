@@ -9,7 +9,7 @@ var fillOpacity = "0.5";
 var strokeColor = "#5D5D5D";
 var strokeOpacity = "1";
 var strokeWeight = "0.4";
-var masterUser = 'masteruser@gmail.com';	
+var masterUser = 'masteruser@gmail.com';
 var enableGeoLoc = false;
 var geoLoc;
 if (enableGeoLoc != false) {
@@ -852,6 +852,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	jQuery("#info-city").hide();
 	jQuery("#info-title").html("");
 	jQuery("#info-detail").html("");
+	jQuery("#land_id").val("");
 	
 	
 	//set first active index to get the 1st lat and long of selected boxes
@@ -879,6 +880,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				specialbought = false;
 			}
 			if(specialbought){ //if a special land or a bought land
+				jQuery("#land_id").val(gzones[i].ret.json.id);
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
 				jQuery("#info-city").show();
@@ -1089,6 +1091,9 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 			//jQuery("#info-lightbox").lightBox({fixedNavigation:true});
 			jQuery("#info-lightbox").colorbox({width:'550px'});
 			jQuery("#info-img")[0].src = gzones[i].ret.json.thumb_url;
+			
+			jQuery("#buy-button").val("Click to Bid");
+			jQuery("#buy-button").show();
 		}
 		else{
 			jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
@@ -1096,7 +1101,11 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 			jQuery("#info-lightbox").colorbox({width:'550px'});
 			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 			jQuery("#info-img").unbind();
+			
+			jQuery("#buy-button").val("Click to Bid");
+			jQuery("#buy-button").show();
 		}
+		
 		if(gzones[i].ret.json.land_special_id){
 			if (gzones[i].ret.json.email == masterUser) { //if unbought
 				consoleX("special unbought");
@@ -1542,6 +1551,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			//document.getElementById('info-land_owner_container').style.display="none";
 			//document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
 			if (returnText != '[[]]') {
+				jQuery('#land_id').val(markerJSON[0].id);
 				jQuery('#info-title').html(markerJSON[0].title);
 				jQuery('#info-detail').html(markerJSON[0].detail);
 				//document.getElementById('info-title').innerHTML = markerJSON[0].title;
@@ -1650,6 +1660,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				else {
 					jQuery("#buy-button").val("Click to Bid");
 					jQuery("#buy-button").show();
+				
 					setCity(strlatlong);
 				}
 				//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
@@ -2107,18 +2118,18 @@ function onBuyLand() {
 		setCoords();
 	}
 	gBuyOnMarker = false;
-	
 	var url = "";
 	if (jQuery('#buy-button').val() == "Click to Buy") {
 		//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 		url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+		jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
 	}
-	else {
+	else if (jQuery('#buy-button').val() == "Click to Bid") {
 		//url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
-		url = "bidbuyland.php?type=bid&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+		url = "bidbuyland.php?type=bid&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink+"&land_id="+jQuery('#land_id').val();
+		jQuery.colorbox({iframe:true, width:"410px", height:"300px", href:url});
 	}
 	//window.open(url);
-	jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
 	//window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
 }
 

@@ -212,7 +212,8 @@ if($_GET['px']!=""){
 
 <!--INITIALIZE MAP-->
 <script src="http://maps.google.com/maps/api/js?sensor=true&libraries=geometry" type="text/javascript"></script>
-<script src="http://pieceoftheworld.co/js/main.php?<?php echo $_SERVER['QUERY_STRING']; ?>" type="text/javascript"></script>
+<script src="http://pieceoftheworld.co/js/main.php?_<?php echo time(); ?>&<?php echo $_SERVER['QUERY_STRING']; ?>" type="text/javascript"></script>
+<script src="js/main.php?_<?php echo time(); ?>&<?php echo $_SERVER['QUERY_STRING']; ?>" type="text/javascript"></script>
 <!--END OF INITIALIZE MAP-->
 
 <script src="js/zoi.php?_<?php echo time(); ?>" type="text/javascript"></script>
