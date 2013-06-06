@@ -10,7 +10,7 @@ class landcounter extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select LV.* , L.land_special_id, L.land_detail_id, L.web_user_id, format(viewCtr, 0) as viewCtr, LD.title
+		$sql = "select LV.* , L.land_special_id, L.land_detail_id, L.web_user_id, format(viewCtr, 0) as viewCtr, LD.title 
 				from `land_view` LV 
 				left join land L on LV.land_id = L.id 
 				left join land_detail LD on L.land_detail_id = LD.id 
@@ -46,9 +46,10 @@ class landcounter extends CI_Controller {
 		$search = strtolower(trim($_GET['search']));
 		$searchx = trim($_GET['search']);
 		
-		$sql = "select LV.* , L.land_special_id, L.land_detail_id, L.web_user_id, format(viewCtr, 0) as viewCtr
+		$sql = "select LV.* , L.land_special_id, L.land_detail_id, L.web_user_id, format(viewCtr, 0) as viewCtr, LD.title 
 				from `land_view` LV 
-				left join land L on LV.land_id = L.id				
+				left join land L on LV.land_id = L.id 
+				left join land_detail LD on L.land_detail_id = LD.id 		
 				where 1";
 		
 		if($filter=='sold'){

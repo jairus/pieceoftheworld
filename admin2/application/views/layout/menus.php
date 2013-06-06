@@ -30,6 +30,9 @@ if($method=='contribution'){
 	<li <?php if($controller=="landcounter"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."landcounter";?>"'>
 		Land Views
 	</li>
+	<li <?php if($controller=="landbids"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."landbids";?>"'>
+		Land Bids
+	</li>
 	<li <?php if($controller=="categories"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."categories";?>"'>
 		Static Categories
 	</li>
