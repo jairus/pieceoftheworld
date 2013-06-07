@@ -469,35 +469,67 @@ if($_GET['action']=='get_user_profile'){
 	  </tr>
 	  <tr>
 		<td class="text_3">'.$web_users[0]['name'].'</td>
-	  </tr>
-	  <tr>
-		<td>&nbsp;</td>
-	  </tr>
-	  <tr>
-		<td class="text_3"><b>Email</b></td>
-	  </tr>
-	  <tr>
-		<td class="text_3"><a href="mailto:'.$web_users[0]['useremail'].'" class="link_2">'.$web_users[0]['useremail'].'</a></td>
-	  </tr>
-	  <tr>
-		<td>&nbsp;</td>
-	  </tr>
-	  <tr>
-		<td class="text_3"><b>Gender</b></td>
-	  </tr>
-	  <tr>
-		<td class="text_3">'.$web_users[0]['gender'].'</td>
-	  </tr>
-	  <tr>
-		<td>&nbsp;</td>
-	  </tr>
-	  <tr>
-		<td class="text_3"><b>Location</b></td>
-	  </tr>
-	  <tr>
-		<td class="text_3">'.$web_users[0]['location'].'</td>
-	  </tr>
-	</table>';
+	  </tr>';
+	  
+	  $sql = "SELECT `x`, `y`, `land_detail_id` FROM `land` WHERE `web_user_id`='".$_GET['userID']."'";
+	  $land = dbQuery($sql, $_dblink);
+	
+	  $t = count($land);
+	  
+	  if($t){
+	  	echo '<tr>
+		  <td height="10"></td>
+	    </tr>
+	    <tr>
+		  <td class="text_3"><b>Land Owned</b></td>
+	    </tr>
+	    <tr>
+		  <td height="5"></td>
+	    </tr>
+	    <tr>
+		  <td>';
+		  
+		  for($z=0; $z<$t; $z++){
+		  	$sql = "SELECT `title` FROM `land_detail` WHERE `id`='".$land[$z]['land_detail_id']."'";
+	  		$land_detail = dbQuery($sql, $_dblink);
+		  
+			echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index2.php?xy='.$land[$z]['x'].'~'.$land[$z]['y'].'\';">'.$land_detail[0]['title'].'</div>';
+		  }
+		  
+		  echo '</td>
+	    </tr>';
+	  }
+	  
+	  $sql = "SELECT `id`, `title` FROM `land_special` WHERE `web_user_id`='".$_GET['userID']."'";
+	  $land_special = dbQuery($sql, $_dblink);
+	
+	  $t = count($land_special);
+	  
+	  if($t){
+	  	echo '<tr>
+		  <td height="10"></td>
+	    </tr>
+	    <tr>
+		  <td class="text_3"><b>Special Land Owned</b></td>
+	    </tr>
+	    <tr>
+		  <td height="5"></td>
+	    </tr>
+	    <tr>
+		  <td>';
+		  
+		  for($z=0; $z<$t; $z++){
+		  	$sql = "SELECT `x`, `y` FROM `land` WHERE `land_special_id`='".$land_special[$z]['id']."'";
+	  		$land_detail = dbQuery($sql, $_dblink);
+		  
+			echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index2.php?xy='.$land_detail[0]['x'].'~'.$land_detail[0]['y'].'\';">'.$land_special[$z]['title'].'</div>';
+		  }
+		  
+		  echo '</td>
+	    </tr>';
+	  }
+	  
+	echo '</table>';
 	
 	exit();
 }
