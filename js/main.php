@@ -235,25 +235,25 @@ function showVideo(videoStr) {
 
 	var mainVideo = '';
 	mainVideo += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video<br /><br />';
-	mainVideo += '<iframe width="430" height="270" src="http://www.youtube.com/embed/'+videoStr+'" frameborder="0" allowfullscreen></iframe>';
+	mainVideo += '<iframe width="290" height="200" src="http://www.youtube.com/embed/'+videoStr+'" frameborder="0" allowfullscreen></iframe>';
 
 	jQuery("#video").append(mainVideo);
 
-	jQuery("#info table").hide();
-	jQuery("#info #thumbs").hide();
-	jQuery("#info #video").show();
+	jQuery("#info-span table").hide();
+	jQuery("#info-span #thumbs").hide();
+	jQuery("#info-span #video").show();
 }
 
 function showThumbs() {
-	jQuery("#info table").hide();
-	jQuery("#info #thumbs").show();
-	jQuery("#info #video").hide();
+	jQuery("#info-span table").hide();
+	jQuery("#info-span #thumbs").show();
+	jQuery("#info-span #video").hide();
 }
 
 function showInfo() {
-	jQuery("#info table").show();
-	jQuery("#info #thumbs").hide();
-	jQuery("#info #video").hide();
+	jQuery("#info-span table").show();
+	jQuery("#info-span #thumbs").hide();
+	jQuery("#info-span #video").hide();
 }
 //ZOI
 
@@ -1487,6 +1487,7 @@ var updateproc = [];
 function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 	consoleX("updatePopupWindowTabInfo");
 	jQuery("#buy-button").hide();
+	jQuery("#clicktowatch").hide();
 	shareowner = "";
 	sharetitle = "";
 	sharedetail = "";
@@ -1562,7 +1563,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				//document.getElementById('info-detail').innerHTML = markerJSON[0].detail;
 				
 				//ZOI
-				jQuery("#thumbs").empty();					
+				jQuery("#thumbs").empty();
 				var videosJSON = null;
 				jQuery.ajax({
 					url:'ajax/get_videos.php?action=get_videos&land_detail_id='+markerJSON[0].land_detail_id,
@@ -1584,7 +1585,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 							
 							jQuery("#thumbs").append(thumbs);
 							
-							jQuery("#clickvideo").show();
+							jQuery("#clicktowatch").show();
 						}
 					}
 				});

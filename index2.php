@@ -227,12 +227,12 @@ if($_GET['px']!=""){
 <div id="fb-root"></div>
 <table id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
 <div id="header_bg">
-	<div id="logo"><a href="index2.php"><img src="images/logo.png" width="144" height="18" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
+	<div id="logo"><a href="index2.php"><img src="images/logo.png" width="168" height="25" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
 	<div id="updates">
-		<table width="1021" height="28" border="0" cellspacing="0" cellpadding="0">
+		<table width="997" height="28" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
 			<td width="25"><img src="images/interscape_white.png" width="19" height="20" border="0" alt="InterScape" title="InterScape" /></td>
-			<td valign="top" width="996">
+			<td valign="top" width="972">
 				<div id="trends">
 					
 				</div>

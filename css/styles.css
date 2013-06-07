@@ -30,15 +30,15 @@ a:link, a:hover, a:visited{
 
 #logo{
 	float:left;
-	width:144px;
-	height:18px;
+	width:168px;
+	height:25px;
 	padding-left:35px;
-	padding-top:10px;
+	padding-top:3px;
 }
 
 #updates{
 	float:right;
-	width:1021px;
+	width:997px;
 	height:23px;
 	padding-top:5px;
 }

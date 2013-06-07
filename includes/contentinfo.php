@@ -24,8 +24,8 @@
 	<div id="top_list_title_1" class="text_2"><span id="info-city"></span><span id="info-title"></span></div>
 	<div id="top_list_img_2" align="center"><div class="img"><a id="info-lightbox"><img id="info-img" border="0"></a></div></div>
 	<div style="float:left; width:290px; height:auto;">
-	<div id="thumbs"></div>
-	<div id="video"></div>
+	<div id="thumbs" style="display:none;" class="text_3"></div>
+	<div id="video" style="display:none;" class="text_3"></div>
 	<table width="290" border="0" cellspacing="0" cellpadding="0">
 	  <tr>
 		<td width="150px"><a id='fbsharelink'><img src="images/facebook_icon.png" height="15" border="0" id='fbshare' style="cursor:pointer;" />&nbsp;Share this location</a></td>
@@ -44,7 +44,8 @@
 			<div id="dcity"></div>
 			<input class='longbutton' type='button' id='loading-button' value="Loading..." style='cursor:default; display:none' />
 			<input class='longbutton' type='button' id='buy-button' onClick="onBuyLand();" value="Click to Buy" />
-			<input class='longbutton' type="button" id="clicktozoom" value="Click to Zoom" style="display:none">
+			<input class='longbutton' type="button" id="clicktozoom" value="Click to Zoom" style="display:none" />
+			<input class='longbutton' type="button" id="clicktowatch" onClick="showThumbs();" value="Videos" style="display:none;" />
 			<input type="hidden" id="land_id" name="land_id" />
 		</td>
 	  </tr>
@@ -62,10 +63,11 @@
 	  </tr>
 	</table>
 	</div>
+</span>
 	<!--<div id="buy-button" style="float:left; width:290px; height:auto; padding-bottom:5px; display:none;"><div id="top_list_title_1"><a class="link_1" style="cursor:pointer;" onClick="onBuyLand();">Buy Land</a></div></div>-->
 	
 	<!--<div id="image-button" style="float:left; width:290px; height:auto; padding-bottom:5px; display:none;"><div id="top_list_title_1"><a class="link_1">Image</a></div></div>-->
-	<div id="top_list_title_1 clickvideo" style="display:none;"><a class="link_1" style="cursor:pointer;" onClick="showThumbs();">Videos</a></div>
+	<!--<div id="top_list_title_1 clickvideo" style="display:none;"><a class="link_1" style="cursor:pointer;" onClick="showThumbs();">Videos</a></div>-->
 
 	<!--<h3><span id="info-city"></span><span id="info-title"></span></h3>
 	<div id="fbLikeHolder"></div>
@@ -118,4 +120,3 @@
 		  </td>
 	  </tr>
 	</table>-->
-</span>

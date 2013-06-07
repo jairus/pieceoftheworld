@@ -2,7 +2,7 @@ a img{
 	border-width:0;
 }
 #trends{
-	width:996px;
+	width:972px;
 	margin:0 auto;
 }
 .background .inner{
@@ -12,13 +12,13 @@ a img{
 }
 
 #trends{
-	*z-index:996;
-	_z-index:996;
+	*z-index:972;
+	_z-index:972;
 	position:relative;
 	zoom:1;
 }
 #trends .inner{
-	width:996px;
+	width:972px;
 	overflow:hidden;
 	zoom:1;
 	position:relative;
@@ -29,7 +29,7 @@ a img{
 	list-style:none;
 	white-space:nowrap;
 	zoom:1;
-	top:-5px;
+	top:-6px;
 	position:relative;
 	z-index:20;
 }
