@@ -471,12 +471,46 @@ if($_GET['action']=='get_user_profile'){
 		<td class="text_3">'.$web_users[0]['name'].'</td>
 	  </tr>';
 	  
-	  $sql = "SELECT `x`, `y`, `land_detail_id` FROM `land` WHERE `web_user_id`='".$_GET['userID']."'";
-	  $land = dbQuery($sql, $_dblink);
+	  $landArr = array();
+	  
+	  $sql1 = "SELECT `x`, `y`, `land_detail_id` FROM `land` WHERE `web_user_id`='".$_GET['userID']."'";
+	  $land = dbQuery($sql1, $_dblink);
+	  
+	  $sql2 = "SELECT `id`, `title` FROM `land_special` WHERE `web_user_id`='".$_GET['userID']."'";
+	  $land_special = dbQuery($sql2, $_dblink);
 	
-	  $t = count($land);
+	  $t1 = count($land);
+	  $t2 = count($land_special);
+	  
+	  for($z1=0; $z1<$t1; $z1++){
+	  	$print = array();
+	  
+		$sql = "SELECT `title` FROM `land_detail` WHERE `id`='".$land[$z1]['land_detail_id']."'";
+		$land_detail = dbQuery($sql, $_dblink);
+		
+		$print['title'] = $land_detail[0]['title'];
+		$print['x'] = $land[$z1]['x'];
+		$print['y'] = $land[$z1]['y'];
+		
+		$landArr[] = $print;
+	  }
+	  
+	  for($z2=0; $z2<$t2; $z2++){
+		$sql = "SELECT `x`, `y` FROM `land` WHERE `land_special_id`='".$land_special[$z2]['id']."'";
+		$land_detail = dbQuery($sql, $_dblink);
+		
+		$print['title'] = $land_special[$z2]['title'];
+		$print['x'] = $land_detail[0]['x'];
+		$print['y'] = $land_detail[0]['y'];
+		
+		$landArr[] = $print;
+	  }
+	  
+	  $t = count($landArr);
 	  
 	  if($t){
+	  	sort($landArr);
+		
 	  	echo '<tr>
 		  <td height="10"></td>
 	    </tr>
@@ -489,40 +523,10 @@ if($_GET['action']=='get_user_profile'){
 	    <tr>
 		  <td>';
 		  
-		  for($z=0; $z<$t; $z++){
-		  	$sql = "SELECT `title` FROM `land_detail` WHERE `id`='".$land[$z]['land_detail_id']."'";
-	  		$land_detail = dbQuery($sql, $_dblink);
-		  
-			echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index2.php?xy='.$land[$z]['x'].'~'.$land[$z]['y'].'\';">'.$land_detail[0]['title'].'</div>';
-		  }
-		  
-		  echo '</td>
-	    </tr>';
-	  }
-	  
-	  $sql = "SELECT `id`, `title` FROM `land_special` WHERE `web_user_id`='".$_GET['userID']."'";
-	  $land_special = dbQuery($sql, $_dblink);
-	
-	  $t = count($land_special);
-	  
-	  if($t){
-	  	echo '<tr>
-		  <td height="10"></td>
-	    </tr>
-	    <tr>
-		  <td class="text_3"><b>Special Land Owned</b></td>
-	    </tr>
-	    <tr>
-		  <td height="5"></td>
-	    </tr>
-	    <tr>
-		  <td>';
-		  
-		  for($z=0; $z<$t; $z++){
-		  	$sql = "SELECT `x`, `y` FROM `land` WHERE `land_special_id`='".$land_special[$z]['id']."'";
-	  		$land_detail = dbQuery($sql, $_dblink);
-		  
-			echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index2.php?xy='.$land_detail[0]['x'].'~'.$land_detail[0]['y'].'\';">'.$land_special[$z]['title'].'</div>';
+		  for($i=0; $i<$t; $i++){
+		  	if($landArr[$i]['title']!=$landArr[($i-1)]['title']){
+				echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index2.php?xy='.$landArr[$i]['x'].'~'.$landArr[$i]['y'].'\';">'.$landArr[$i]['title'].'</div>';
+			}
 		  }
 		  
 		  echo '</td>
