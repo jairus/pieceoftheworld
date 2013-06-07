@@ -92,31 +92,56 @@ if($_GET['action']=='In the World'){
 //GET BIGGEST OWNERS IN THE COUNTRY
 if($_GET['action']=='In Country'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$areatype = 'land';
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}else if($_GET['areatype']=='water'){
 		$areatype = 'water';
 	}
-
+	
+	$countryArr = array();
+	
 	$sql = "SELECT `country` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' ORDER BY `country`";
 	$countries_land = dbQuery($sql, $_dblink);
 	
-	$sql = "SELECT `a`.`id`, `b`.`country` FROM `land_special` AS `a` 
-	LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-	WHERE `a`.`web_user_id`!='' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`!=''";
+	$tcl = count($countries_land);
+	
+	for($icl=0; $icl<$tcl; $icl++){
+		$print = array();
+		
+		$print['country'] = $countries_land[$icl]['country'];
+		
+		$countryArr[] = $print;
+	}
+	
+	$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`!=''";
 	$countries_land_special = dbQuery($sql, $_dblink);
 	
-	$countries = array_merge($countries_land, $countries_land_special);
-	$countries = array_values($countries);
+	$tcls = count($countries_land_special);
 	
-	$t_countries = count($countries);
+	if($tcls){
+		for($icls=0; $icls<$tcls; $icls++){
+			$sql2 = "SELECT `country` FROM `land` WHERE `land_special_id`='".$countries_land_special[$icls]['id']."' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' ORDER BY `country`";
+			$countries_land2 = dbQuery($sql2, $_dblink);
+			
+			if(count($countries_land2)){
+				$print = array();
+				
+				$print['country'] = $countries_land2[0]['country'];
+				
+				$countryArr[] = $print;
+			}
+		}
+	}
 	
-	for($i=0; $i<$t_countries; $i++){
-		if($countries[$i]['country']!=$countries[($i-1)]['country']){
-			echo '<div id="top_list_items" class="text_3" onclick="step3(\'country\', \''.$countries[$i]['country'].'\', \''.$areatype.'\');">'.$countries[$i]['country'].'</div>';
+	$tc = count($countryArr);
+	
+	if($tc){
+		sort($countryArr);
+		for($ic=0; $ic<$tc; $ic++){
+			if($countryArr[$ic]['country']!=$countryArr[($ic-1)]['country']){
+				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');">'.$countryArr[$ic]['country'].'</div>';
+			}
 		}
 	}
 	
@@ -125,14 +150,12 @@ if($_GET['action']=='In Country'){
 
 if($_GET['action']=='country'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}
 	  
-	$sql2 = "SELECT `id`, `name` FROM `web_users`";
-	$web_users = dbQuery($sql2, $_dblink);
+	$sql = "SELECT `id`, `name` FROM `web_users`";
+	$web_users = dbQuery($sql, $_dblink);
 	
 	$t2 = count($web_users);
 	
@@ -140,24 +163,36 @@ if($_GET['action']=='country'){
 		$ownerArr = array();
 		for($i2=0; $i2<$t2; $i2++){
 			$print = array();
-		
-			$sql2 = "SELECT `id` FROM `land` WHERE `web_user_id`='".$web_users[$i2]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."'";
-			$owner_land = dbQuery($sql2, $_dblink);
 			
-			$sql2 = "SELECT `a`.`id` FROM `land_special` AS `a` 
-			LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-			WHERE `a`.`web_user_id`='".$web_users[$i2]['id']."' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`='".mysql_escape_string($_GET['country'])."'";
-			$owner_land_special = dbQuery($sql2, $_dblink);
+			$sql = "SELECT `id` FROM `land` WHERE `web_user_id`='".$web_users[$i2]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."'";
+			$owner_land = dbQuery($sql, $_dblink);
 			
-			$owner = array_merge($owner_land, $owner_land_special);
-			$owner = array_values($owner);
-			
-			if(count($owner)){
-				$print['area_owned'] = count($owner);
+			if(count($owner_land)){
+				$print['area_owned'] = count($owner_land);
 				$print['id'] = $web_users[$i2]['id'];
 				$print['name'] = $web_users[$i2]['name'];
 				
 				$ownerArr[] = $print;
+			}
+			
+			$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`='".$web_users[$i2]['id']."'";
+			$countries_land_special = dbQuery($sql, $_dblink);
+			
+			$tcls = count($countries_land_special);
+			
+			if($tcls){
+				for($icls=0; $icls<$tcls; $icls++){
+					$sql = "SELECT `id` FROM `land` WHERE `land_special_id`='".$countries_land_special[$icls]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."'";
+					$owner_land_special = dbQuery($sql, $_dblink);
+					
+					if(count($owner_land_special)){
+						$print['area_owned'] = count($owner_land_special);
+						$print['id'] = $web_users[$i2]['id'];
+						$print['name'] = $web_users[$i2]['name'];
+						
+						$ownerArr[] = $print;
+					}
+				}
 			}
 		}
 
@@ -185,31 +220,56 @@ if($_GET['action']=='country'){
 //GET BIGGEST OWNERS IN THE REGION
 if($_GET['action']=='In Region'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$areatype = 'land';
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}else if($_GET['areatype']=='water'){
 		$areatype = 'water';
 	}
-
-	$sql = "SELECT `country` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' AND `region`!='' ORDER BY `country`";
+	
+	$countryArr = array();
+	
+	$sql = "SELECT `country` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' AND `region`!='' ORDER BY `region`";
 	$countries_land = dbQuery($sql, $_dblink);
 	
-	$sql = "SELECT `a`.`id`, `b`.`country` FROM `land_special` AS `a` 
-	LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-	WHERE `a`.`web_user_id`!='' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`!='' AND `b`.`region`!=''";
+	$tcl = count($countries_land);
+	
+	for($icl=0; $icl<$tcl; $icl++){
+		$print = array();
+		
+		$print['country'] = $countries_land[$icl]['country'];
+		
+		$countryArr[] = $print;
+	}
+	
+	$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`!=''";
 	$countries_land_special = dbQuery($sql, $_dblink);
 	
-	$countries = array_merge($countries_land, $countries_land_special);
-	$countries = array_values($countries);
+	$tcls = count($countries_land_special);
 	
-	$t_countries = count($countries);
+	if($tcls){
+		for($icls=0; $icls<$tcls; $icls++){
+			$sql2 = "SELECT `country` FROM `land` WHERE `land_special_id`='".$countries_land_special[$icls]['id']."' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' AND `region`!='' ORDER BY `region`";
+			$countries_land2 = dbQuery($sql2, $_dblink);
+			
+			if(count($countries_land2)){
+				$print = array();
+				
+				$print['country'] = $countries_land2[0]['country'];
+				
+				$countryArr[] = $print;
+			}
+		}
+	}
 	
-	for($i=0; $i<$t_countries; $i++){
-		if($countries[$i]['country']!=$countries[($i-1)]['country']){
-			echo '<div id="top_list_items" class="text_3" onclick="step3(\'country2\', \''.$countries[$i]['country'].'\', \''.$areatype.'\');">'.$countries[$i]['country'].'</div>';
+	$tc = count($countryArr);
+	
+	if($tc){
+		sort($countryArr);
+		for($ic=0; $ic<$tc; $ic++){
+			if($countryArr[$ic]['country']!=$countryArr[($ic-1)]['country']){
+				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country2\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');">'.$countryArr[$ic]['country'].'</div>';
+			}
 		}
 	}
 	
@@ -218,28 +278,53 @@ if($_GET['action']=='In Region'){
 
 if($_GET['action']=='country2'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}
-
+	
+	$regionArr = array();
+	
 	$sql = "SELECT `region` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`!='' ORDER BY `region`";
-	$regions_land = dbQuery($sql, $_dblink);
+	$region_land = dbQuery($sql, $_dblink);
 	
-	$sql = "SELECT `a`.`id`, `b`.`region` FROM `land_special` AS `a` 
-	LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-	WHERE `a`.`web_user_id`!='' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`='".mysql_escape_string($_GET['country'])."' AND `b`.`region`!=''";
-	$regions_land_special = dbQuery($sql, $_dblink);
+	$tcl = count($region_land);
 	
-	$regions = array_merge($regions_land, $regions_land_special);
-	$regions = array_values($regions);
+	for($icl=0; $icl<$tcl; $icl++){
+		$print = array();
+		
+		$print['region'] = $region_land[$icl]['region'];
+		
+		$regionArr[] = $print;
+	}
 	
-	$t_regions = count($regions);
+	$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`!=''";
+	$region_land_special = dbQuery($sql, $_dblink);
 	
-	for($i=0; $i<$t_regions; $i++){
-		if($regions[$i]['region']!=$regions[($i-1)]['region']){
-			echo '<div id="top_list_items" class="text_3" onclick="step4(\'region\', \''.$_GET['country'].'\', \''.$regions[$i]['region'].'\', \''.$_GET['areatype'].'\');">'.$regions[$i]['region'].'</div>';
+	$tcls = count($region_land_special);
+	
+	if($tcls){
+		for($icls=0; $icls<$tcls; $icls++){
+			$sql2 = "SELECT `region` FROM `land` WHERE `land_special_id`='".$region_land_special[$icls]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`!='' ORDER BY `region`";
+			$region_land2 = dbQuery($sql2, $_dblink);
+			
+			if(count($region_land2)){
+				$print = array();
+				
+				$print['region'] = $region_land2[0]['region'];
+				
+				$regionArr[] = $print;
+			}
+		}
+	}
+	
+	$tc = count($regionArr);
+	
+	if($tc){
+		sort($regionArr);
+		for($ic=0; $ic<$tc; $ic++){
+			if($regionArr[$ic]['region']!=$regionArr[($ic-1)]['region']){
+				echo '<div id="top_list_items" class="text_3" onclick="step4(\'region\', \''.$_GET['country'].'\', \''.$regionArr[$ic]['region'].'\', \''.$_GET['areatype'].'\');">'.$regionArr[$ic]['region'].'</div>';
+			}
 		}
 	}
 
@@ -248,10 +333,8 @@ if($_GET['action']=='country2'){
 
 if($_GET['action']=='region'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}
 
 	$sql2 = "SELECT `id`, `name` FROM `web_users`";
@@ -263,24 +346,36 @@ if($_GET['action']=='region'){
 		$ownerArr = array();
 		for($i2=0; $i2<$t2; $i2++){
 			$print = array();
-		
-			$sql2 = "SELECT `id` FROM `land` WHERE `web_user_id`='".$web_users[$i2]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."'";
-			$owner_land = dbQuery($sql2, $_dblink);
 			
-			$sql = "SELECT `a`.`id` FROM `land_special` AS `a` 
-			LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-			WHERE `a`.`web_user_id`='".$web_users[$i2]['id']."' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`='".mysql_escape_string($_GET['country'])."' AND `b`.`region`='".mysql_escape_string($_GET['region'])."'";
-			$owner_land_special = dbQuery($sql, $_dblink);
+			$sql = "SELECT `id` FROM `land` WHERE `web_user_id`='".$web_users[$i2]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."'";
+			$owner_land = dbQuery($sql, $_dblink);
 			
-			$owner = array_merge($owner_land, $owner_land_special);
-			$owner = array_values($owner);
-			
-			if(count($owner)){
-				$print['area_owned'] = count($owner);
+			if(count($owner_land)){
+				$print['area_owned'] = count($owner_land);
 				$print['id'] = $web_users[$i2]['id'];
 				$print['name'] = $web_users[$i2]['name'];
 				
 				$ownerArr[] = $print;
+			}
+			
+			$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`='".$web_users[$i2]['id']."'";
+			$region_land_special = dbQuery($sql, $_dblink);
+			
+			$tcls = count($region_land_special);
+			
+			if($tcls){
+				for($icls=0; $icls<$tcls; $icls++){
+					$sql = "SELECT `id` FROM `land` WHERE `land_special_id`='".$region_land_special[$icls]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."'";
+					$owner_land_special = dbQuery($sql, $_dblink);
+					
+					if(count($owner_land_special)){
+						$print['area_owned'] = count($owner_land_special);
+						$print['id'] = $web_users[$i2]['id'];
+						$print['name'] = $web_users[$i2]['name'];
+						
+						$ownerArr[] = $print;
+					}
+				}
 			}
 		}
 
@@ -308,31 +403,56 @@ if($_GET['action']=='region'){
 //GET BIGGEST OWNERS IN THE CITY
 if($_GET['action']=='In City'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$areatype = 'land';
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}else if($_GET['areatype']=='water'){
 		$areatype = 'water';
 	}
 	
-	$sql = "SELECT `country` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' AND `region`!='' AND `city`!='' ORDER BY `country`";
+	$countryArr = array();
+	
+	$sql = "SELECT `country` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' AND `region`!='' AND `city`!='' ORDER BY `city`";
 	$countries_land = dbQuery($sql, $_dblink);
 	
-	$sql = "SELECT `a`.`id`, `b`.`country` FROM `land_special` AS `a` 
-	LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-	WHERE `a`.`web_user_id`!='' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`!='' AND `b`.`region`!='' AND `b`.`city`!=''";
+	$tcl = count($countries_land);
+	
+	for($icl=0; $icl<$tcl; $icl++){
+		$print = array();
+		
+		$print['country'] = $countries_land[$icl]['country'];
+		
+		$countryArr[] = $print;
+	}
+	
+	$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`!=''";
 	$countries_land_special = dbQuery($sql, $_dblink);
 	
-	$countries = array_merge($countries_land, $countries_land_special);
-	$countries = array_values($countries);
-
-	$t_countries = count($countries);
+	$tcls = count($countries_land_special);
 	
-	for($i=0; $i<$t_countries; $i++){
-		if($countries[$i]['country']!=$countries[($i-1)]['country']){
-			echo '<div id="top_list_items" class="text_3" onclick="step3(\'country3\', \''.$countries[$i]['country'].'\', \''.$areatype.'\');">'.$countries[$i]['country'].'</div>';
+	if($tcls){
+		for($icls=0; $icls<$tcls; $icls++){
+			$sql2 = "SELECT `country` FROM `land` WHERE `land_special_id`='".$countries_land_special[$icls]['id']."' AND (`areatype`='".$areatype."' ".$sqlext.") AND `country`!='' AND `region`!='' AND `city`!='' ORDER BY `city`";
+			$countries_land2 = dbQuery($sql2, $_dblink);
+			
+			if(count($countries_land2)){
+				$print = array();
+				
+				$print['country'] = $countries_land2[0]['country'];
+				
+				$countryArr[] = $print;
+			}
+		}
+	}
+	
+	$tc = count($countryArr);
+	
+	if($tc){
+		sort($countryArr);
+		for($ic=0; $ic<$tc; $ic++){
+			if($countryArr[$ic]['country']!=$countryArr[($ic-1)]['country']){
+				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country3\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');">'.$countryArr[$ic]['country'].'</div>';
+			}
 		}
 	}
 	
@@ -341,28 +461,53 @@ if($_GET['action']=='In City'){
 
 if($_GET['action']=='country3'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}
-
-	$sql = "SELECT `region` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`!='' AND `city`!='' ORDER BY `region`";
-	$regions_land = dbQuery($sql, $_dblink);
 	
-	$sql = "SELECT `a`.`id`, `b`.`region` FROM `land_special` AS `a` 
-	LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-	WHERE `a`.`web_user_id`!='' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`='".mysql_escape_string($_GET['country'])."' AND `b`.`region`!='' AND `b`.`city`!=''";
-	$regions_land_special = dbQuery($sql, $_dblink);
+	$regionArr = array();
 	
-	$regions = array_merge($regions_land, $regions_land_special);
-	$regions = array_values($regions);
+	$sql = "SELECT `region` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`!='' AND `city`!='' ORDER BY `city`";
+	$region_land = dbQuery($sql, $_dblink);
 	
-	$t_regions = count($regions);
+	$tcl = count($region_land);
 	
-	for($i=0; $i<$t_regions; $i++){
-		if($regions[$i]['region']!=$regions[($i-1)]['region']){
-			echo '<div id="top_list_items" class="text_3" onclick="step4(\'region2\', \''.$_GET['country'].'\', \''.$regions[$i]['region'].'\', \''.$_GET['areatype'].'\');">'.$regions[$i]['region'].'</div>';
+	for($icl=0; $icl<$tcl; $icl++){
+		$print = array();
+		
+		$print['region'] = $region_land[$icl]['region'];
+		
+		$regionArr[] = $print;
+	}
+	
+	$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`!=''";
+	$region_land_special = dbQuery($sql, $_dblink);
+	
+	$tcls = count($region_land_special);
+	
+	if($tcls){
+		for($icls=0; $icls<$tcls; $icls++){
+			$sql2 = "SELECT `region` FROM `land` WHERE `land_special_id`='".$region_land_special[$icls]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`!='' AND `city`!='' ORDER BY `city`";
+			$region_land2 = dbQuery($sql2, $_dblink);
+			
+			if(count($region_land2)){
+				$print = array();
+				
+				$print['region'] = $region_land2[0]['region'];
+				
+				$regionArr[] = $print;
+			}
+		}
+	}
+	
+	$tc = count($regionArr);
+	
+	if($tc){
+		sort($regionArr);
+		for($ic=0; $ic<$tc; $ic++){
+			if($regionArr[$ic]['region']!=$regionArr[($ic-1)]['region']){
+				echo '<div id="top_list_items" class="text_3" onclick="step4(\'region2\', \''.$_GET['country'].'\', \''.$regionArr[$ic]['region'].'\', \''.$_GET['areatype'].'\');">'.$regionArr[$ic]['region'].'</div>';
+			}
 		}
 	}
 
@@ -371,28 +516,53 @@ if($_GET['action']=='country3'){
 
 if($_GET['action']=='region2'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}
-
+	
+	$cityArr = array();
+	
 	$sql = "SELECT `city` FROM `land` WHERE `web_user_id`!='' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."' AND `city`!='' ORDER BY `city`";
-	$cities_land = dbQuery($sql, $_dblink);
+	$city_land = dbQuery($sql, $_dblink);
 	
-	$sql = "SELECT `a`.`id`, `b`.`city` FROM `land_special` AS `a` 
-	LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-	WHERE `a`.`web_user_id`!='' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`='".mysql_escape_string($_GET['country'])."' AND `b`.`region`='".mysql_escape_string($_GET['region'])."' AND `b`.`city`!=''";
-	$cities_land_special = dbQuery($sql, $_dblink);
+	$tcl = count($city_land);
 	
-	$cities = array_merge($cities_land, $cities_land_special);
-	$cities = array_values($cities);
+	for($icl=0; $icl<$tcl; $icl++){
+		$print = array();
+		
+		$print['city'] = $city_land[$icl]['city'];
+		
+		$cityArr[] = $print;
+	}
 	
-	$t_cities = count($cities);
-
-	for($i=0; $i<$t_cities; $i++){
-		if($cities[$i]['city']!=$cities[($i-1)]['city']){
-			echo '<div id="top_list_items" class="text_3" onclick="step5(\'city\', \''.$_GET['country'].'\', \''.$_GET['region'].'\', \''.$cities[$i]['city'].'\', \''.$_GET['areatype'].'\');">'.$cities[$i]['city'].'</div>';
+	$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`!=''";
+	$city_land_special = dbQuery($sql, $_dblink);
+	
+	$tcls = count($city_land_special);
+	
+	if($tcls){
+		for($icls=0; $icls<$tcls; $icls++){
+			$sql2 = "SELECT `city` FROM `land` WHERE `land_special_id`='".$city_land_special[$icls]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."' AND `city`!='' ORDER BY `city`";
+			$city_land2 = dbQuery($sql2, $_dblink);
+			
+			if(count($city_land2)){
+				$print = array();
+				
+				$print['city'] = $city_land2[0]['city'];
+				
+				$cityArr[] = $print;
+			}
+		}
+	}
+	
+	$tc = count($cityArr);
+	
+	if($tc){
+		sort($cityArr);
+		for($ic=0; $ic<$tc; $ic++){
+			if($cityArr[$ic]['city']!=$cityArr[($ic-1)]['city']){
+				echo '<div id="top_list_items" class="text_3" onclick="step5(\'city\', \''.$_GET['country'].'\', \''.$_GET['region'].'\', \''.$cityArr[$ic]['city'].'\', \''.$_GET['areatype'].'\');">'.$cityArr[$ic]['city'].'</div>';
+			}
 		}
 	}
 
@@ -401,12 +571,10 @@ if($_GET['action']=='region2'){
 
 if($_GET['action']=='city'){
 	$sqlext = '';
-	$sqlext2 = '';
 	if($_GET['areatype']=='land'){
 		$sqlext = " OR `areatype`='' ";
-		$sqlext2 = " OR `b`.`areatype`='' ";
 	}
-	  
+	
 	$sql2 = "SELECT `id`, `name` FROM `web_users`";
 	$web_users = dbQuery($sql2, $_dblink);
 	
@@ -416,24 +584,36 @@ if($_GET['action']=='city'){
 		$ownerArr = array();
 		for($i2=0; $i2<$t2; $i2++){
 			$print = array();
-		
-			$sql2 = "SELECT `id` FROM `land` WHERE `web_user_id`='".$web_users[$i2]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."' AND `city`='".mysql_escape_string($_GET['city'])."'";
-			$owner_land = dbQuery($sql2, $_dblink);
 			
-			$sql = "SELECT `a`.`id` FROM `land_special` AS `a` 
-			LEFT JOIN `land` AS `b` ON `a`.`id`=`b`.`land_special_id` 
-			WHERE `a`.`web_user_id`='".$web_users[$i2]['id']."' AND (`b`.`areatype`='".$areatype."' ".$sqlext2.") AND `b`.`country`='".mysql_escape_string($_GET['country'])."' AND `b`.`region`='".mysql_escape_string($_GET['region'])."' AND `b`.`city`='".mysql_escape_string($_GET['city'])."'";
-			$owner_land_special = dbQuery($sql, $_dblink);
+			$sql = "SELECT `id` FROM `land` WHERE `web_user_id`='".$web_users[$i2]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."' AND `city`='".mysql_escape_string($_GET['city'])."'";
+			$owner_land = dbQuery($sql, $_dblink);
 			
-			$owner = array_merge($owner_land, $owner_land_special);
-			$owner = array_values($owner);
-			
-			if(count($owner)){
-				$print['area_owned'] = count($owner);
+			if(count($owner_land)){
+				$print['area_owned'] = count($owner_land);
 				$print['id'] = $web_users[$i2]['id'];
 				$print['name'] = $web_users[$i2]['name'];
 				
 				$ownerArr[] = $print;
+			}
+			
+			$sql = "SELECT `id` FROM `land_special` WHERE `web_user_id`='".$web_users[$i2]['id']."'";
+			$region_land_special = dbQuery($sql, $_dblink);
+			
+			$tcls = count($region_land_special);
+			
+			if($tcls){
+				for($icls=0; $icls<$tcls; $icls++){
+					$sql = "SELECT `id` FROM `land` WHERE `land_special_id`='".$region_land_special[$icls]['id']."' AND (`areatype`='".$_GET['areatype']."' ".$sqlext.") AND `country`='".mysql_escape_string($_GET['country'])."' AND `region`='".mysql_escape_string($_GET['region'])."' AND `city`='".mysql_escape_string($_GET['city'])."'";
+					$owner_land_special = dbQuery($sql, $_dblink);
+					
+					if(count($owner_land_special)){
+						$print['area_owned'] = count($owner_land_special);
+						$print['id'] = $web_users[$i2]['id'];
+						$print['name'] = $web_users[$i2]['name'];
+						
+						$ownerArr[] = $print;
+					}
+				}
 			}
 		}
 
