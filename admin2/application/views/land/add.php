@@ -289,6 +289,11 @@ else{
 				<input type="hidden" id="web_user_name" size="40" >
 		  </td>
 		</tr>
+		<tr class="odd">
+		  <td>Date Bought:</td>
+		  <td><input type="text" name="datebought" size="40" /><div class='hint'>YYYY-MM-DD </div>
+		  </td>
+		</tr>
         <tr class="even">
             <td>Category:</td>
             <td>

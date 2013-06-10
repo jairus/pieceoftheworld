@@ -15,7 +15,7 @@ class land extends CI_Controller {
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id
 				left join categories C on C.id = LD.category_id
-				where L.`land_special_id` is NULL and (L.web_user_id>0) order by L.`id` desc limit $start, $limit";
+				where L.`land_special_id` is NULL and (L.web_user_id>0) order by L.`datebought` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -133,7 +133,10 @@ class land extends CI_Controller {
 			// check if there are other lands that are connected to the same land detail
 			$landDetailId = $_POST['land_detail_id'];
 			$landId = $_POST['id'];						
-			$sql = "update land set `web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."' where id = '$landId' limit 1";
+			$sql = "update land set 
+			`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."', 
+			`datebought`= '".mysql_real_escape_string($_POST['datebought'])."'
+			where id = '$landId' limit 1";
 			$this->db->query($sql);
 			
 			$fieldUpdateSql = 
@@ -190,7 +193,7 @@ class land extends CI_Controller {
 	public function edit($id){
 		$table = "land";
 		$controller = $table;
-		$sql = "select L.`x`, L.`y`, L.`id`, LD.`title`, LD.`detail`, LD.`land_owner`,  LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail, LD.category_id
+		$sql = "select L.`x`, L.`y`, L.`id`, L.`datebought`, LD.`title`, LD.`detail`, LD.`land_owner`,  LD.`email_resent` , LD.`id` as land_detail_id, WU.useremail, LD.category_id
 				from `land` L
 				left join land_detail LD on LD.id = L.land_detail_id
 				left join web_users WU on WU.id = L.web_user_id

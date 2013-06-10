@@ -13,7 +13,7 @@ class specialland extends CI_Controller {
 		$sql = "select LS.*, C.name as categoryName
 		        from `land_special` LS
 		        left join categories C on C.id = LS.category_id
-		        where 1 and LS.`id` in (select distinct `land_special_id` from `land`) order by LS.`id` desc limit $start, $limit";
+		        where 1 and LS.`id` in (select distinct `land_special_id` from `land`) order by LS.`datebought` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);
@@ -139,7 +139,8 @@ class specialland extends CI_Controller {
 					`price` = '".mysql_real_escape_string($_POST['price'])."',
 					`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."',
 					`web_user_id` = '".mysql_real_escape_string($_POST['web_user_id'])."',
-					`category_id` = '".mysql_real_escape_string($_POST['category_id'])."'
+					`category_id` = '".mysql_real_escape_string($_POST['category_id'])."',
+					`datebought` = '".mysql_real_escape_string($_POST['datebought'])."'
 					where `id` = '$landSpecialId' limit 1";	
 			
 			$this->db->query($sql);										
