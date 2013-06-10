@@ -1175,6 +1175,7 @@ function putBox(event, inLatLng){ //event when a block is clicked
 		//alert("1");
 		return 0;
 	}
+	jQuery("#clicktozoom").hide();
 	var projection = new MercatorProjection();
 	if(isset(inLatLng)){
 		xlatLng = inLatLng;
