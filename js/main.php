@@ -239,19 +239,19 @@ function showVideo(videoStr) {
 
 	jQuery("#video").append(mainVideo);
 
-	jQuery("#info-span table").hide();
+	jQuery("#info-span #table_main_info").hide();
 	jQuery("#info-span #thumbs").hide();
 	jQuery("#info-span #video").show();
 }
 
 function showThumbs() {
-	jQuery("#info-span table").hide();
+	jQuery("#info-span #table_main_info").hide();
 	jQuery("#info-span #thumbs").show();
 	jQuery("#info-span #video").hide();
 }
 
 function showInfo() {
-	jQuery("#info-span table").show();
+	jQuery("#info-span #table_main_info").show();
 	jQuery("#info-span #thumbs").hide();
 	jQuery("#info-span #video").hide();
 }
@@ -408,10 +408,14 @@ function onMarkerClick(event, type) {
 	jQuery('#image-button').show();
 	jQuery("#loading-button").show();
 	//ZOI
-	jQuery("#info table").show();
-	jQuery("#info #thumbs").hide();
-	jQuery("#info #video").hide();
+	jQuery("#info-span #table_main_info").show();
+	jQuery("#info-span #thumbs").hide();
+	jQuery("#info-span #video").hide();
 	jQuery("#clickvideo").hide();
+	jQuery("#info-span #div_bid").hide();
+	jQuery('#bidresults').hide();
+	jQuery('#bid_tab_wrapperonly').empty();
+	
 	//ZOI
 	jQuery("#tabs").tabs("select",0);
 	
@@ -2133,8 +2137,12 @@ function onBuyLand() {
 	}
 	else if (jQuery('#buy-button').val() == "Click to Bid") {
 		//url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
-		url = "bidbuyland.php?type=bid&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink+"&land_id="+jQuery('#land_id').val();
-		jQuery.colorbox({iframe:true, width:"410px", height:"300px", href:url});
+		//url = "bidbuyland.php?type=bid&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink+"&land_id="+jQuery('#land_id').val();
+		//jQuery.colorbox({iframe:true, width:"410px", height:"300px", href:url});
+		jQuery('#theform')[0].reset();
+		jQuery("#info-span #table_main_info").hide();
+		jQuery('#info-span #div_bid').show();
+		jQuery('#table_bid_form').show();
 	}
 	//window.open(url);
 	//window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
