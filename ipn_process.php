@@ -57,7 +57,8 @@
 			`title` = '".mysql_real_escape_string($post['title'])."',
 			`detail` = '".mysql_real_escape_string($post['description'])."',
 			`land_owner` = '".mysql_real_escape_string($post['land_owner'])."',
-			`web_user_id`='".$web_user_id."'
+			`web_user_id`='".$web_user_id."',
+			`datebought`=NOW()
 			where `id` = '".$land_special_id."'
 		";
 		dbQuery($sql, $_dblink);
@@ -79,7 +80,8 @@
 				//update land detail id
 				$sql = "update `land` set 
 				`land_special_id`='".$land_special_id."',
-				`web_user_id`='".$web_user_id."'
+				`web_user_id`='".$web_user_id."',
+				`datebought`=NOW()
 				where `id`='".$insertid."'";
 				dbQuery($sql, $_dblink);
 				
@@ -90,7 +92,8 @@
 				`x`='".$x."',
 				`y`='".$y."',
 				`web_user_id`='".$web_user_id."',
-				`land_special_id`='".$land_special_id."'";
+				`land_special_id`='".$land_special_id."',
+				`datebought`=NOW()";
 				$insertid = dbQuery($sql, $_dblink);
 				$insertid  = $insertid ['mysql_insert_id'];
 				echo "inserted land ".$insertid."<br />";
@@ -148,7 +151,8 @@
 				//update land detail id
 				$sql = "update `land` set 
 				`land_detail_id`='".$land_detail_id."',
-				`web_user_id`='".$web_user_id."'
+				`web_user_id`='".$web_user_id."',
+				`datebought`=NOW()
 				where `id`='".$insertid."'";
 				dbQuery($sql, $_dblink);
 				
@@ -159,6 +163,7 @@
 				`x`='".$x."',
 				`y`='".$y."',
 				`web_user_id`='".$web_user_id."',
+				`datebought`=NOW(),
 				`land_detail_id`='".$land_detail_id."'";
 				$insertid = dbQuery($sql, $_dblink);
 				$insertid  = $insertid ['mysql_insert_id'];
