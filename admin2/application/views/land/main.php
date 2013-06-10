@@ -164,7 +164,7 @@ $t = count($records);
 			?></td>
 			<td><a href="<?php echo site_url(); ?>land/edit/<?php echo $records[$i]['id']?>" ><?php echo htmlentitiesX($records[$i]['id']); ?></a></td>
 			<td align='center'>
-			<a target='_blank' href='/?xy=<?php echo $records[$i]['x']."~".$records[$i]['y']?>'><?php echo $records[$i]['x']."-".$records[$i]['y']?></a>
+			<a target='_blank' href='/index2.php?xy=<?php echo $records[$i]['x']."~".$records[$i]['y']?>'><?php echo $records[$i]['x']."-".$records[$i]['y']?></a>
 			</td>
 			<td><?php 
 			echo $records[$i]['useremail'];	

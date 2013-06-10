@@ -268,7 +268,7 @@ else{
 		  <td><input type="text" name="title" size="40">&nbsp;
 		  <?php
 		  if($record){
-			?><a target='_blank' href='/index.php?xy=<?php echo $record['points'][0]['x']."~".$record['points'][0]['y']?>'>View in Map</a><?php
+			?><a target='_blank' href='/index2.php?xy=<?php echo $record['points'][0]['x']."~".$record['points'][0]['y']?>'>View in Map</a><?php
 		  }
 		  else{
 			if($add_data->points[0]){

@@ -33,25 +33,22 @@
 		<td></td>
 	  </tr>
 	  <tr>
-		<td colspan="3" height="10"></td>
+		<td colspan="3" height="5"></td>
 	  </tr>
 	  <tr>
 		<td colspan="3" class="text_1">
 			<span id="info-detail"></span>
-			<br />&nbsp;
+			<!--<br />&nbsp;
 			<div id="dcountry"></div>
 			<div id="dregion"></div>
-			<div id="dcity"></div>
+			<div id="dcity"></div>-->
 		</td>
 	  </tr>
 	  <tr>
-		<td colspan="3" height="10"></td>
+		<td colspan="3" height="5"></td>
 	  </tr>
 	  <tr>
 		<td colspan="3" class="text_1" align="right"><div id='info-land_owner_container'>Owner: <span id="info-land_owner"></span></div></td>
-	  </tr>
-	  <tr>
-		<td colspan="3" height="5"></td>
 	  </tr>
 	  <tr>
 		<td colspan="3" class="text_1" align="right"><div id='info-land_bid_container'>Highest Bid: <span id="info-land_bid"></span></div></td>

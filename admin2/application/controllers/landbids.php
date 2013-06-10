@@ -79,6 +79,59 @@ class landbids extends CI_Controller {
 		$data['cnt'] = $cnt[0]['cnt'];
 		$data['content'] = $this->load->view('landbids/main', $data, true);
 		$this->load->view('layout/main', $data);		
-	}	
+	}
+	
+	public function ajax_delete($landBidId=""){
+		if(!$_SESSION['user']){
+			return false;
+		}
+		if(!$landBidId){
+			$landBidId = $_POST['id'];
+		}
+		
+		$sql = "delete from land_bids where id = ".$this->db->escape($landBidId)." limit 1";
+		$q = $this->db->query($sql);
+		?>
+		alertX("Successfully deleted.");
+		<?php
+		exit();
+	}
+	
+	function ajax_edit(){
+		$table = "landbids";
+		$controller = $table;
+		$error = false;
+		if(!trim($_POST['user_bid'])){
+			?>alertX("Please input user bid!");<?php
+			$error = true;
+		}	
+		
+		if(!$error){
+			$fieldUpdateSql = 
+			"`bid` = '".mysql_real_escape_string($_POST['user_bid'])."',
+			`message` = '".mysql_real_escape_string($_POST['user_message'])."'";
+			
+			$sql = "update `land_bids` set $fieldUpdateSql where `id` = '".$_POST['id']."' limit 1";
+			$this->db->query($sql);
+			?>
+			alertX("Successfully Updated Land Bid: '<?php echo htmlentitiesX($_POST['user_bid']); ?>'.");
+			<?php
+		}
+		?>jQuery("#record_form *").attr("disabled", false);<?php
+	}
+	
+	public function edit($id){
+		$table = "landbids";
+		$controller = $table;
+		$sql = "select * from `land_bids` where `id` = '".mysql_real_escape_string($id)."' limit 1";
+		$q = $this->db->query($sql);
+		$record = $q->result_array();
+		$record = $record[0];
+        $data['record'] = $record;
+
+		$data['content'] = $this->load->view($controller.'/add', $data, true);
+		
+		$this->load->view('layout/main', $data);;
+	}
 }
 ?>
