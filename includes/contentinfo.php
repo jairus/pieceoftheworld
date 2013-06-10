@@ -36,6 +36,18 @@
 		<td colspan="3" height="10"></td>
 	  </tr>
 	  <tr>
+		<td colspan="3" class="text_1" align="right"><div id='info-land_owner_container'>Owner: <span id="info-land_owner"></span></div></td>
+	  </tr>
+	  <tr>
+		<td colspan="3" height="5"></td>
+	  </tr>
+	  <tr>
+		<td colspan="3" class="text_1" align="right"><div id='info-land_bid_container'>Highest Bid: <span id="info-land_bid"></span></div></td>
+	  </tr>
+	  <tr>
+		<td colspan="3" height="10"></td>
+	  </tr>
+	  <tr>
 		<td colspan="3" class="text_1">
 			<span id="info-detail"></span>
 			<br />&nbsp;
@@ -52,71 +64,6 @@
 	  <tr>
 		<td colspan="3" height="10"></td>
 	  </tr>
-	  <tr>
-		<td colspan="3" class="text_1" align="right"><div id='info-land_owner_container'>Owner: <span id="info-land_owner"></span></div></td>
-	  </tr>
-	  <tr>
-		<td colspan="3" class="text_1" align="right"><div id='info-land_bid_container'>Highest Bid: <span id="info-land_bid"></span></div></td>
-	  </tr>
-	  <tr>
-		<td colspan="3" height="10"></td>
-	  </tr>
 	</table>
 	</div>
 </span>
-	<!--<div id="buy-button" style="float:left; width:290px; height:auto; padding-bottom:5px; display:none;"><div id="top_list_title_1"><a class="link_1" style="cursor:pointer;" onClick="onBuyLand();">Buy Land</a></div></div>-->
-	
-	<!--<div id="image-button" style="float:left; width:290px; height:auto; padding-bottom:5px; display:none;"><div id="top_list_title_1"><a class="link_1">Image</a></div></div>-->
-	<!--<div id="top_list_title_1 clickvideo" style="display:none;"><a class="link_1" style="cursor:pointer;" onClick="showThumbs();">Videos</a></div>-->
-
-	<!--<h3><span id="info-city"></span><span id="info-title"></span></h3>
-	<div id="fbLikeHolder"></div>
-	<div id="thumbs"></div>
-	<div id="video"></div>
-	<table>
-	  <tr>
-		  <td valign=top><div class="img"><a id="info-lightbox" ><img id="info-img" border="0"></a></div></td>
-		  <td valign="top">
-			  <table>
-				  <tr style="display:none">
-					  <td><strong>Latitude:</strong></td>
-					  <td><span id="info-latitude"></span></td>
-				  </tr>
-				  <tr style="display:none">
-					  <td><strong>Longitude:</strong></td>
-					  <td><span id="info-longitude"></span></td>
-				  </tr>
-				  <tr id="info-land_owner_container" style="display:none">
-					  <td colspan="2">
-						  Owner: <span id="info-land_owner"></span>
-					  </td>
-				  </tr>
-				  <tr>
-					  <td colspan="2">
-						  <br />
-						  <span id="info-detail"></span>
-						  <br />&nbsp;
-						  <div id="dcountry"></div>
-						  <div id="dregion"></div>
-						  <div id="dcity"></div>
-					  </td>
-				  </tr>
-				  <tr>
-					  <td colspan="2">
-						  <center><br>
-							  <table>
-								  <tr>
-									  <td><input type="button" id="buy-button" value="Buy" style="padding: 3px; padding-left: 10px; padding-right: 10px;" onClick="onBuyLand();"></td>
-									  <td><input type="button" id="clicktozoom" value="Zoom" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none"></td>
-									  <td><input type="button" id="clickvideo" value="Video" style="padding: 3px; padding-left: 10px; padding-right: 10px; display:none;" onclick="showThumbs();"></td>
-									  <td><a id="fbsharelink" style="border:0px;" ><img style="border:0px;" src="fbshare.jpg" id="fbshare"></a></td>
-									  <td valign="middle" id="sharethisloc">Share this location</td>
-								  </tr>
-							  </table>
-						  </center>
-					  </td>
-				  </tr>
-			  </table>
-		  </td>
-	  </tr>
-	</table>-->
