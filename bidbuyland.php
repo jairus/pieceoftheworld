@@ -651,10 +651,8 @@ else if(strtolower($_GET['type'])=='bid'){
 			$bouncereturn = $_POST['user_email'];
 			$subject = "Bid for ".$land_name;
 			$message = '<b>User Bid: </b>'.$_POST['user_bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
-			/*$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
-			$emails[0]['name'] = "PieceOfTheWorld.Co";*/
-			$emails[0]['email'] = "zbsjr@yahoo.com";
-			$emails[0]['name'] = "Zoilo Bravo";
+			$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
+			$emails[0]['name'] = "PieceOfTheWorld.Co";
 			$attachments[0] = "";
 			$attachments[1] = "";
 			emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1);
