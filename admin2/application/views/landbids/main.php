@@ -2,6 +2,22 @@
 
 ?>
 <script>
+function deleteRecord(co_id){
+	if(confirm("Are you sure you want to delete this record?")){
+		formdata = "id="+co_id;
+		jQuery.ajax({
+			url: "<?php echo site_url(); ?>landbids/ajax_delete/"+co_id,
+			type: "POST",
+			data: formdata,
+			dataType: "script",
+			success: function(){
+				jQuery("#tr"+co_id).fadeOut(200);
+				self.location = "<?php echo site_url(); ?>landbids";
+			}
+		});
+		
+	}
+}
 
 function searchCompany(){
 	self.location = "<?php echo site_url(); ?>landbids/search/?search="+jQuery("#search").val()+"&filter="+jQuery("#sfilter").val();
@@ -32,7 +48,8 @@ $t = count($records);
 		<th>Bid</th>
 		<th>Bidder</th>		
 		<th>Message</th>
-		<th>Land ID</th>													
+		<th>Land ID</th>
+		<th></th>
 	</tr>
 	<?php
 	
@@ -46,7 +63,10 @@ $t = count($records);
 			<td><?php echo $records[$i]['bidder']; ?></td>			
 			<td><?php echo $records[$i]['message']; ?></td>			
 			<td align="right"><?php echo htmlentitiesX($records[$i]['land_id']); ?></td>
-			
+			<td width='300px'>
+			[ <a href="<?php echo site_url(); ?>landbids/edit/<?php echo $records[$i]['id']?>" >Edit</a> ] 
+			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['id']) ?>");' >Delete</a> ]
+			</td>
 		</tr>
 		<?php
 	}
