@@ -650,7 +650,7 @@ else if(strtolower($_GET['type'])=='bid'){
 			$fromname = $_POST['user_email'];
 			$bouncereturn = $_POST['user_email'];
 			$subject = "Bid for ".$land_name;
-			$message = '<b>User Bid: </b>'.$_POST['user_bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
+			$message = '<b>Land ID: </b>'.$_SESSION["GET"]['land_id'].'<br /><br /><b>User Bid: </b>'.$_POST['user_bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
 			$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
 			$emails[0]['name'] = "PieceOfTheWorld.Co";
 			$attachments[0] = "";
