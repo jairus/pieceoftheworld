@@ -36,6 +36,18 @@
 		<td colspan="3" height="10"></td>
 	  </tr>
 	  <tr>
+		<td colspan="3" class="text_1">
+			<span id="info-detail"></span>
+			<br />&nbsp;
+			<div id="dcountry"></div>
+			<div id="dregion"></div>
+			<div id="dcity"></div>
+		</td>
+	  </tr>
+	  <tr>
+		<td colspan="3" height="10"></td>
+	  </tr>
+	  <tr>
 		<td colspan="3" class="text_1" align="right"><div id='info-land_owner_container'>Owner: <span id="info-land_owner"></span></div></td>
 	  </tr>
 	  <tr>
@@ -49,11 +61,6 @@
 	  </tr>
 	  <tr>
 		<td colspan="3" class="text_1">
-			<span id="info-detail"></span>
-			<br />&nbsp;
-			<div id="dcountry"></div>
-			<div id="dregion"></div>
-			<div id="dcity"></div>
 			<input class='longbutton' type='button' id='loading-button' value="Loading..." style='cursor:default; display:none' />
 			<input class='longbutton' type='button' id='buy-button' onClick="onBuyLand();" value="Click to Buy" />
 			<input class='longbutton' type="button" id="clicktozoom" value="Click to Zoom" style="display:none" />
