@@ -108,8 +108,9 @@ CoordMapType.prototype.getTile = function(coord, zoom, ownerDocument) {
 /****************************************************************************************************************/
 
 /************************* session setters ************************/
-
+globalprice = 0;
 function setSessionPrice(p, sync){ //set the price in session
+	globalprice = p;
 	if(sync){
 		jQuery.ajax({
 			dataType: "html",
@@ -177,7 +178,9 @@ function setCoords(){
 	});
 }
 //set coordinates for marker (used for buying)
+globalcoordsformarkers = "";
 function setCoordsForMarkers(json){
+	globalcoordsformarkers = json;
 	consoleX("setCoordsForMarkers");
 	consoleX(json);
 	total = 0;
@@ -1173,6 +1176,7 @@ var gattached = []; //attached blocks from 1 block
 
 function putBox(event, inLatLng){ //event when a block is clicked
 	consoleX("putBox");
+	gBuyOnMarker = false;
 	//disable block clicking when zoomed out
 	if(map.getZoom()<17){
 		unsetGZones();
@@ -2123,17 +2127,33 @@ function ajaxAddRedMarkers(map, force) { //they are not actually red markers... 
 }
 
 gBuyOnMarker = false;
+inonBuyLand = false;
 function onBuyLand() {
-	if(!gBuyOnMarker){
-		calculateTotal(true); //second parameter to make the routine sync
-		setCoords();
+	if(inonBuyLand){
+		return 0;
 	}
-	gBuyOnMarker = false;
+	inonBuyLand = true;
+	for(i=0; i<100;i++){
+		
+	}
 	var url = "";
 	if (jQuery('#buy-button').val() == "Click to Buy") {
+		jQuery("#loading-button").show();
+		jQuery('#buy-button').hide();
+		setSessionPrice(globalprice, true);
+		if(!gBuyOnMarker){
+			calculateTotal(true); //second parameter to make the routine sync
+			setCoords();
+		}
+		else{
+			setCoordsForMarkers(globalcoordsformarkers);
+		}
 		//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 		url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 		jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
+		jQuery("#loading-button").hide();
+		jQuery('#buy-button').show();
+		
 	}
 	else if (jQuery('#buy-button').val() == "Click to Bid") {
 		//url = "bidbuyland.php?type=bid&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
@@ -2146,6 +2166,7 @@ function onBuyLand() {
 	}
 	//window.open(url);
 	//window.showModalDialog(url,0, "dialogWidth:700px; dialogHeight:450px; center:yes; resizable: no; status: no");
+	inonBuyLand = false;
 }
 
 function getCookie(c_name) {

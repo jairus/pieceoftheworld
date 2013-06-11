@@ -964,7 +964,8 @@ else if(strtolower($_GET['type'])=='bid'){
 	function nl2br(str) {
 		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ '<br />' +'$2');
 	}
-	
+	window.parent.jQuery("#loading-button").hide();
+	window.parent.jQuery('#buy-button').show();
 </script>
 </body>
 </html>
