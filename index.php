@@ -319,7 +319,14 @@ if($_GET['px']!=""){
 		<div id="popup_header">
 			<div id="popup_icon_interscape"><img src="images/interscape_blue.png" width="21" height="22" border="0" /></div>
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
-			<div id="popup_header_right" align="right"><a class="text_1" id='sign_in' style='cursor:pointer; display:none' onClick="updateProfile(); openClosePopUp('facebook'); jQuery('#sign_in').hide(); " />Sign In</a></div>
+			<?php
+			if($_SESSION['userdata']){
+				?><div id="popup_header_right" align="right"><a class="text_1" id='sign_in' style='cursor:pointer; display:none' onClick="updateProfile(); openClosePopUp('facebook'); jQuery('#sign_in').hide(); " /><b>Account</b></a></div><?php
+			}
+			else{
+				?><div id="popup_header_right" align="right"><a class="text_1" id='sign_in' style='cursor:pointer; display:none' onClick="updateProfile(); openClosePopUp('facebook'); jQuery('#sign_in').hide(); " /><b>Sign In</b></a></div><?php
+			}
+			?>
 		</div>
 		<div id="popup_main_content">
 			<div id="content_about" style="display:none;">
@@ -670,6 +677,7 @@ if($_GET['px']!=""){
 		else{
 			jQuery("#profile_name").html(data.content.useremail);
 		}
+		jQuery("#sign_in").html("<b>Account</b>");
 	}
 
 	/*
@@ -804,6 +812,7 @@ if($_GET['px']!=""){
 					}
 					jQuery("#userProfile").hide();
 					jQuery("#loginForm").show();
+					jQuery("#sign_in").html("<b>Sign In</b>");
 				}
 			}
 		});
