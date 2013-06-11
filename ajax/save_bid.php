@@ -45,12 +45,12 @@ if(!checkEmail(trim($_POST['user_email']))){
 	$emails[0]['name'] = "PieceOfTheWorld.Co";
 	$attachments[0] = "";
 	$attachments[1] = "";
-	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1);
+	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  0);
 	
 	$sql = "INSERT INTO `land_bids` (`bidder`, `bid`, `message`, `land_id`) VALUES ('".$_POST['user_email']."', '".$_GET['bid']."', '".$_POST['user_message']."', '".$_GET['land_id']."')";
 	dbQuery($sql, $_dblink);
 	
-	echo '<span style="color:#00FF00; font-weight:bold;">You have successfully submitted your Bid</span>';
+	echo '<br /><br /><span style="color:#00FF00; font-weight:bold;">You have successfully submitted your Bid</span>';
 	
 	exit();
 }
