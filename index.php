@@ -319,7 +319,7 @@ if($_GET['px']!=""){
 		<div id="popup_header">
 			<div id="popup_icon_interscape"><img src="images/interscape_blue.png" width="21" height="22" border="0" /></div>
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
-			<div id="popup_header_right" align="right"><img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="updateProfile(); openClosePopUp('facebook');" /></div>
+			<div id="popup_header_right" align="right"><a class="text_1" style='cursor:pointer' onClick="updateProfile(); openClosePopUp('facebook');" />Sign In</a></div>
 		</div>
 		<div id="popup_main_content">
 			<div id="content_about" style="display:none;">
@@ -474,7 +474,7 @@ if($_GET['px']!=""){
 				  </tr>
 				  <tr>
 					<td class="text_1">
-						<img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
+						<img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer; display:none" onClick="loginFb()" />
 					</td>
 				  </tr>
 				</table>
@@ -502,6 +502,7 @@ if($_GET['px']!=""){
 	// start of facebook functions
 	var fbResponse = false;
 	window.fbAsyncInit = function() {
+		jQuery("#facebook_signin_btn").show();
 		FB.init({
 			appId      : '454736247931357', // App ID
 			channelUrl : '//pieceoftheworld.co/channel.html',
@@ -511,8 +512,6 @@ if($_GET['px']!=""){
 		});
 
 		FB.Event.subscribe('auth.login', function(response) {
-			jQuery("#loadingImageFb2").hide();
-			jQuery("#loadingImageFb1").show();
 			if (response.status === 'connected') {
 				fbResponse = response;
 				loginFb();
@@ -565,18 +564,26 @@ if($_GET['px']!=""){
 	
 	/****************************************************************************************************/
 	function loginFb() {
-		FB.api('/me', function(response) {
-			// update fields in login, reg and facebook form in mainTabs.php
-			jQuery("#loginForm input[name='fb_id']").val(response.id);
-			jQuery("#loginForm input[name='email']").val(response.email);
-			jQuery("#loginForm input[name='name']").val(response.name);
-			jQuery("#loginForm input[name='gender']").val(response.gender);
-			if(typeof(response.location) != 'undefined'){
-				jQuery("#loginForm input[name='location']").val(response.location.name);
-			}
-			console.log(response);
-			loginUser(true);
-		});
+		FB.login(function(response) {
+				if (response.authResponse) {
+					FB.api('/me', function(response) {
+						// update fields in login, reg and facebook form in mainTabs.php
+						jQuery("#loginForm input[name='fb_id']").val(response.id);
+						jQuery("#loginForm input[name='email']").val(response.email);
+						jQuery("#loginForm input[name='name']").val(response.name);
+						jQuery("#loginForm input[name='gender']").val(response.gender);
+						if(typeof(response.location) != 'undefined'){
+							jQuery("#loginForm input[name='location']").val(response.location.name);
+						}
+						console.log(response);
+						loginUser(true);
+					});
+				}
+				else {	
+				}
+			},{scope: 'email'}
+		);
+		
 	}
 	// end of facebook functions
 	function loginUser(fb){
@@ -628,11 +635,18 @@ if($_GET['px']!=""){
 					else{
 						jQuery("#userProfile").hide();
 						jQuery("#loginForm").show();
+						if(isset(FB)){
+							jQuery("#facebook_signin_btn").show();
+						}
 					}
 				}
 				catch(e){
 					jQuery("#userProfile").hide();
 					jQuery("#loginForm").show();
+					colsoleX(FB);
+					if(isset(FB)){
+						jQuery("#facebook_signin_btn").show();
+					}
 				}
 			},
 			error: function(){ alert(error);}

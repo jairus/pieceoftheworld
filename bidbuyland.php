@@ -229,6 +229,7 @@ function cancelLogin(){
 }
 </script>
 <body style="cursor: auto;">
+<div id="fb-root"></div>
 <?php
 if($_POST['step']==1){
 	$discount = 0;
@@ -540,6 +541,18 @@ else if(strtolower($_GET['type'])=='buy'){
 						<tr class='loginaccount' style='display:none'>
 							<td colspan=2 align='center'><input type='button' value='Login' onclick='login()'><input type='button' value='Cancel' onclick='cancelLogin()'></td>
 						</tr>
+						<tr>
+							<td colspan=2 align='center'>
+							<form id="loginForm"  autocomplete="off" style='display:none'>
+									<input type="hidden" name="fb_id" class="fb_id" />
+									<input type="hidden" name="name" class="name" />
+									<input type="hidden" name="gender" class="gender" />
+									<input type="hidden" name="location" class="location" />
+									<input type="hidden" name="email"/>
+							</form>
+							<img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
+							</td>
+						</tr>
 						<?php
 					}
 					?>
@@ -770,5 +783,171 @@ else if(strtolower($_GET['type'])=='bid'){
 	<?php
 }
 ?>
+<script type="text/javascript">
+    var loggedIn = '<?php echo isset($_SESSION['userdata'])  ?>';
+	// start of facebook functions
+	var fbResponse = false;
+	
+	window.fbAsyncInit = function() {
+		consoleX(FB);
+		FB.init({
+			appId      : '454736247931357', // App ID
+			channelUrl : '//pieceoftheworld.co/channel.html',
+			status     : true, // check login status
+			cookie     : true, // enable cookies to allow the server to access the session
+			xfbml      : true  // parse XFBML
+		});
+
+		FB.Event.subscribe('auth.login', function(response) {
+			jQuery("#loadingImageFb2").hide();
+			jQuery("#loadingImageFb1").show();
+			if (response.status === 'connected') {
+				fbResponse = response;
+				loginFb();
+			} else { /* FB.login(); */ }
+		});
+		FB.Event.subscribe('edge.create', function(href, widget) {
+			jQuery.ajax({
+				 dataType: "json",
+				 type: 'get',
+				 data: {'href':  encodeURI(href) }, // from index.php line 2121
+				 url: 'ajax/user_fxn.php?action=like',
+				 success: function(data){
+					console.log(data);
+				 }
+			});
+		});
+		FB.Event.subscribe('edge.remove', function(href, widget) {
+			jQuery.ajax({
+				dataType: "json",
+				type: 'get',
+				data: {'href':  encodeURI(href) }, // from index.php line 2121
+				url: 'ajax/user_fxn.php?action=unlike',
+				success: function(data){
+					console.log(data);
+				}
+			});
+		});
+
+	};
+
+	// Load the SDK asynchronously
+	(function(d, s, id){
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/all.js";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+	
+	if(loggedIn){
+		jQuery("#userProfile").show();
+		jQuery("#loginForm").hide();
+		openClosePopUp('facebook');
+		getLands();
+	} else {
+		jQuery("#userProfile").hide();
+		jQuery("#loginForm").show();
+		openClosePopUp('facebook');
+	}
+	
+	/****************************************************************************************************/
+	function loginFb() {
+		FB.api('/me', function(response) {
+			// update fields in login, reg and facebook form in mainTabs.php
+			jQuery("#loginForm input[name='fb_id']").val(response.id);
+			jQuery("#loginForm input[name='email']").val(response.email);
+			jQuery("#loginForm input[name='name']").val(response.name);
+			jQuery("#loginForm input[name='gender']").val(response.gender);
+			if(typeof(response.location) != 'undefined'){
+				jQuery("#loginForm input[name='location']").val(response.location.name);
+			}
+			console.log(response);
+			loginUser(true);
+		});
+	}
+	// end of facebook functions
+	function loginUser(fb){
+		if(!isset(fb)){
+			jQuery("#loginForm input[name='fb_id']").val("");
+			jQuery("#loginForm input[name='name']").val("");
+			jQuery("#loginForm input[name='gender']").val("");
+		}
+		jQuery("#login-button").val("Logging in...");
+		datax = jQuery('#loginForm').serialize();
+		jQuery('#loginForm *').attr("disabled", true);
+		jQuery.ajax({
+			dataType: "json",
+			type: 'post',
+			async: false,
+			url: "ajax/user_fxn.php?action=login",
+			data: datax,
+			success: function(data){
+				if(data.status){
+					setProfile(data);
+					jQuery("#userProfile").show();
+					jQuery("#loginForm").hide();
+					getLands();
+				} else {
+					alert(data.message);
+				}
+				jQuery('#loginForm *').attr("disabled", false);
+				jQuery("#login-button").val("Log In");
+			}
+		});
+	}
+	
+	function updateProfile(){
+		jQuery.ajax({
+			dataType: "html",
+			type: 'post',
+			async: false,
+			url: "ajax/user_fxn.php?action=checklogin",
+			success: function(data){
+				data = JSON.parse(data);
+				consoleX(data);
+				//alert(data['id']);
+				try{
+					if(isset(data.content.id)){
+						jQuery("#userProfile").show();
+						jQuery("#loginForm").hide();
+						setProfile(data);
+					}
+					else{
+						jQuery("#userProfile").hide();
+						jQuery("#loginForm").show();
+					}
+				}
+				catch(e){
+					jQuery("#userProfile").hide();
+					jQuery("#loginForm").show();
+				}
+			},
+			error: function(){ alert(error);}
+		});
+	}
+	function setProfile(data){
+		if(isset(data.content.fb_id)){
+			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:20px; width:20px;">&nbsp;');
+			jQuery("#profile_image").show();
+		}
+		else{
+			jQuery("#profile_image").hide();
+		}
+		
+		if(isset(data.content.name)){
+			jQuery("#profile_name").html(data.content.name);
+		}
+		else{
+			jQuery("#profile_name").html(data.content.useremail);
+		}
+	}
+
+	
+	function nl2br(str) {
+		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ '<br />' +'$2');
+	}
+	
+</script>
 </body>
 </html>
