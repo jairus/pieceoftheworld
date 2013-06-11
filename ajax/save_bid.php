@@ -20,7 +20,7 @@ if(!checkEmail(trim($_POST['user_email']))){
 	echo '<span style="color:red; font-weight:bold;">Invalid E-mail address</span>';
 	
 	exit();
-}else if(!trim($_POST['user_bid'])){
+}else if(!trim($_GET['bid'])){
 	echo '<span style="color:red; font-weight:bold;">Please enter your Bid</span>';
 	
 	exit();
@@ -40,14 +40,14 @@ if(!checkEmail(trim($_POST['user_email']))){
 	$fromname = $_POST['user_email'];
 	$bouncereturn = $_POST['user_email'];
 	$subject = "Bid for ".$land_name;
-	$message = '<b>Land ID: </b>'.$_SESSION["GET"]['land_id'].'<br /><br /><b>User Bid: </b>'.$_POST['user_bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
+	$message = '<b>Land ID: </b>'.$_GET['land_id'].'<br /><br /><b>User Bid: </b>'.$_GET['bid'].'<br /><br /><b>Message: </b>'.$_POST['user_message'];
 	$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
 	$emails[0]['name'] = "PieceOfTheWorld.Co";
 	$attachments[0] = "";
 	$attachments[1] = "";
 	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1);
 	
-	$sql = "INSERT INTO `land_bids` (`bidder`, `bid`, `message`, `land_id`) VALUES ('".$_POST['user_email']."', '".$_POST['user_bid']."', '".$_POST['user_message']."', '".$_GET['land_id']."')";
+	$sql = "INSERT INTO `land_bids` (`bidder`, `bid`, `message`, `land_id`) VALUES ('".$_POST['user_email']."', '".$_GET['bid']."', '".$_POST['user_message']."', '".$_GET['land_id']."')";
 	dbQuery($sql, $_dblink);
 	
 	echo '<span style="color:#00FF00; font-weight:bold;">You have successfully submitted your Bid</span>';

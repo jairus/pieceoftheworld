@@ -45,7 +45,7 @@ function submitBidForm(){
 
     jQuery.ajax({
         type: 'POST',
-        url: "ajax/save_bid.php?land_id="+jQuery('#land_id').val(),
+        url: "ajax/save_bid.php?land_id="+jQuery('#land_id').val()+"&bid="+uNum(jQuery('#user_bid').val()),
         data:  jQuery("#theform").serialize(),
 
         success: function(data) {

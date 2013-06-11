@@ -2311,6 +2311,44 @@ jQuery(function() {
 
 //alert('test here');
 
+function addCommas(nStr){
+	nStr += '';
+
+	x = nStr.split('.');
+	x1 = x[0];
+	x2 = x.length > 1 ? '.' + x[1] : '';
+
+	var rgx = /(\d+)(\d{3})/;
+
+	while (rgx.test(x1)) {
+		x1 = x1.replace(rgx, '$1' + ',' + '$2');
+	}
+
+	return x1 + x2;
+}
+
+function fNum(num){
+	num = uNum(num);
+
+	if(num==0){ return ""; }
+
+	num = num.toFixed(2);
+
+	return addCommas(num);
+}
+
+function uNum(num){
+	if(!num){
+		num = 0;
+	}else if(isNaN(num)){
+		num = num.replace(/[^0-9\.]/g, "");
+
+		if(isNaN(num)){ num = 0; }
+	}
+
+	return num*1;
+}
+
 function getHighestBid(land_id){
 	jQuery("#info-land_bid_container").hide();
 	jQuery("#info-land_bid").html("");			
@@ -2326,7 +2364,7 @@ function getHighestBid(land_id){
 				
 				if(bidJSON[0].bid){
 					jQuery("#info-land_bid_container").show();
-					jQuery("#info-land_bid").html("USD "+bidJSON[0].bid);
+					jQuery("#info-land_bid").html("USD "+fNum(bidJSON[0].bid));
 				}
 			}
 		}
