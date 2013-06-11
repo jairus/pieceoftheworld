@@ -309,7 +309,7 @@ if($_GET['px']!=""){
 	</div>
 </div>
 <div id="header_arc">&nbsp;</div>
-<div id="map_canvasx"></div>
+<div id="map_canvas"></div>
 
 <!--POPUP-->
 <div id="popup" style="display:none;">
@@ -319,7 +319,7 @@ if($_GET['px']!=""){
 		<div id="popup_header">
 			<div id="popup_icon_interscape"><img src="images/interscape_blue.png" width="21" height="22" border="0" /></div>
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
-			<div id="popup_header_right" align="right"><img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="openClosePopUp('facebook');" /></div>
+			<div id="popup_header_right" align="right"><img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="updateProfile(); openClosePopUp('facebook');" /></div>
 		</div>
 		<div id="popup_main_content">
 			<div id="content_about" style="display:none;">
@@ -434,7 +434,14 @@ if($_GET['px']!=""){
 								?>
 							</td>
 							<td class="text_1" id='profile_name' style='vertical-align:middle'>
-								<?php echo $_SESSION['userdata']['name']; ?>
+								<?php 
+									if(trim($_SESSION['userdata']['name'])){
+										echo $_SESSION['userdata']['name']; 
+									}
+									else{
+										echo $_SESSION['userdata']['useremail']; 
+									}
+								?>
 							</td>
 						</tr>
 						<tr>
@@ -557,7 +564,6 @@ if($_GET['px']!=""){
 	}
 	
 	/****************************************************************************************************/
-
 	function loginFb() {
 		FB.api('/me', function(response) {
 			// update fields in login, reg and facebook form in mainTabs.php
@@ -569,11 +575,16 @@ if($_GET['px']!=""){
 				jQuery("#loginForm input[name='location']").val(response.location.name);
 			}
 			console.log(response);
-			loginUser();
+			loginUser(true);
 		});
 	}
 	// end of facebook functions
-	function loginUser(){
+	function loginUser(fb){
+		if(!isset(fb)){
+			jQuery("#loginForm input[name='fb_id']").val("");
+			jQuery("#loginForm input[name='name']").val("");
+			jQuery("#loginForm input[name='gender']").val("");
+		}
 		jQuery("#login-button").val("Logging in...");
 		datax = jQuery('#loginForm').serialize();
 		jQuery('#loginForm *').attr("disabled", true);
@@ -598,6 +609,35 @@ if($_GET['px']!=""){
 		});
 	}
 	
+	function updateProfile(){
+		jQuery.ajax({
+			dataType: "html",
+			type: 'post',
+			async: false,
+			url: "ajax/user_fxn.php?action=checklogin",
+			success: function(data){
+				data = JSON.parse(data);
+				consoleX(data);
+				//alert(data['id']);
+				try{
+					if(isset(data.content.id)){
+						jQuery("#userProfile").show();
+						jQuery("#loginForm").hide();
+						setProfile(data);
+					}
+					else{
+						jQuery("#userProfile").hide();
+						jQuery("#loginForm").show();
+					}
+				}
+				catch(e){
+					jQuery("#userProfile").hide();
+					jQuery("#loginForm").show();
+				}
+			},
+			error: function(){ alert(error);}
+		});
+	}
 	function setProfile(data){
 		if(isset(data.content.fb_id)){
 			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:20px; width:20px;">&nbsp;');
