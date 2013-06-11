@@ -220,7 +220,23 @@ if($_GET['px']!=""){
 
 <script type="text/javascript" src="js/twitmarquee/twitmarquee.js"></script>
 
-
+<style>
+.longbutton2{
+	background-color: #006A9B;
+	height: auto;
+	padding: 5px;
+	text-align: center;
+	width: 290px;
+	color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 14px;
+    font-weight: bold;
+	border:0px;
+	cursor:pointer;
+	margin-bottom:3px;
+	border:1px solid white;
+}
+</style>
 </head>
 
 <body>
@@ -278,6 +294,7 @@ if($_GET['px']!=""){
 	<div id="menus">
 		<img src="images/menu_about.png" width="39" height="14" border="0" alt="About" title="About" style="cursor:pointer;" id="menu_about" onClick="openClosePopUp('about');" /> &nbsp; 
 		<img src="images/menu_top_lists.png" width="58" height="14" border="0" alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" /> &nbsp; 
+		<!--<img src="images/menu_top_lists.png" width="58" height="14" border="0" alt="Login" title="Login" style="cursor:pointer;" id="menu_login" onClick="openClosePopUp('facebook');" /> &nbsp; -->
 		<!--<img src="images/menu_tutorials.png" width="56" height="14" border="0" alt="Tutorials" title="Tutorials" style="cursor:pointer;" id="menu_tutorials" onClick="openClosePopUp('tutorials');" /> &nbsp; -->
 	</div>
 	<div id="facebook" style='background:white; width;380px; height:30px; padding-left:10px; padding-top:6px; margin-top:3px; margin-right:20px; float:right; 
@@ -292,7 +309,7 @@ if($_GET['px']!=""){
 	</div>
 </div>
 <div id="header_arc">&nbsp;</div>
-<div id="map_canvas"></div>
+<div id="map_canvasx"></div>
 
 <!--POPUP-->
 <div id="popup" style="display:none;">
@@ -406,32 +423,55 @@ if($_GET['px']!=""){
 			<div id="content_tutorials" style="display:none;">CONTENT GOES HERE...</div>
 			<div id="content_info" style="display:none;"><?php include_once('includes/contentinfo.php'); ?></div>
 			<div id="content_facebook" style="display:none;">
-				<table width="100%" border="0" cellspacing="0" cellpadding="0">
+				<div id='userProfile' style='display:none'>
+					<table width="100%" border="0" cellspacing="0" cellpadding="3">
+						<tr>
+							<td class="text_1" id='profile_image' style='width:30px;'>
+								<?php
+								if($_SESSION['userdata']['fb_id']){
+									?><img src="http://graph.facebook.com/<?php echo $_SESSION['userdata']['fb_id']; ?>/picture" style="height:20px; width:20px;">&nbsp;<?php
+								}
+								?>
+							</td>
+							<td class="text_1" id='profile_name' style='vertical-align:middle'>
+								<?php echo $_SESSION['userdata']['name']; ?>
+							</td>
+						</tr>
+						<tr>
+							<td align='center' colspan=2>
+								<input class='longbutton2' style="width:276px;" type='button' onClick="logoutUser();" value="Log Out" />
+							</td>
+						</tr>
+					</table>
+				</div>
+				<form id="loginForm"  autocomplete="off" style='display:none'>
+				<table width="100%" border="0" cellspacing="0" cellpadding="3">
 				  <tr>
-					<td height="30">&nbsp;</td>
-				  </tr>
-				  <tr>
-					<td align="center"><img src="images/facebook_logo.png" width="150" height="31" border="0" alt="Facebook" title="Facebook" /></td>
-				  </tr>
-				  <tr>
-					<td height="10"></td>
-				  </tr>
-				  <tr>
-					<td align="center">
-						<input type="text" id="facebook_field_email_id" name="facebook_field_email" value="Email" style="width:270px; height:30px;" class="input_3" onFocus="if(this.value=='Email'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Email'; }" /><br />
-						<input type="text" id="facebook_field_password_id" name="facebook_field_password" value="Password" style="width:270px; height:30px;" class="input_3" onFocus="if(this.value=='Password'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Password'; }" />
+					<td align='center'>
+						<input type="hidden" name="fb_id" class="fb_id" />
+						<input type="hidden" name="name" class="name" />
+						<input type="hidden" name="gender" class="gender" />
+						<input type="hidden" name="location" class="location" />
+						<input type="text" name="email" style="width:270px; height:30px;" class="input_3" placeholder="E-mail" />
 					</td>
 				  </tr>
 				  <tr>
-					<td height="10"></td>
+					<td align='center'>
+						<input type="password" name="password" style="width:270px; height:30px;" class="input_3" placeholder="Password" />
+					</td>
 				  </tr>
 				  <tr>
-					<td align="center"><input type="button" id="facebook_btn_id" name="facebook_btn" value="Log In" style="width:280px; height:30px;" class="input_2" /></td>
+					<td align='center'>
+						<input class='longbutton2' style="width:276px;" type='button' id='login-button' onClick="loginUser();" value="Log In" />
+					</td>
 				  </tr>
 				  <tr>
-					<td height="50">&nbsp;</td>
+					<td class="text_1">
+						<img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
+					</td>
 				  </tr>
 				</table>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -449,6 +489,269 @@ if($_GET['px']!=""){
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
   jQuery(".cboxiframe").colorbox({iframe:true, width:"80%", height:"80%"});
+</script>
+<script type="text/javascript">
+    var loggedIn = '<?php echo isset($_SESSION['userdata'])  ?>';
+	// start of facebook functions
+	var fbResponse = false;
+	window.fbAsyncInit = function() {
+		FB.init({
+			appId      : '454736247931357', // App ID
+			channelUrl : '//pieceoftheworld.co/channel.html',
+			status     : true, // check login status
+			cookie     : true, // enable cookies to allow the server to access the session
+			xfbml      : true  // parse XFBML
+		});
+
+		FB.Event.subscribe('auth.login', function(response) {
+			jQuery("#loadingImageFb2").hide();
+			jQuery("#loadingImageFb1").show();
+			if (response.status === 'connected') {
+				fbResponse = response;
+				loginFb();
+			} else { /* FB.login(); */ }
+		});
+		FB.Event.subscribe('edge.create', function(href, widget) {
+			jQuery.ajax({
+				 dataType: "json",
+				 type: 'get',
+				 data: {'href':  encodeURI(href) }, // from index.php line 2121
+				 url: 'ajax/user_fxn.php?action=like',
+				 success: function(data){
+					console.log(data);
+				 }
+			});
+		});
+		FB.Event.subscribe('edge.remove', function(href, widget) {
+			jQuery.ajax({
+				dataType: "json",
+				type: 'get',
+				data: {'href':  encodeURI(href) }, // from index.php line 2121
+				url: 'ajax/user_fxn.php?action=unlike',
+				success: function(data){
+					console.log(data);
+				}
+			});
+		});
+
+	};
+
+	// Load the SDK asynchronously
+	(function(d, s, id){
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/all.js";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+	
+	if(loggedIn){
+		jQuery("#userProfile").show();
+		jQuery("#loginForm").hide();
+		openClosePopUp('facebook');
+		getLands();
+	} else {
+		jQuery("#userProfile").hide();
+		jQuery("#loginForm").show();
+		openClosePopUp('facebook');
+	}
+	
+	/****************************************************************************************************/
+
+	function loginFb() {
+		FB.api('/me', function(response) {
+			// update fields in login, reg and facebook form in mainTabs.php
+			jQuery("#loginForm input[name='fb_id']").val(response.id);
+			jQuery("#loginForm input[name='email']").val(response.email);
+			jQuery("#loginForm input[name='name']").val(response.name);
+			jQuery("#loginForm input[name='gender']").val(response.gender);
+			if(typeof(response.location) != 'undefined'){
+				jQuery("#loginForm input[name='location']").val(response.location.name);
+			}
+			console.log(response);
+			loginUser();
+		});
+	}
+	// end of facebook functions
+	function loginUser(){
+		jQuery("#login-button").val("Logging in...");
+		datax = jQuery('#loginForm').serialize();
+		jQuery('#loginForm *').attr("disabled", true);
+		jQuery.ajax({
+			dataType: "json",
+			type: 'post',
+			async: false,
+			url: "ajax/user_fxn.php?action=login",
+			data: datax,
+			success: function(data){
+				if(data.status){
+					setProfile(data);
+					jQuery("#userProfile").show();
+					jQuery("#loginForm").hide();
+					getLands();
+				} else {
+					alert(data.message);
+				}
+				jQuery('#loginForm *').attr("disabled", false);
+				jQuery("#login-button").val("Log In");
+			}
+		});
+	}
+	
+	function setProfile(data){
+		if(isset(data.content.fb_id)){
+			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:20px; width:20px;">&nbsp;');
+			jQuery("#profile_image").show();
+		}
+		else{
+			jQuery("#profile_image").hide();
+		}
+		
+		if(isset(data.content.name)){
+			jQuery("#profile_name").html(data.content.name);
+		}
+		else{
+			jQuery("#profile_name").html(data.content.useremail);
+		}
+	}
+
+	/*
+	jQuery('.manageImageLink').live('click', function(e){
+		jQuery( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		jQuery( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = jQuery(this).attr('data-id');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'get',
+			data: jQuery('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserPictures.php',
+			success: function(data){
+				jQuery( "#userPanelExtra" ).dialog( {title: "Manage Images"} );
+				jQuery('#userPanelExtra').html(data);
+				resizeHeight();
+			}
+		});
+	});
+	jQuery('.manageTags').live('click', function(e){
+		jQuery( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		jQuery( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = jQuery(this).attr('data-id');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'get',
+			data: jQuery('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserTags.php',
+			success: function(data){
+				jQuery( "#userPanelExtra" ).dialog( {title: "Manage Category and Tags"} );
+				jQuery('#userPanelExtra').html(data);
+				resizeHeight();
+
+			}
+		});
+	});
+	jQuery('.manageVideoLink').live('click', function(e){
+		jQuery( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		jQuery( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = jQuery(this).attr('data-id');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'get',
+			data: jQuery('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserVideos.php',
+			success: function(data){
+				jQuery( "#userPanelExtra" ).dialog( {title: "Manage Videos"} );
+				jQuery('#userPanelExtra').html(data);
+			}
+		});
+	});
+	*/
+	function getLands(){
+		return 0;
+		jQuery('#ownedLandList').html('');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'post',
+			async: true,
+			url: 'ajax/page_webuserLands.php',
+			success: function(data){
+				jQuery('#ownedLandList').html(data);
+				jQuery(".editableText").editInPlace({
+					url: "ajax/user_fxn.php?action=edit",
+					saving_animation_color: "#ECF2F8"
+				});
+				jQuery(".editableTextarea").editInPlace({
+					url: "ajax/user_fxn.php?action=edit",
+					saving_animation_color: "#ECF2F8",
+					field_type: "textarea"
+				});
+			},
+			error: function(){ alert(error);}
+		});
+	}
+	function nl2br(str) {
+		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ '<br />' +'$2');
+	}
+	function isValidEmail(emailAddress) {
+		var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+		return pattern.test(emailAddress);
+	}
+	
+	function registerUser(){
+		if(!isValidEmail(jQuery("#registerForm input[name='email']").val())){
+			jQuery("#regStatus").html("Invalid Email Address");
+			jQuery("#regStatus").show('slide');
+		} else {
+			jQuery("#regStatus").hide('slide');
+			jQuery.ajax({
+				dataType: "json",
+				type: 'post',
+				async: false,
+				url: "ajax/user_fxn.php?action=register",
+				data: jQuery('#registerForm').serialize(),
+				success: function(data){
+					if(data.status){
+						jQuery('#loadingImageFb1').hide();
+						jQuery('#loadingImageFb2').hide();
+						jQuery('#tabs [href="#ownedLands"]').show();
+						jQuery('#tabs [href="#login"]').hide();
+						jQuery( "#tabs" ).tabs( {active: 5});
+						jQuery('.currentUser').html(data.content.useremail);
+						getLands();
+						jQuery('#loginHolder').slideToggle();
+						jQuery('#regHolder').slideToggle();
+					} else {
+						jQuery("#regStatus").html(data.message);
+						jQuery("#regStatus").show('slide');
+					}
+				}
+			});
+		}
+	}
+	function logoutUser(){
+		jQuery.ajax({
+			dataType: "json",
+			type: 'get',
+			async: false,
+			url: "ajax/user_fxn.php?action=logout",
+			success: function(data){
+				if(data.status){
+					// if logged in via FB, then also logout the session
+					if(fbResponse){
+						FB.logout(function(response){
+						});
+					}
+					else {
+					}
+					jQuery("#userProfile").hide();
+					jQuery("#loginForm").show();
+				}
+			}
+		});
+	}
+	
 </script>
 </body>
 </html>
