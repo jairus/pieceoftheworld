@@ -427,7 +427,7 @@ if($_GET['px']!=""){
 					<table width="100%" border="0" cellspacing="0" cellpadding="3">
 						<tr>
 							
-							<td class="text_1" id='profile_name' style='vertical-align:middle; text-align:right; width:100%'>
+							<td class="text_1" id='profile_name' style='vertical-align:middle; text-align:right; width:160px'>
 								<?php 
 									if(trim($_SESSION['userdata']['name'])){
 										echo $_SESSION['userdata']['name']; 
@@ -657,7 +657,7 @@ if($_GET['px']!=""){
 	}
 	function setProfile(data){
 		if(isset(data.content.fb_id)){
-			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:30px; width:30px;">&nbsp;');
+			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:30px; width:30px;">');
 			jQuery("#profile_image").show();
 		}
 		else{

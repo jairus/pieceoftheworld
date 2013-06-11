@@ -20,15 +20,14 @@ function openClosePopUp(menu){
 	jQuery('#menu_'+menu).attr("src", 'images/menu_'+menu+'_active.png');
 	
 	jQuery('#content_'+menu).show();
-	
 	if(menu=='facebook'){
-		jQuery('#facebook_signin_btn').hide();
+		jQuery('#sign_in').hide();//jairus 
 	}else{
-		jQuery('#facebook_signin_btn').show();
+		jQuery('#sign_in').show();//jairus 
 	}
 	
 	jQuery('#popup').show();
-	jQuery('#sign_in').show();//jairus 
+	
 }
 <!--END OF OPEN/CLOSE POPUP-->
 
