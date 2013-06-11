@@ -1925,15 +1925,15 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				}
 				else{
 					if(markersJSON[i].owner_user_id>0){
-						icon = 'http://pieceoftheworld.co/images/marker_blue_30.png';
+						icon = 'http://pieceoftheworld.co/images/marker_blue.png';
 						if(isset(markersJSON[i].land_detail_id)){
 							if(markersJSON[i].land_detail_id>0){
-								icon = 'http://pieceoftheworld.co/images/marker_blue_30.png';
+								icon = 'http://pieceoftheworld.co/images/marker_blue.png';
 							}
 						}
 					}
 					else{
-						icon = 'http://pieceoftheworld.co/images/marker_blue_30.png';
+						icon = 'http://pieceoftheworld.co/images/marker_blue.png';
 					}
 					google.maps.event.clearListeners(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click');
 					google.maps.event.addListener(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click', function(event) { 
@@ -1979,10 +1979,10 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				}
 				else{
 					if(markersJSON[i].owner_user_id>0){
-						img = 'http://pieceoftheworld.co/images/marker_blue_30.png';
+						img = 'http://pieceoftheworld.co/images/marker_blue.png';
 						if(isset(markersJSON[i].land_detail_id)){
 							if(markersJSON[i].land_detail_id>0){
-								img = 'http://pieceoftheworld.co/images/marker_blue_30.png';
+								img = 'http://pieceoftheworld.co/images/marker_blue.png';
 							}
 						}
 						
@@ -1998,7 +1998,7 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 						});
 					}
 					else{
-						img = 'http://pieceoftheworld.co/images/marker_blue_30.png';
+						img = 'http://pieceoftheworld.co/images/marker_blue.png';
 						consoleX(img);
 						var marker = new google.maps.Marker({
 							position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),

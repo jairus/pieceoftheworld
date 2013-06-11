@@ -457,6 +457,13 @@ else if(strtolower($_GET['type'])=='buy'){
 	</style>
 	<center>
 	<br /><br />
+	<form id="lf_fb" style='display:none'>
+			<input type="hidden" name="fb_id" id="lf_fb_id" class="fb_id" />
+			<input type="hidden" name="name" id="lf_name" class="name" />
+			<input type="hidden" name="gender" id="lf_gender" class="gender" />
+			<input type="hidden" name="location" id="lf_location" class="location" />
+			<input type="hidden" name="email" id="lf_email"/>
+	</form>
 	<form enctype="multipart/form-data" method='post' action='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>' id='theform' style='margin:0px'>
 	<table style='height:100%;'><tr><td style='height:100%; vertical-align:middle'>
 		<table cellpadding=3>
@@ -543,14 +550,7 @@ else if(strtolower($_GET['type'])=='buy'){
 						</tr>
 						<tr>
 							<td colspan=2 align='center'>
-							<form id="loginForm"  autocomplete="off" style='display:none'>
-									<input type="hidden" name="fb_id" class="fb_id" />
-									<input type="hidden" name="name" class="name" />
-									<input type="hidden" name="gender" class="gender" />
-									<input type="hidden" name="location" class="location" />
-									<input type="hidden" name="email"/>
-							</form>
-							<img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
+							<img src="images/facebook_signin_icon.png" id="fbloginbutton" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
 							</td>
 						</tr>
 						<?php
@@ -784,11 +784,20 @@ else if(strtolower($_GET['type'])=='bid'){
 }
 ?>
 <script type="text/javascript">
+	function isset(v){
+		if(typeof(v)!='undefined'){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
     var loggedIn = '<?php echo isset($_SESSION['userdata'])  ?>';
 	// start of facebook functions
 	var fbResponse = false;
-	
+	jQuery("#fbloginbutton").hide();
 	window.fbAsyncInit = function() {
+		jQuery("#fbloginbutton").show();
 		consoleX(FB);
 		FB.init({
 			appId      : '454736247931357', // App ID
@@ -799,11 +808,8 @@ else if(strtolower($_GET['type'])=='bid'){
 		});
 
 		FB.Event.subscribe('auth.login', function(response) {
-			jQuery("#loadingImageFb2").hide();
-			jQuery("#loadingImageFb1").show();
 			if (response.status === 'connected') {
 				fbResponse = response;
-				loginFb();
 			} else { /* FB.login(); */ }
 		});
 		FB.Event.subscribe('edge.create', function(href, widget) {
@@ -842,40 +848,45 @@ else if(strtolower($_GET['type'])=='bid'){
 	
 	if(loggedIn){
 		jQuery("#userProfile").show();
-		jQuery("#loginForm").hide();
-		openClosePopUp('facebook');
-		getLands();
+		jQuery("#lf_fb").hide();
 	} else {
 		jQuery("#userProfile").hide();
-		jQuery("#loginForm").show();
-		openClosePopUp('facebook');
+		jQuery("#lf_fb").show();
 	}
 	
 	/****************************************************************************************************/
 	function loginFb() {
-		FB.api('/me', function(response) {
-			// update fields in login, reg and facebook form in mainTabs.php
-			jQuery("#loginForm input[name='fb_id']").val(response.id);
-			jQuery("#loginForm input[name='email']").val(response.email);
-			jQuery("#loginForm input[name='name']").val(response.name);
-			jQuery("#loginForm input[name='gender']").val(response.gender);
-			if(typeof(response.location) != 'undefined'){
-				jQuery("#loginForm input[name='location']").val(response.location.name);
-			}
-			console.log(response);
-			loginUser(true);
-		});
+		FB.login(function(response) {
+				if (response.authResponse) {
+					FB.api('/me', function(response) {
+						// update fields in login, reg and facebook form in mainTabs.php
+						jQuery("#lf_fb_id").val(response.id);
+						jQuery("#lf_email").val(response.email);
+						jQuery("#lf_name").val(response.name);
+						jQuery("#lf_gender").val(response.gender);
+						if(typeof(response.location) != 'undefined'){
+							jQuery("#lf_fb_location").val(response.location.name);
+						}
+						console.log(response);
+						loginUser(true);
+					});
+				}
+				else {	
+				}
+			},{scope: 'email'}
+		);
 	}
 	// end of facebook functions
 	function loginUser(fb){
 		if(!isset(fb)){
-			jQuery("#loginForm input[name='fb_id']").val("");
-			jQuery("#loginForm input[name='name']").val("");
-			jQuery("#loginForm input[name='gender']").val("");
+			jQuery("#lf_fb_id").val("");
+			jQuery("#lf_name").val("");
+			jQuery("#lf_gender").val("");
 		}
-		jQuery("#login-button").val("Logging in...");
-		datax = jQuery('#loginForm').serialize();
-		jQuery('#loginForm *').attr("disabled", true);
+		datax = jQuery('#lf_fb').serialize();
+		//alert(jQuery('#lf_fb').html());
+		//alert(datax);
+		jQuery('#lf_fb *').attr("disabled", true);
 		jQuery.ajax({
 			dataType: "json",
 			type: 'post',
@@ -884,15 +895,12 @@ else if(strtolower($_GET['type'])=='bid'){
 			data: datax,
 			success: function(data){
 				if(data.status){
-					setProfile(data);
-					jQuery("#userProfile").show();
-					jQuery("#loginForm").hide();
-					getLands();
+					self.location = "bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $_GET['f']; ?>&_="+(new Date()).getTime();
 				} else {
-					alert(data.message);
+					jQuery("#loginStatus").html(data.message);			
+					jQuery("#loginStatusTr").show('slide');					
 				}
-				jQuery('#loginForm *').attr("disabled", false);
-				jQuery("#login-button").val("Log In");
+				jQuery('#lf_fb *').attr("disabled", false);
 			}
 		});
 	}
@@ -910,17 +918,26 @@ else if(strtolower($_GET['type'])=='bid'){
 				try{
 					if(isset(data.content.id)){
 						jQuery("#userProfile").show();
-						jQuery("#loginForm").hide();
+						jQuery("#lf_fb").hide();
 						setProfile(data);
 					}
 					else{
 						jQuery("#userProfile").hide();
-						jQuery("#loginForm").show();
+						jQuery("#lf_fb").show();
+						if(isset(FB)){
+							consoleX("show fbloginbutton");
+							jQuery("#fbloginbutton").show();
+						}
 					}
 				}
 				catch(e){
 					jQuery("#userProfile").hide();
-					jQuery("#loginForm").show();
+					jQuery("#lf_fb").show();
+					consoleX(FB);
+					if(isset(FB)){
+						consoleX("show fbloginbutton");
+						jQuery("#fbloginbutton").show();
+					}
 				}
 			},
 			error: function(){ alert(error);}

@@ -429,7 +429,7 @@ if($_GET['px']!=""){
 							<td class="text_1" id='profile_image' style='width:30px;'>
 								<?php
 								if($_SESSION['userdata']['fb_id']){
-									?><img src="http://graph.facebook.com/<?php echo $_SESSION['userdata']['fb_id']; ?>/picture" style="height:20px; width:20px;">&nbsp;<?php
+									?><img src="http://graph.facebook.com/<?php echo $_SESSION['userdata']['fb_id']; ?>/picture" style="height:30px; width:30px;">&nbsp;<?php
 								}
 								?>
 							</td>
@@ -451,7 +451,7 @@ if($_GET['px']!=""){
 						</tr>
 					</table>
 				</div>
-				<form id="loginForm"  autocomplete="off" style='display:none'>
+				<form id="loginForm" style='display:none'>
 				<table width="100%" border="0" cellspacing="0" cellpadding="3">
 				  <tr>
 					<td align='center'>
@@ -474,7 +474,7 @@ if($_GET['px']!=""){
 				  </tr>
 				  <tr>
 					<td class="text_1">
-						<img src="images/facebook_signin_icon.png" id="facebook_signin_btn" width="150" height="22" border="0" style="cursor:pointer; display:none" onClick="loginFb()" />
+						<img src="images/facebook_signin_icon.png" id="fbloginbutton" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
 					</td>
 				  </tr>
 				</table>
@@ -501,8 +501,9 @@ if($_GET['px']!=""){
     var loggedIn = '<?php echo isset($_SESSION['userdata'])  ?>';
 	// start of facebook functions
 	var fbResponse = false;
+	jQuery("#fbloginbutton").hide();
 	window.fbAsyncInit = function() {
-		jQuery("#facebook_signin_btn").show();
+		jQuery("#fbloginbutton").show();
 		FB.init({
 			appId      : '454736247931357', // App ID
 			channelUrl : '//pieceoftheworld.co/channel.html',
@@ -514,7 +515,7 @@ if($_GET['px']!=""){
 		FB.Event.subscribe('auth.login', function(response) {
 			if (response.status === 'connected') {
 				fbResponse = response;
-				loginFb();
+				//loginFb();
 			} else { /* FB.login(); */ }
 		});
 		FB.Event.subscribe('edge.create', function(href, widget) {
@@ -636,16 +637,18 @@ if($_GET['px']!=""){
 						jQuery("#userProfile").hide();
 						jQuery("#loginForm").show();
 						if(isset(FB)){
-							jQuery("#facebook_signin_btn").show();
+							consoleX("show fbloginbutton");
+							jQuery("#fbloginbutton").show();
 						}
 					}
 				}
 				catch(e){
 					jQuery("#userProfile").hide();
 					jQuery("#loginForm").show();
-					colsoleX(FB);
+					consoleX(FB);
 					if(isset(FB)){
-						jQuery("#facebook_signin_btn").show();
+						consoleX("show fbloginbutton");
+						jQuery("#fbloginbutton").show();
 					}
 				}
 			},
