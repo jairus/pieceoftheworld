@@ -62,7 +62,7 @@ $(document).ready(function(){
 			if(typeof(response.location) != 'undefined'){
 				$("form input[name='location']").val(response.location.name);
 			}
-console.log(response);
+			console.log(response);
             loginUser();
         });
     }
@@ -111,6 +111,8 @@ console.log(response);
     $('#registerButton').click(function(){
         registerUser();
     });
+	
+	/*
     $('.manageImageLink').live('click', function(e){
         $( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
         $( "#userPanelExtra" ).dialog( "open" );
@@ -162,6 +164,7 @@ console.log(response);
             }
         });
     });
+	*/
     function getLands(){
         $('#ownedLandList').html('');
         $.ajax({
@@ -200,19 +203,18 @@ console.log(response);
             url: "ajax/user_fxn.php?action=login",
             data: $('#loginForm').serialize(),
             success: function(data){
-                $('#loadingImageFb1').hide();
-                $('#loadingImageFb2').hide();
-
-                if(data.status){
-                    $('#tabs [href="#ownedLands"]').show();
+                consoleX(data);
+				if(data.status){
+					
+                    /*
+					$('#tabs [href="#ownedLands"]').show();
                     $('#tabs [href="#login"]').hide();
                     $( "#tabs" ).tabs( {active: 5});
                     $('.currentUser').html(data.content.useremail);
-                    FB.XFBML.parse();
                     getLands();
-                } else {
-                    $("#loginStatus").html(data.message);
-                    $("#loginStatus").show('slide');
+					*/
+				}
+				else {
                 }
             }
         });

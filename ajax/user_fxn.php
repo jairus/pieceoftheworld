@@ -5,6 +5,9 @@ if(isset($_GET['action'])){
 	$result = array();
 	switch($_GET['action'])
 	{
+		case "checklogin": $result = checklogin();
+			$response = json_encode($result); 			
+			break;
 		case "login": $result = login();
 			$response = json_encode($result); 			
 			break;
@@ -53,8 +56,12 @@ function site_url(){
 		return "http://".$host."/";
 	}
 }
-function login()
-{
+function checklogin(){
+	$r = array();
+	$r['content'] = $_SESSION['userdata'];
+	return $r;
+}
+function login(){
 	$result = array('status' => false, 'message' => 'Invalid email or password');
 	$useremail = urldecode($_POST['email']);
 	$pass = urldecode($_POST['password']);
@@ -109,6 +116,9 @@ function login()
     }
 	return $result;
 }
+
+
+
 function isUnique($useremail)
 {
 	$rs = dbQuery("select id from web_users where useremail = '".mysql_real_escape_string($useremail)."' limit 1 ");
