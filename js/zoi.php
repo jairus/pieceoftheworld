@@ -28,6 +28,7 @@ function openClosePopUp(menu){
 	}
 	
 	jQuery('#popup').show();
+	jQuery('#sign_in').show();//jairus 
 }
 <!--END OF OPEN/CLOSE POPUP-->
 

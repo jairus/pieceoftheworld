@@ -319,7 +319,7 @@ if($_GET['px']!=""){
 		<div id="popup_header">
 			<div id="popup_icon_interscape"><img src="images/interscape_blue.png" width="21" height="22" border="0" /></div>
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
-			<div id="popup_header_right" align="right"><a class="text_1" style='cursor:pointer' onClick="updateProfile(); openClosePopUp('facebook');" />Sign In</a></div>
+			<div id="popup_header_right" align="right"><a class="text_1" id='sign_in' style='cursor:pointer; display:none' onClick="updateProfile(); openClosePopUp('facebook'); jQuery('#sign_in').hide(); " />Sign In</a></div>
 		</div>
 		<div id="popup_main_content">
 			<div id="content_about" style="display:none;">
@@ -426,14 +426,8 @@ if($_GET['px']!=""){
 				<div id='userProfile' style='display:none'>
 					<table width="100%" border="0" cellspacing="0" cellpadding="3">
 						<tr>
-							<td class="text_1" id='profile_image' style='width:30px;'>
-								<?php
-								if($_SESSION['userdata']['fb_id']){
-									?><img src="http://graph.facebook.com/<?php echo $_SESSION['userdata']['fb_id']; ?>/picture" style="height:30px; width:30px;">&nbsp;<?php
-								}
-								?>
-							</td>
-							<td class="text_1" id='profile_name' style='vertical-align:middle'>
+							
+							<td class="text_1" id='profile_name' style='vertical-align:middle; text-align:right; width:100%'>
 								<?php 
 									if(trim($_SESSION['userdata']['name'])){
 										echo $_SESSION['userdata']['name']; 
@@ -441,8 +435,14 @@ if($_GET['px']!=""){
 									else{
 										echo $_SESSION['userdata']['useremail']; 
 									}
-								?>
+								?>&nbsp;&nbsp;
 							</td>
+							<td class="text_1" id='profile_image' style='width:30px;'>
+								<?php
+								if($_SESSION['userdata']['fb_id']){
+									?><img src="http://graph.facebook.com/<?php echo $_SESSION['userdata']['fb_id']; ?>/picture" style="height:30px; width:30px;"><?php
+								}
+								?></td>
 						</tr>
 						<tr>
 							<td align='center' colspan=2>
@@ -657,7 +657,7 @@ if($_GET['px']!=""){
 	}
 	function setProfile(data){
 		if(isset(data.content.fb_id)){
-			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:20px; width:20px;">&nbsp;');
+			jQuery("#profile_image").html('<img src="http://graph.facebook.com/'+data.content.fb_id+'/picture" style="height:30px; width:30px;">&nbsp;');
 			jQuery("#profile_image").show();
 		}
 		else{
