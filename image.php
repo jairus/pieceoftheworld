@@ -46,119 +46,7 @@ if($_GET['marker']){
 		// Add the text
 		imagettftext($im, $fontsize, 0, $xpos-$minus, 14, $white, $font, $text);
 	}
-	
-	/*
-	if($_GET['land_special_id']){
-		$sql = "select * from `pictures_special` where `land_special_id`='".$_GET['land_special_id']."' and isMain=1";
-		$pictures = dbQuery($sql, $_dblink);
-		$t = count($pictures);
-		if($t){
-			$picture = explode("/_uploads2/", $pictures[0]['picture']);
-			$dir = dirname($picture[1]);
-			$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
-			if(!file_exists($picturex)){
-				$picturex = dirname(__FILE__)."/_uploads2/".urldecode($picture[1]);
-			}
-			
-			$picture = $picturex;
-			if(file_exists($picture)){
-				//image
-				if(!file_exists(dirname($picture)."/"."thumb_".basename($picture).".png")){
-					$theimage = showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true, true);
-					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-				}
-				else{
-					$theimage = imagecreatefromfile(dirname($picture)."/"."thumb_".basename($picture).".png");
-				}
-				//$theimage = imagecreatefromfile($picture);
-				if($theimage!==false){
-					$crop = new CircleCrop($theimage);
-					$theimage = $crop->crop()->getResource();
-					imagealphablending($theimage, true);
-					imagesavealpha($theimage, true);
-					imagecopyresampled( $im, $theimage, 7, 3, 0, 0, 16, 16, imagesx($theimage), imagesy($theimage) );
-				}
-			}
-			else{
-				$theimage = imagecreatefromfile(dirname(__FILE__)."/images/white.png");
-				if($theimage!==false){
-					$crop = new CircleCrop($theimage);
-					$theimage = $crop->crop()->getResource();
-					imagealphablending($theimage, true);
-					imagesavealpha($theimage, true);
-					imagecopyresampled( $im, $theimage, 7, 3, 0, 0, 15, 15, imagesx($theimage), imagesy($theimage) );
-				}
-			}
-		}
-		else{
-			$theimage = imagecreatefromfile(dirname(__FILE__)."/images/white.png");
-			if($theimage!==false){
-				$crop = new CircleCrop($theimage);
-				$theimage = $crop->crop()->getResource();
-				imagealphablending($theimage, true);
-				imagesavealpha($theimage, true);
-				imagecopyresampled( $im, $theimage, 7, 3, 0, 0, 15, 15, imagesx($theimage), imagesy($theimage) );
-			}
-		}
-	}
-	else if($_GET['land_detail_id']){
-		$sql = "select * from `pictures` where `land_id`='".$_GET['land_detail_id']."' and isMain=1";
-		$pictures = dbQuery($sql, $_dblink);
-		$t = count($pictures);
-		if($t){
-			$picture = explode("/_uploads2/", $pictures[0]['picture']);
-			$dir = dirname($picture[1]);
-			$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
-			if(!file_exists($picturex)){
-				$picturex = dirname(__FILE__)."/_uploads2/".urldecode($picture[1]);
-			}
-			
-			$picture = $picturex;
-			if(file_exists($picture)){
-				//image
-				if(!file_exists(dirname($picture)."/"."thumb_".basename($picture).".png")){
-					$theimage = showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true, true);
-					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
-				}
-				else{
-					$theimage = imagecreatefromfile(dirname($picture)."/"."thumb_".basename($picture).".png");
-				}
-				//$theimage = imagecreatefromfile($picture);
-				if($theimage!==false){
-					$crop = new CircleCrop($theimage);
-					$theimage = $crop->crop()->getResource();
-					imagealphablending($theimage, true);
-					imagesavealpha($theimage, true);
-					imagecopyresampled( $im, $theimage, 7, 3, 0, 0, 16, 16, imagesx($theimage), imagesy($theimage) );
-				}
-			}
-			else{
-				//echo "lalalal1";
-				$theimage = imagecreatefromfile(dirname(__FILE__)."/images/white.png");
-				if($theimage!==false){
-					$crop = new CircleCrop($theimage);
-					$theimage = $crop->crop()->getResource();
-					imagealphablending($theimage, true);
-					imagesavealpha($theimage, true);
-					imagecopyresampled( $im, $theimage, 7, 3, 0, 0, 15, 15,imagesx($theimage), imagesy($theimage) );
-				}
-			}
-		}
-		else{
-			
-			$theimage = imagecreatefromfile(dirname(__FILE__)."/images/white.png");
-			if($theimage!==false){
-				//echo "lalalal2";
-				$crop = new CircleCrop($theimage);
-				$theimage = $crop->crop()->getResource();
-				imagealphablending($theimage, true);
-				imagesavealpha($theimage, true);
-				imagecopyresampled( $im, $theimage, 7, 3, 0, 0, 15, 15,imagesx($theimage), imagesy($theimage) );
-			}
-		}
-	}
-	*/
-	
+
 	// Using imagepng() results in clearer text compared with imagejpeg()
 	imagealphablending($im, true);	
 	imagesavealpha($im, true);
@@ -188,6 +76,20 @@ else if($_GET['special']){
 			exit();
 		}
 	}
+}
+else if($_GET['dir']){
+		$picture = explode("/_uploads2/", base64_decode($_GET['dir']));
+		$dir = dirname($picture[1]);
+		$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
+		if(!file_exists($picturex)){
+			$picturex = dirname(__FILE__)."/_uploads2/".urldecode($picture[1]);
+		}
+		$picture = $picturex;
+		if(file_exists($picture)){
+			header("Content-Type: image/png");
+			showThumbx($picture, 132, 78);
+		}
+		exit();
 }
 else{
 	$sql = "select * from `pictures` where `land_id`='".$_GET['land_detail_id']."' and isMain=1";
@@ -356,6 +258,86 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 		return $tmp_img;
 	}
 	// save thumbnail into a file	
+}
+
+
+function showThumbx($src, $thumbWidth, $thumbHeight, $dest="") {
+	$img = @imagecreatefromjpeg( $src );
+	if(!$img){
+		$img = @imagecreatefrompng ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgif ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromwbmp ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgd2 ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgd2part ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromgd ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromstring ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromxbm ( $src );
+	}
+	if(!$img){
+		$img = @imagecreatefromxpm ( $src );
+	}
+	
+	if(!$img){
+		
+		return false;
+	}	
+	$width = imagesx( $img );
+	$height = imagesy( $img );
+	$new_width = $width;
+	$new_height = $height;
+	// calculate thumbnail size
+	if($width>$height)
+	{
+		if($thumbWidth<$width)
+		{
+			$new_width = $thumbWidth;
+			$new_height = floor( $height * ( $thumbWidth / $width ) );
+		}
+	}
+	else
+	{
+		if($thumbHeight<$height)
+		{
+			$new_height = $thumbHeight;
+			$new_width = floor( $width * ( $thumbHeight / $height ) );
+		}
+	}
+	// create a new temporary image
+	$tmp_img = imagecreatetruecolor( $new_width, $new_height );
+	$white = imagecolorallocate($tmp_img, 255, 255, 255);
+	imagefill($tmp_img, 0, 0, $white);
+	// copy and resize old image into new image 
+	$dstTransparent = imagecolorallocatealpha($tmp_img, 0, 0, 0, 127);
+	imagefill($tmp_img, 0, 0, $dstTransparent);
+	imagecolortransparent($tmp_img, $dstTransparent);
+	imagealphablending($tmp_img, true);	
+	imagesavealpha($tmp_img, true);
+	imagecopyresampled( $tmp_img, $img, 0, 0, 0, 0, $new_width, $new_height, $width, $height );
+	
+	
+	if(!trim($dest)){
+		imagepng( $tmp_img , null, 0);
+	}
+	else{
+		@imagepng ( $tmp_img , $dest, 0);
+		//imagepng ( $tmp_img , null, 0);
+	}
+	// save thumbnail into a file
+	
 }
 
 /*******************************************************/

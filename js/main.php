@@ -2370,6 +2370,19 @@ function uNum(num){
 	return num*1;
 }
 
+function zoomTo(x, y){
+	var projection = new MercatorProjection();
+	var point = {};
+	point.x = x-1;
+	point.y = y-1;
+	var inLatLng = projection.fromPointToLatLng(point);
+	var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
+	//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+	map.setZoom(17);
+	map.setCenter(loc);
+	//var result = getBlockLTRB(new google.maps.Point(point.x, point.y));
+	//putBox(null, result[0]);
+}
 function getHighestBid(land_id){
 	jQuery("#info-land_bid_container").hide();
 	jQuery("#info-land_bid").html("");			

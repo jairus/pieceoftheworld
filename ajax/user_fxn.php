@@ -166,6 +166,10 @@ function getLands($id)
 		foreach($rs['land_detail'] as &$row){							
 			$sql2 = "select x, y from land where land_detail_id = '".$row['id']."' ";
 			$row['land'] = dbQuery($sql2);
+		}	
+		foreach($rs['land_detail'] as &$row){							
+			$sql2 = "select * from `pictures` where land_id = '".$row['id']."' order by isMain desc limit 6";
+			$row['pictures'] = dbQuery($sql2);
 		}			
 	} 
 	
@@ -181,6 +185,10 @@ function getLands($id)
 			$sql2 = "select x, y from land where land_special_id = '".$row['id']."' ";
 			$row['land'] = dbQuery($sql2);
 		}
+		foreach($rs['land_special'] as &$row){							
+			$sql2 = "select * from `pictures_special` where land_special_id = '".$row['id']."' order by isMain desc limit 6";
+			$row['pictures'] = dbQuery($sql2);
+		}	
 	}
 	return $rs;	
 }

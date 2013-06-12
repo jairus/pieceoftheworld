@@ -193,6 +193,27 @@ if($_GET['px']!=""){
 .ui-autocomplete .ui-corner-all{
 	font-size:12px;
 }
+
+.select{
+	width:276px; 
+	height:32px; 
+	background-color: #006A9B; 
+	color:white; 
+	font-family: Arial,Helvetica,sans-serif; 
+	font-size: 14px; 
+	font-weight: bold;
+}
+.div{
+	width:276px; 
+	background-color: #00A4DA; 
+	color:white; 
+	font-family: Arial,Helvetica,sans-serif; 
+	font-size: 12px; 
+	font-weight: bold;
+	padding-top:5px; 
+	padding-bottom:5px;
+	margin-top:5px;
+}
 </style>
 
 <!--IMAGE SLIDE SHOW-->
@@ -431,18 +452,18 @@ if($_GET['px']!=""){
 			<div id="content_info" style="display:none;"><?php include_once('includes/contentinfo.php'); ?></div>
 			<div id="content_facebook" style="display:none;">
 				<div id='userProfile' style='display:none'>
-					<table width="100%" border="0" cellspacing="0" cellpadding="3">
+					<table width="100%" border="0" cellspacing="0" cellpadding="0">
 						<tr>
 							
-							<td class="text_1" id='profile_name' style='vertical-align:middle; text-align:right; width:160px'>
-								<?php 
+							<td class="text_1" style='vertical-align:middle; text-align:right; width:160px'>
+								<a id='profile_name'><?php 
 									if(trim($_SESSION['userdata']['name'])){
 										echo $_SESSION['userdata']['name']; 
 									}
 									else{
 										echo $_SESSION['userdata']['useremail']; 
 									}
-								?>&nbsp;&nbsp;
+								?></a>&nbsp;&nbsp;[ <a style='cursor:pointer' onClick="logoutUser();">Log Out</a> ]&nbsp;&nbsp;
 							</td>
 							<td class="text_1" id='profile_image' style='width:30px;'>
 								<?php
@@ -450,10 +471,10 @@ if($_GET['px']!=""){
 									?><img src="http://graph.facebook.com/<?php echo $_SESSION['userdata']['fb_id']; ?>/picture" style="height:30px; width:30px;"><?php
 								}
 								?></td>
-						</tr>
+							</tr>
 						<tr>
-							<td align='center' colspan=2>
-								<input class='longbutton2' style="width:276px;" type='button' onClick="logoutUser();" value="Log Out" />
+							<td align='center' colspan=2 id='ownedLandList'>
+								
 							</td>
 						</tr>
 					</table>
@@ -734,7 +755,6 @@ if($_GET['px']!=""){
 	});
 	*/
 	function getLands(){
-		return 0;
 		jQuery('#ownedLandList').html('');
 		jQuery.ajax({
 			dataType: "html",
@@ -743,6 +763,7 @@ if($_GET['px']!=""){
 			url: 'ajax/page_webuserLands.php',
 			success: function(data){
 				jQuery('#ownedLandList').html(data);
+				/*
 				jQuery(".editableText").editInPlace({
 					url: "ajax/user_fxn.php?action=edit",
 					saving_animation_color: "#ECF2F8"
@@ -752,6 +773,7 @@ if($_GET['px']!=""){
 					saving_animation_color: "#ECF2F8",
 					field_type: "textarea"
 				});
+				*/
 			},
 			error: function(){ alert(error);}
 		});
@@ -784,7 +806,7 @@ if($_GET['px']!=""){
 						jQuery('#tabs [href="#login"]').hide();
 						jQuery( "#tabs" ).tabs( {active: 5});
 						jQuery('.currentUser').html(data.content.useremail);
-						getLands();
+						//getLands();
 						jQuery('#loginHolder').slideToggle();
 						jQuery('#regHolder').slideToggle();
 					} else {
