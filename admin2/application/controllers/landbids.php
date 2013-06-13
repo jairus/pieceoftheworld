@@ -10,10 +10,9 @@ class landbids extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 		
-		$sql = "SELECT `a`.*, `c`.`title` FROM `land_bids` `a` 
-				LEFT JOIN `land` `b` ON `a`.`land_id`=`b`.`id` 
-				LEFT JOIN `land_detail` `c` ON `b`.`land_detail_id`=`c`.`id` 
-				ORDER BY `bid` DESC LIMIT $start, $limit 
+		$sql = "SELECT `a`.*, `b`.`title` FROM `land_bids` `a` 
+				LEFT JOIN `land_detail` `b` ON `b`.`id`=`a`.`land_id` 
+				ORDER BY `a`.`bid` DESC LIMIT $start, $limit 
 				";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
@@ -44,15 +43,14 @@ class landbids extends CI_Controller {
 		$search = strtolower(trim($_GET['search']));
 		$searchx = trim($_GET['search']);
 		
-		$sql = "SELECT `a`.*, `c`.`title` FROM `land_bids` `a` 
-				LEFT JOIN `land` `b` ON `a`.`land_id`=`b`.`id` 
-				LEFT JOIN `land_detail` `c` ON `b`.`land_detail_id`=`c`.`id` 
+		$sql = "SELECT `a`.*, `b`.`title` FROM `land_bids` `a` 
+				LEFT JOIN `land_detail` `b` ON `b`.`id`=`a`.`land_id` 
 				WHERE 1";
 		
 		if($search){
 			$sql .= " AND `a`.`land_id` LIKE '%".mysql_real_escape_string($search)."%'";
 		}
-		$sql .= " ORDER BY `bid` DESC LIMIT $start, $limit";
+		$sql .= " ORDER BY `a`.`bid` DESC LIMIT $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);

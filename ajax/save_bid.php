@@ -25,10 +25,7 @@ if(!checkEmail(trim($_POST['user_email']))){
 	
 	exit();
 }else{
-	$sql = "SELECT `land_detail_id` FROM `land` WHERE `id`='".$_GET['land_id']."' LIMIT 0,1";
-	$land = dbQuery($sql, $_dblink);
-	
-	$sql = "SELECT * FROM `land_detail` WHERE `id`='".$land[0]['land_detail_id']."' LIMIT 0,1";
+	$sql = "SELECT * FROM `land_detail` WHERE `id`='".$_GET['land_id']."' LIMIT 0,1";
 	$land_detail = dbQuery($sql, $_dblink);
 	
 	$land_name = 'Land';
@@ -50,7 +47,9 @@ if(!checkEmail(trim($_POST['user_email']))){
 	$sql = "INSERT INTO `land_bids` (`bidder`, `bid`, `message`, `land_id`) VALUES ('".$_POST['user_email']."', '".$_GET['bid']."', '".$_POST['user_message']."', '".$_GET['land_id']."')";
 	dbQuery($sql, $_dblink);
 	
-	echo '<br /><br /><span style="color:#00FF00; font-weight:bold;">You have successfully submitted your Bid</span>';
+	echo '<br /><br /><span style="color:#00FF00; font-weight:bold;">You have successfully submitted your Bid</span><br /><br />';
+	
+	?><a style="cursor:pointer;" onclick="jQuery('#info-span #div_bid').hide(); jQuery('#info-span #table_main_info').show(); getHighestBid(<?php echo $_GET['land_id']; ?>);">&laquo; back to land info</a><?php
 	
 	exit();
 }

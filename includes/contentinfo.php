@@ -141,6 +141,9 @@ function submitBidForm(){
 		</div>
 		<table width="100%" border="0" cellspacing="0" cellpadding="0" id="table_bid_form">
 		  <tr>
+			<td colspan="2"><a style="cursor:pointer;" onclick="jQuery('#info-span #div_bid').hide(); jQuery('#info-span #table_main_info').show(); getHighestBid(jQuery('#info-span #land_id').val());">&laquo; back to land info</a></td>
+		  </tr>
+		  <tr>
 			<td colspan="2">&nbsp;</td>
 		  </tr>
 		  <tr>

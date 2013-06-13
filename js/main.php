@@ -888,7 +888,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				specialbought = false;
 			}
 			if(specialbought){ //if a special land or a bought land
-				jQuery("#land_id").val(gzones[i].ret.json.id);
+				jQuery("#land_id").val(gzones[i].ret.json.land_detail_id);
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
 				jQuery("#info-city").show();
@@ -919,7 +919,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 					jQuery("#info-land_owner_container").show();
 					jQuery("#info-land_owner").html(gzones[i].ret.json.land_owner);
 				}
-				getHighestBid(gzones[i].ret.json.id);
+				getHighestBid(gzones[i].ret.json.land_detail_id);
 				if(firstindex==""){
 					firstindex = i;
 				}
@@ -1565,7 +1565,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			//document.getElementById('info-land_owner_container').style.display="none";
 			//document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
 			if (returnText != '[[]]') {
-				jQuery('#land_id').val(markerJSON[0].id);
+				jQuery('#land_id').val(markerJSON[0].land_detail_id);
 				jQuery('#info-title').html(markerJSON[0].title);
 				jQuery('#info-detail').html(markerJSON[0].detail);
 				//document.getElementById('info-title').innerHTML = markerJSON[0].title;
@@ -1610,9 +1610,9 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 					jQuery("#info-land_owner").html("");
 					//document.getElementById('info-land_owner').innerHTML = "";
 				}
-				getHighestBid(markerJSON[0].id);
+				getHighestBid(markerJSON[0].land_detail_id);
 				//ajaxExtractLandPicture(markerJSON[0].id);
-				//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
+				//document.getElementById('info-img').src = "images/thumbs/land_id_"+markerJSON[0].land_detail_id;
 				//alert(markerJSON[0].thumb_url);
 				if(markerJSON[0].thumb_url){
 					jQuery("#info-img").attr("src", markerJSON[0].thumb_url);
@@ -1678,7 +1678,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				
 					setCity(strlatlong);
 				}
-				//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].id;
+				//document.getElementById('buy-img').src = "images/thumbs/land_id_"+markerJSON[0].land_detail_id;
 			}
 			else {
 				//alert(updatePopupWindowTabInfo);
