@@ -154,7 +154,7 @@ function logout()
 function getLands($id)
 {
 	$rs = array();
-	$sql = "SELECT LD.id, LD.`title`, LD.`detail`, LD.category_id 
+	$sql = "SELECT LD.id, LD.`title`, LD.`detail`, LD.`land_owner`, LD.category_id 
 			FROM  `land_detail` LD
 			LEFT JOIN land L ON LD.id = L.land_detail_id 
 			WHERE L.web_user_id =  '$id'
@@ -173,7 +173,7 @@ function getLands($id)
 		}			
 	} 
 	
-	$sql = "select LD.id, LD.`title`, LD.`detail`, format(LD.price,2) as price
+	$sql = "select LD.id, LD.`title`, LD.`detail`, LD.`land_owner`,  format(LD.price,2) as price
 			from `land_special` LD			
 			where LD.web_user_id = '$id' 			
 			order by LD.`id` desc 

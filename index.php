@@ -342,10 +342,16 @@ if($_GET['px']!=""){
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
 			<?php
 			if($_SESSION['userdata']){
-				?><div id="popup_header_right" align="right"><a class="text_1" id='sign_in' style='cursor:pointer; display:none' onClick="updateProfile(); openClosePopUp('facebook'); jQuery('#sign_in').hide(); " /><b>Account</b></a></div><?php
+				?>
+				<div align="right" id='sign_in'>
+					<a class="text_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook'); ">Profile</a>&nbsp;<a style='cursor:pointer' class="text_1" onClick="logoutUser();">Sign Out</a>
+				</div><?php
 			}
 			else{
-				?><div id="popup_header_right" align="right"><a class="text_1" id='sign_in' style='cursor:pointer; display:none' onClick="updateProfile(); openClosePopUp('facebook'); jQuery('#sign_in').hide(); " /><b>Sign In</b></a></div><?php
+				?>
+				<div align="right" id='sign_in'>
+					<a class="text_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook'); ">Sign In</a>
+				</div><?php
 			}
 			?>
 		</div>
@@ -453,7 +459,7 @@ if($_GET['px']!=""){
 			<div id="content_facebook" style="display:none;">
 				<div id='userProfile' style='display:none'>
 					<table width="100%" border="0" cellspacing="0" cellpadding="0">
-						<tr>
+						<tr style='display:none'>
 							
 							<td class="text_1" style='vertical-align:middle; text-align:right; width:160px'>
 								<a id='profile_name'><?php 
@@ -698,7 +704,7 @@ if($_GET['px']!=""){
 		else{
 			jQuery("#profile_name").html(data.content.useremail);
 		}
-		jQuery("#sign_in").html("<b>Account</b>");
+		jQuery("#sign_in").html("<a class='text_1' style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \" >Profile</a>&nbsp;<a class=\"text_1\" style='cursor:pointer' onClick=\"logoutUser();\">Sign Out</a>");
 	}
 
 	/*
@@ -834,7 +840,7 @@ if($_GET['px']!=""){
 					}
 					jQuery("#userProfile").hide();
 					jQuery("#loginForm").show();
-					jQuery("#sign_in").html("<b>Sign In</b>");
+					jQuery("#sign_in").html("<a class=\"text_1\" style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \">Sign In</a>");
 				}
 			}
 		});

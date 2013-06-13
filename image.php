@@ -87,7 +87,12 @@ else if($_GET['dir']){
 		$picture = $picturex;
 		if(file_exists($picture)){
 			header("Content-Type: image/png");
-			showThumbx($picture, 132, 78);
+			if(!$_GET['w']&&!$_GET['h']){
+				showThumbx($picture, 132, 78);
+			}
+			else{
+				showThumbx($picture, $_GET['w'], $_GET['h']);
+			}
 		}
 		exit();
 }

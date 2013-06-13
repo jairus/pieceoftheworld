@@ -21,9 +21,9 @@ function openClosePopUp(menu){
 	
 	jQuery('#content_'+menu).show();
 	if(menu=='facebook'){
-		jQuery('#sign_in').hide();//jairus 
+		//jQuery('#sign_in').hide();//jairus 
 	}else{
-		jQuery('#sign_in').show();//jairus 
+		//jQuery('#sign_in').show();//jairus 
 	}
 	
 	jQuery('#popup').show();

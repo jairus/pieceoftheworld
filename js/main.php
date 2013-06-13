@@ -1153,7 +1153,13 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	if(!sharetext){
 		sharetext = "Get your own piece of the world at pieceoftheworld.com";
 	}
-	link = "http://pieceoftheworld.co/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[firstindex].ret.inLatLng.lng();
+	
+	//link = "http://pieceoftheworld.co/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[0].ret.inLatLng.lng();
+	
+	points = gzones[0].ret.points;
+	xy = points.split("-");
+	//alert("from points");
+	link = "http://pieceoftheworld.co/?xy="+xy[0]+"~"+xy[1];
 	
 	globallink = link;
 	//link = encodeURIComponent(link);
@@ -1715,7 +1721,9 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			if(!sharetext){
 				sharetext = "Get your own piece of the world at pieceoftheworld.com";
 			}
-			link = "http://pieceoftheworld.co/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+			//link = "http://pieceoftheworld.co/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+			
+			link = "http://pieceoftheworld.co/?xy="+x1+"~"+y1;
 			
 			globallink = link;
 			//link = encodeURIComponent(link);

@@ -60,8 +60,9 @@ else {
 	for($i=0; $i<$ldt; $i++){
 		?>
 		<div id='detail_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
-			<div class='div'><?php echo $rs['land_detail'][$i]['detail']; ?></div>
 			<?php
+			/*
+			<div class='div'><?php echo $rs['land_detail'][$i]['detail']; ?></div>
 			$pt = count($rs['land_detail'][$i]['pictures']);
 			if($pt){
 				if($pt%2){
@@ -88,10 +89,87 @@ else {
 				}
 				echo "<tr></table>";
 			}
+			*/
+			$imgdir = $rs['land_detail'][$i]['pictures'][0]['picture'];
 			
+			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=290&h=150";
+			$imgurl = urlencode($imgurl);
+			$x1 = $rs['land_detail'][$i]['land'][0]['x'];
+			$y1 = $rs['land_detail'][$i]['land'][0]['y'];
+			$sharetitle = $rs['land_detail'][$i]['title'];
+			$sharetext = $rs['land_detail'][$i]['detail'];
+			if(!$sharetitle){
+				$sharetitle = "Mark your very own Piece of the World!";
+			}
+			if(!$sharetext){
+				$sharetext = "Get your own piece of the world at pieceoftheworld.com";
+			}
+			$link = "http://pieceoftheworld.co/?xy=".$x1."~".$y1;
+			$sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link=".$link."&picture=".$imgurl."&name=Piece of the World&caption=".$sharetitle."&description=".$sharetext."&redirect_uri=".$link;
+			$likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='.$link.'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+			
+			if(trim($imgdir)){
+				?>
+				<div align="center" id="top_list_img_2">
+					<div class="img">
+						<a title="" class="xcboxElement">
+						<img src='/image.php?dir=<?php echo base64_encode($imgdir); ?>&w=290&h=150' />
+						</a>
+					</div>
+				</div>
+				<?php
+			}
 			?>
-			<input class='longbutton2' style="width:276px; margin:0px; margin-bottom:5px;" type='button' value="Images" />
-			<input class='longbutton2' style="width:276px; margin:0px; margin-bottom:5px;" type='button' value="Videos" />
+			<table width="290" cellspacing="0" cellpadding="0" border="0" id="table_main_info">
+			  <tbody><tr>
+				<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" id="fbshare" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
+				<td style="display: table-cell;"><?php echo $likehtml; ?></td>
+				<td></td>
+			  </tr>
+			  <tr>
+				<td height="5" colspan="3"></td>
+			  </tr>
+			  <tr>
+				<td colspan="3" class="text_1">
+					<span id="info-detail"><?php echo $rs['land_detail'][$i]['detail']; ?></span>
+				</td>
+			  </tr>
+			  <tr>
+				<td colspan="3" height="5"></td>
+			  </tr>
+			  <tr>
+				<td colspan="3" class="text_1" align="right">
+				<?php
+				if($rs['land_detail'][$i]['land_owner']){
+					?>
+					<div>Owner: <?php echo $rs['land_detail'][$i]['land_owner']; ?></div></td>
+					<?php
+				}
+				?>
+				
+			  </tr>
+			  <!--
+			  <tr>
+				<td colspan="3" class="text_1" align="right"><div>Highest Bid: </div></td>
+			  </tr>
+			  -->
+			  <tr>
+				<td colspan="3" height="10"></td>
+			  </tr>
+			  <tr>
+				<td colspan="3" class="text_1" align='center'>
+					<input class='longbutton' style="display: block;" type='button' value="Images" />
+					<input class='longbutton' style="display: block;" type='button' value="Videos" />
+				</td>
+			  </tr>
+			  <tr>
+				<td colspan="3" height="10"></td>
+			  </tr>
+			</tbody>
+			</table>
+			
+			
+			
 			
 		</div>
 		<?php
@@ -106,7 +184,7 @@ else {
 	}
 	?>
 	<script>
-	function landDetails(idx){
+	function landDetails(idx, nozoom){
 		//alert(idx);
 		if(idx.indexOf("special")>=0){
 			a = idx.split("_");
@@ -129,24 +207,26 @@ else {
 		}
 		jQuery("#the_detailx").html(str);
 		//jQuery("#the_detailx").show();
-		zoomTo(x, y);
+		if(!isset(nozoom)){
+			zoomTo(x, y);
+		}
 		
 	}
 	</script>
 	<?php
-	echo "<select id='ownedlands' class='select' onchange='landDetails(this.value)'>";
+	echo "<select id='ownedlands' class='select' onchange='landDetails(this.value)' style='text-align:center'>";
 	
 	for($i=0; $i<$ldt; $i++){
-		echo "<option value='detail_".$rs['land_detail'][$i]['id']."_".$rs['land_detail'][$i]['land'][0]['x']."_".$rs['land_detail'][$i]['land'][0]['y']."'>".$rs['land_detail'][$i]['title']."</option>";
+		echo "<option style='text-align:center' value='detail_".$rs['land_detail'][$i]['id']."_".$rs['land_detail'][$i]['land'][0]['x']."_".$rs['land_detail'][$i]['land'][0]['y']."'>".$rs['land_detail'][$i]['title']."</option>";
 	}
 	for($i=0; $i<$lst; $i++){
-		echo "<option value='special_".$rs['land_special'][$i]['id']."_".$rs['land_special'][$i]['land'][0]['x']."_".$rs['land_special'][$i]['land'][0]['y']."'>".$rs['land_special'][$i]['title']."</option>";
+		echo "<option style='text-align:center' value='special_".$rs['land_special'][$i]['id']."_".$rs['land_special'][$i]['land'][0]['x']."_".$rs['land_special'][$i]['land'][0]['y']."'>".$rs['land_special'][$i]['title']."</option>";
 	}
 	echo "</select>";
 	?>
 	<div id='the_detailx' style='display:;' ></div>
 	<script>
-		landDetails(jQuery("#ownedlands").val());
+		landDetails(jQuery("#ownedlands").val(), true);
 	</script>
 	<?php
 }
