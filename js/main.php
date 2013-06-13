@@ -888,7 +888,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				specialbought = false;
 			}
 			if(specialbought){ //if a special land or a bought land
-				jQuery("#land_id").val(gzones[i].ret.json.land_detail_id);
+				jQuery("#land_id").val(gzones[i].ret.json.land_special_id);
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
 				jQuery("#info-city").show();
@@ -919,7 +919,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 					jQuery("#info-land_owner_container").show();
 					jQuery("#info-land_owner").html(gzones[i].ret.json.land_owner);
 				}
-				getHighestBid(gzones[i].ret.json.land_detail_id);
+				getHighestBid(gzones[i].ret.json.land_special_id);
 				if(firstindex==""){
 					firstindex = i;
 				}
