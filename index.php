@@ -15,7 +15,7 @@ include_once(dirname(__FILE__).'/ajax/global.php');
 if($_GET['trends']){
 	?>
 	<div class="inner">
-		<div style="position:relative; width:100%; height:auto; left:180px;">
+		<div style="position:relative; width:100%; height:auto;">
 		<ul class="trendscontent">
 			<!--<li class="trend-label">Trending topics</li>-->
 			<?php
@@ -263,13 +263,15 @@ if($_GET['px']!=""){
 <body>
 <div id="fb-root"></div>
 <table id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
+<div id="top_arc"><img src="images/top_arc.png" /></div>
+<div id="header_top"></div>
 <div id="header_bg">
-	<div id="logo"><a href="index2.php"><img src="images/logo.png" width="168" height="25" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
+	<div id="logo"><a href="index2.php"><img src="images/logo.png" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
 	<div id="updates">
-		<table width="997" height="28" border="0" cellspacing="0" cellpadding="0">
+		<table width="882" height="28" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
-			<td width="25"><img src="images/interscape_white.png" width="19" height="20" border="0" alt="InterScape" title="InterScape" /></td>
-			<td valign="top" width="972">
+			<td width="27"><img src="images/interscape_white.png" border="0" alt="InterScape" title="InterScape" /></td>
+			<td valign="top" width="855">
 				<div id="trends">
 					
 				</div>
@@ -307,19 +309,18 @@ if($_GET['px']!=""){
 	<div id="search">
 		<table width="435" height="42" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
-			<td valign="top" width="318"><input type="text" class="input_1" style="width:318px; height:24px; border:0; text-align:center;" id="search_enteraplace" name="search" value="Enter your favorite place on earth here..." onFocus="if(this.value=='Enter your favorite place on earth here...'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Enter your favorite place on earth here...'; }" /></td>
-			<td valign="top" width="117"><img src="images/search_btn.png" width="117" height="26" border="0" alt="Take me there..." title="Take me there..." style="cursor:pointer;" /></td>
+			<td valign="top" width="318"><input type="text" class="input_1" style="width:318px; height:27px; border:0; text-align:center;" id="search_enteraplace" name="search" value="Enter your favorite place on earth here..." onFocus="if(this.value=='Enter your favorite place on earth here...'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Enter your favorite place on earth here...'; }" /></td>
+			<td valign="top" width="140"><img src="images/search_btn.png" border="0" alt="Take me there..." title="Take me there..." style="cursor:pointer;" /></td>
 		  </tr>
 		</table>
 	</div>
 	<div id="menus">
-		<img src="images/menu_about.png" width="39" height="14" border="0" alt="About" title="About" style="cursor:pointer;" id="menu_about" onClick="openClosePopUp('about');" /> &nbsp; 
-		<img src="images/menu_top_lists.png" width="58" height="14" border="0" alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" /> &nbsp; 
+		<img src="images/menu_about.png" border="0" alt="About" title="About" style="cursor:pointer;" id="menu_about" onClick="openClosePopUp('about');" /> &nbsp; 
+		<img src="images/menu_top_lists.png" border="0" alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" /> &nbsp; 
 		<!--<img src="images/menu_top_lists.png" width="58" height="14" border="0" alt="Login" title="Login" style="cursor:pointer;" id="menu_login" onClick="openClosePopUp('facebook');" /> &nbsp; -->
 		<!--<img src="images/menu_tutorials.png" width="56" height="14" border="0" alt="Tutorials" title="Tutorials" style="cursor:pointer;" id="menu_tutorials" onClick="openClosePopUp('tutorials');" /> &nbsp; -->
 	</div>
-	<div id="facebook" style='background:white; width;380px; height:30px; padding-left:10px; padding-top:6px; margin-top:3px; margin-right:20px; float:right; 
-	-moz-border-radius: 5px; border-radius: 5px;'>
+	<div id="facebook" style='background:white; width:380px; height:30px; padding-left:10px; padding-top:6px; margin-top:15px; margin-right:20px; float:right; -moz-border-radius: 5px; border-radius: 5px;'>
 		<table height="35" border="0" cellspacing="0" cellpadding="0" id="facebook_table">
 		  <tr>
 			<td colspan=3>
