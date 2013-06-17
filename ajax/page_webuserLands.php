@@ -1,10 +1,33 @@
 <?php
 session_start();
 require_once('user_fxn.php');
-
 $webUserId = $_SESSION['userdata']['id'];
-$rs = getLands($webUserId);
 
+if($_POST['type']){ //saving on edit of land
+	if($_POST['type']=='landdetail'){
+		$sql = "update `land_detail` set
+			`title` = '".mysql_real_escape_string($_POST['title'])."',
+			`detail` = '".mysql_real_escape_string($_POST['detail'])."',
+			`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'
+			where 
+			`id` = '".mysql_real_escape_string($_POST['id'])."'
+		";
+		dbQuery($sql, $_dblink);
+	}
+	else{
+		$sql = "update `land_special` set
+			`title` = '".mysql_real_escape_string($_POST['title'])."',
+			`detail` = '".mysql_real_escape_string($_POST['detail'])."',
+			`land_owner` = '".mysql_real_escape_string($_POST['land_owner'])."'
+			where 
+			`id` = '".mysql_real_escape_string($_POST['id'])."'
+		";
+		dbQuery($sql, $_dblink);
+	}
+	
+	exit();
+}
+$rs = getLands($webUserId);
 if(empty($rs['land_detail']) && empty($rs['land_special']) ){
 	?><?php
 } 
@@ -59,7 +82,7 @@ else {
 	$lst = count($rs['land_special']);
 	for($i=0; $i<$ldt; $i++){
 		?>
-		<div id='detail_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
+		<div id='landdetail_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
 			<?php
 			/*
 			<div class='div'><?php echo $rs['land_detail'][$i]['detail']; ?></div>
@@ -110,7 +133,7 @@ else {
 			
 			if(trim($imgdir)){
 				?>
-				<div align="center" id="top_list_img_2">
+				<div align="center">
 					<div class="img">
 						<a title="" class="xcboxElement">
 						<img src='/image.php?dir=<?php echo base64_encode($imgdir); ?>&w=290&h=150' />
@@ -120,9 +143,9 @@ else {
 				<?php
 			}
 			?>
-			<table width="290" cellspacing="0" cellpadding="0" border="0" id="table_main_info">
+			<table width="290" cellspacing="0" cellpadding="0" border="0">
 			  <tbody><tr>
-				<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" id="fbshare" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
+				<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
 				<td style="display: table-cell;"><?php echo $likehtml; ?></td>
 				<td></td>
 			  </tr>
@@ -131,7 +154,7 @@ else {
 			  </tr>
 			  <tr>
 				<td colspan="3" class="text_1">
-					<span id="info-detail"><?php echo $rs['land_detail'][$i]['detail']; ?></span>
+					<span><?php echo $rs['land_detail'][$i]['detail']; ?></span>
 				</td>
 			  </tr>
 			  <tr>
@@ -156,8 +179,25 @@ else {
 			  <tr>
 				<td colspan="3" height="10"></td>
 			  </tr>
-			  <tr>
+			  <tr  class="editor" style='display:none' >
+				<td colspan=3 class='text_1'>
+					<form id='landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>' style='margin:0px;'>
+						<input type='hidden' name='type' value='landdetail' />
+						<input type='hidden' name='id' value='<?php echo $rs['land_detail'][$i]['id']; ?>' />
+						Title:<br />
+						<input style='width:285px' name='title' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['title']); ?>" /><br />
+						Details:<br />
+						<textarea style='width:285px; height:40px;' name='detail'><?php echo htmlentities($rs['land_detail'][$i]['detail']); ?></textarea><br />
+						Land Owner:<br />
+						<input style='width:285px' name='land_owner' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['land_owner']); ?>" /><br />
+						<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>")' />
+					</form>
+					<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".editbuttons").show();' />
+				</td>
+			  </tr>
+			  <tr class='editbuttons'>
 				<td colspan="3" class="text_1" align='center'>
+					<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".editbuttons").hide();' />
 					<input class='longbutton' style="display: block;" type='button' value="Images" />
 					<input class='longbutton' style="display: block;" type='button' value="Videos" />
 				</td>
@@ -177,16 +217,33 @@ else {
 	
 	for($i=0; $i<$lst; $i++){
 		?>
-		<div id='special_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
+		<div id='landspecial_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
 			<div class='div'><?php echo $rs['land_detail'][$i]['detail']; ?></div>
 		</div>
 		<?php
 	}
 	?>
 	<script>
+	function saveLandDetails(idx){
+		jQuery("#ownedLandList").hide();
+		datax = jQuery("#"+idx).serialize();
+		jQuery.ajax({
+			dataType: "html",
+			type: 'post',
+			async: true,
+			data: datax,
+			url: '/ajax/page_webuserLands.php',
+			success: function(data){
+				jQuery(".editor").hide(); jQuery(".editbuttons").show();
+				getLands();
+				jQuery("#ownedLandList").show();
+			},
+			error: function(){ alert(error);}
+		});
+	}
 	function landDetails(idx, nozoom){
 		//alert(idx);
-		if(idx.indexOf("special")>=0){
+		if(idx.indexOf("landspecial")>=0){
 			a = idx.split("_");
 			id = a[1];
 			x = a[2];
@@ -217,10 +274,10 @@ else {
 	echo "<select id='ownedlands' class='select' onchange='landDetails(this.value)' style='text-align:center'>";
 	
 	for($i=0; $i<$ldt; $i++){
-		echo "<option style='text-align:center' value='detail_".$rs['land_detail'][$i]['id']."_".$rs['land_detail'][$i]['land'][0]['x']."_".$rs['land_detail'][$i]['land'][0]['y']."'>".$rs['land_detail'][$i]['title']."</option>";
+		echo "<option style='text-align:center' value='landdetail_".$rs['land_detail'][$i]['id']."_".$rs['land_detail'][$i]['land'][0]['x']."_".$rs['land_detail'][$i]['land'][0]['y']."'>".$rs['land_detail'][$i]['title']."</option>";
 	}
 	for($i=0; $i<$lst; $i++){
-		echo "<option style='text-align:center' value='special_".$rs['land_special'][$i]['id']."_".$rs['land_special'][$i]['land'][0]['x']."_".$rs['land_special'][$i]['land'][0]['y']."'>".$rs['land_special'][$i]['title']."</option>";
+		echo "<option style='text-align:center' value='landspecial_".$rs['land_special'][$i]['id']."_".$rs['land_special'][$i]['land'][0]['x']."_".$rs['land_special'][$i]['land'][0]['y']."'>".$rs['land_special'][$i]['title']."</option>";
 	}
 	echo "</select>";
 	?>
