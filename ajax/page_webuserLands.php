@@ -134,7 +134,7 @@ else {
 			if(trim($imgdir)){
 				?>
 				<div align="center">
-					<div class="img">
+					<div class="img" style='padding-top:7px; padding-bottom:7px;'>
 						<a title="" class="xcboxElement">
 						<img src='/image.php?dir=<?php echo base64_encode($imgdir); ?>&w=290&h=150' />
 						</a>
@@ -185,11 +185,11 @@ else {
 						<input type='hidden' name='type' value='landdetail' />
 						<input type='hidden' name='id' value='<?php echo $rs['land_detail'][$i]['id']; ?>' />
 						Title:<br />
-						<input style='width:285px' name='title' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['title']); ?>" /><br />
+						<input style='width:285px; color:black;' class='text_1' name='title' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['title']); ?>" /><br />
 						Details:<br />
-						<textarea style='width:285px; height:40px;' name='detail'><?php echo htmlentities($rs['land_detail'][$i]['detail']); ?></textarea><br />
+						<textarea style='width:285px; color:black;' class='text_1' height:40px;' name='detail'><?php echo htmlentities($rs['land_detail'][$i]['detail']); ?></textarea><br />
 						Land Owner:<br />
-						<input style='width:285px' name='land_owner' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['land_owner']); ?>" /><br />
+						<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['land_owner']); ?>" /><br /><br />
 						<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>")' />
 					</form>
 					<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".editbuttons").show();' />
