@@ -888,6 +888,36 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				specialbought = false;
 			}
 			if(specialbought){ //if a special land or a bought land
+				//ZOI
+				jQuery("#thumbs").empty();
+				jQuery("#clicktowatch").hide();
+				var videosJSON = null;
+				jQuery.ajax({
+					url:'ajax/get_videos.php?action=get_videos&land_detail_id='+gzones[i].ret.json.land_detail_id+'&land_special_id='+gzones[i].ret.json.land_special_id,
+					dataType:'html',
+					async:true,
+					success:function(data, textStatus, jqXHR){
+						videosJSON = data;
+						if(videosJSON){
+							var videoJSON = JSON.parse(videosJSON);
+							var thumbs = '';
+							thumbs += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; Thumbnails<br /><br />';
+							
+							for(var i=0; i<videoJSON.length; i++){
+								var videoArr = videoJSON[i].video.split("v=");
+								var videoStr = videoArr[1];
+							
+								thumbs += '<a style="cursor:pointer;" onclick="showVideo(\''+videoStr+'\');"><img src="http://img.youtube.com/vi/'+videoStr+'/0.jpg" width="80" border="0" /></a> &nbsp;&nbsp; ';
+							}
+							
+							jQuery("#thumbs").append(thumbs);
+							
+							jQuery("#clicktowatch").show();
+						}
+					}
+				});
+				//ZOI
+			
 				jQuery("#land_id").val(gzones[i].ret.json.land_special_id);
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
@@ -946,6 +976,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				break;
 			}
 			else{ //selected blank blocks
+				jQuery("#clicktowatch").hide();
 				blankblocks = true;
 				if(firstindex==""){
 					firstindex = i;
@@ -1579,9 +1610,10 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				
 				//ZOI
 				jQuery("#thumbs").empty();
+				jQuery("#clicktowatch").hide();
 				var videosJSON = null;
 				jQuery.ajax({
-					url:'ajax/get_videos.php?action=get_videos&land_detail_id='+markerJSON[0].land_detail_id,
+					url:'ajax/get_videos.php?action=get_videos&land_detail_id='+markerJSON[0].land_detail_id+'&land_special_id='+markerJSON[0].land_special_id,
 					dataType:'html',
 					async:true,
 					success:function(data, textStatus, jqXHR){
