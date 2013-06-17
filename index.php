@@ -760,13 +760,16 @@ if($_GET['px']!=""){
 		});
 	});
 	*/
-	function getLands(){
+	function getLands(idx){
+		if(!isset(idx)){
+			idx = "";
+		}
 		jQuery('#ownedLandList').html('');
 		jQuery.ajax({
 			dataType: "html",
 			type: 'post',
 			async: true,
-			url: 'ajax/page_webuserLands.php',
+			url: 'ajax/page_webuserLands.php?id='+idx,
 			success: function(data){
 				jQuery('#ownedLandList').html(data);
 				/*
