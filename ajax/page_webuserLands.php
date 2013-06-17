@@ -190,7 +190,7 @@ else {
 						<textarea style='width:285px; color:black;' class='text_1' height:40px;' name='detail'><?php echo htmlentities($rs['land_detail'][$i]['detail']); ?></textarea><br />
 						Land Owner:<br />
 						<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['land_owner']); ?>" /><br /><br />
-						<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>")' />
+						<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>")' />
 					</form>
 					<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".editbuttons").show();' />
 				</td>
@@ -198,8 +198,8 @@ else {
 			  <tr class='editbuttons'>
 				<td colspan="3" class="text_1" align='center'>
 					<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".editbuttons").hide();' />
-					<input class='longbutton' style="display: block;" type='button' value="Images" />
-					<input class='longbutton' style="display: block;" type='button' value="Videos" />
+					<input class='longbutton' style="display: block;" type='button' value="Manage Images" onclick='manageAssets("<?php echo htmlentities($rs['land_detail'][$i]['id']);?>", "land_detail", "images", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
+					<input class='longbutton' style="display: block;" type='button' value="Manage Videos" onclick='manageAssets("<?php echo htmlentities($rs['land_detail'][$i]['id']);?>", "land_detail", "videos", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
 				</td>
 			  </tr>
 			  <tr>
@@ -224,7 +224,12 @@ else {
 	}
 	?>
 	<script>
-	function saveLandDetails(idx){
+	function manageAssets(idx, landtype, assettype, idback){
+		url = "manageassets.php?landtype="+landtype+"&assettype="+assettype+"&id="+idx+"&idback="+idback;
+		jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
+		
+	}
+	function saveLandDetails(idx, id){
 		jQuery("#ownedLandList").hide();
 		datax = jQuery("#"+idx).serialize();
 		jQuery.ajax({
@@ -235,7 +240,7 @@ else {
 			url: '/ajax/page_webuserLands.php',
 			success: function(data){
 				jQuery(".editor").hide(); jQuery(".editbuttons").show();
-				getLands();
+				getLands(id);
 				jQuery("#ownedLandList").show();
 			},
 			error: function(){ alert(error);}
@@ -283,6 +288,11 @@ else {
 	?>
 	<div id='the_detailx' style='display:;' ></div>
 	<script>
+		<?php
+		if($_GET['id']){
+			?>jQuery("#ownedlands").val("<?php echo $_GET['id']; ?>");<?php
+		}
+		?>
 		landDetails(jQuery("#ownedlands").val(), true);
 	</script>
 	<?php

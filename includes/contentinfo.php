@@ -168,7 +168,18 @@ function submitBidForm(){
 			<td colspan="2">&nbsp;</td>
 		  </tr>
 		  <tr>
-			<td colspan="2"><input type='button' id='submitbidbutton' class='longbutton' value="Submit your bid" style='width:100%;' onclick="submitBidForm();" /></td>
+			<td colspan="2">
+			<input type='button' id='submitbidbutton' class='longbutton' value="Submit your bid" style='width:100%;' onclick="submitBidForm();" />
+			<script>
+			function backFromBid(){
+				jQuery('#theform')[0].reset();
+				jQuery("#info-span #table_main_info").show();
+				jQuery('#info-span #div_bid').hide();
+				jQuery('#table_bid_form').hide();
+			}
+			</script>
+			<input type='button' id='submitbidbutton' class='longbutton' value="Back" style='width:100%;' onclick="backFromBid();" />
+			</td>
 		  </tr>
 		</table>
 		</form>
