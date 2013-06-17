@@ -69,7 +69,215 @@ function consoleX(str){
 <?php
 $web_user_id = $_SESSION['userdata']['id'];
 
-if($_GET['assettype']=='images'){
+if($_GET['assettype']=='videos'){
+	if($_GET['landtype']=='land_detail'){ //normal land
+		if($_POST){
+			$http = $_POST['video'];
+			if(trim($http)){
+				$sql = "insert into `videos` set
+					`video` = '".$http."',
+					`created_on` = NOW(),
+					`land_id`='".$_GET['id']."'
+				";
+				dbQuery($sql);
+			}
+			
+		}
+		if($_GET['set']=='primary'&&$_GET['videoid']){ //set as primary
+			$sql = "select * from `videos` where 
+				`land_id` = '".mysql_real_escape_string($_GET['id'])."'  and `id`='".mysql_real_escape_string($_GET['videoid'])."'
+				and `land_id` in (select `land_detail_id` from `land` where `web_user_id`='".$web_user_id."')
+				order by `isMain` desc";
+			$picture = dbQuery($sql, $_dblink);
+			if($picture[0]['id']){
+				$sql = "update `videos` set `isMain`=0 where 
+				`land_id` = '".mysql_real_escape_string($_GET['id'])."'";
+				dbQuery($sql, $_dblink);
+				$sql = "update `videos` set `isMain`=1 where 
+				`land_id` = '".mysql_real_escape_string($_GET['id'])."' and `id`='".mysql_real_escape_string($_GET['videoid'])."'";
+				dbQuery($sql, $_dblink);
+			}
+			?>
+			<script>
+			window.parent.getLands("<?php echo $_GET['idback']; ?>");
+			</script>
+			<?php
+		}
+		else if($_GET['set']=='delete'&&$_GET['videoid']){ //set as primary
+			$sql = "select * from `videos` where 
+				`land_id` = '".mysql_real_escape_string($_GET['id'])."'  and `id`='".mysql_real_escape_string($_GET['videoid'])."'
+				and `land_id` in (select `land_detail_id` from `land` where `web_user_id`='".$web_user_id."')
+				order by `isMain` desc";
+			$picture = dbQuery($sql, $_dblink);
+			if($picture[0]['id']){
+				$sql = "delete from `videos` where 
+				`land_id` = '".mysql_real_escape_string($_GET['id'])."' and `id`='".mysql_real_escape_string($_GET['videoid'])."'";
+				dbQuery($sql, $_dblink);
+			}
+			?>
+			<script>
+			window.parent.getLands("<?php echo $_GET['idback']; ?>");
+			</script>
+			<?php
+		}
+		
+		$sql = "select * from `videos` where 
+			`land_id` = '".mysql_real_escape_string($_GET['id'])."' 
+			and `land_id` in (select `land_detail_id` from `land` where `web_user_id`='".$web_user_id."')
+			order by `isMain` desc";
+		$videos = dbQuery($sql, $_dblink);
+		$pt = count($videos);
+		?>
+		<div style='text-align:center; padding:20px;'>
+		<form action="manageassets.php?assettype=videos&landtype=land_detail&id=<?php echo $_GET['id']; ?>&idback=<?php echo $_GET['idback']; ?>" method="post" enctype="multipart/form-data">
+		Youtube Video Link<br /><i>e.g. http://www.youtube.com/watch?v=4M6Y06w834w</i><br />
+		<input type="text" name="video" style='width:400px;'>&nbsp;<input type="submit" name="submit" value="Add Video">
+		</form>
+		</div>
+		<?php
+		if($pt){
+			echo "<table style='margin-top:1px;' cellpadding=0 cellspacing=4 >";
+			for($j=0; $j<$pt; $j++){
+				$videoid = explode("v=",$videos[$j]['video']);
+				$videoid = explode("&",$videoid[1]);
+				$videoid = $videoid[0];
+				$iframe = '<iframe width="290" height="150" src="http://www.youtube.com/embed/'.$videoid.'" frameborder="0" allowfullscreen></iframe>';
+				if($j==0){
+					echo "<tr>";
+				}
+				else if($j%5==0){
+					echo "</tr><tr>";
+				}
+				?>
+				<td style='background:#00A4DA; width:290px; text-align:center; padding: 2px 0px 2px 0px; vertical-align:middle' ><?php 
+				if(trim($videos[$j]['video'])){
+					echo "<div>".$iframe."</div>";
+				}
+				else{
+					echo "&nbsp;";
+				}
+				?>
+				<div style='padding:5px;'>
+				<?php
+				if(!$videos[$j]['isMain']){
+					?><a href='manageassets.php?assettype=videos&landtype=land_detail&id=<?php echo $_GET['id']; ?>&idback=<?php echo $_GET['idback']; ?>&videoid=<?php echo $videos[$j]['id']; ?>&set=primary'>Set as Primary</a>&nbsp;<?php
+				}
+				?>
+				<a onclick='return confirm("Are you sure you want to delete this video?")' href='manageassets.php?assettype=videos&landtype=land_detail&id=<?php echo $_GET['id']; ?>&idback=<?php echo $_GET['idback']; ?>&videoid=<?php echo $videos[$j]['id']; ?>&set=delete'
+				style='color:red' >Delete</a>
+				</div>
+				</td>
+				<?php
+			}
+			echo "<tr></table>";
+		}
+	}
+	else{ //special land
+		if($_POST){
+			$http = $_POST['video'];
+			if(trim($http)){
+				$sql = "insert into `videos_special` set
+					`video` = '".$http."',
+					`created_on` = NOW(),
+					`land_special_id`='".$_GET['id']."'
+				";
+				dbQuery($sql);
+			}
+			
+		}
+		if($_GET['set']=='primary'&&$_GET['videoid']){ //set as primary
+			$sql = "select * from `videos_special` where 
+				`land_special_id` = '".mysql_real_escape_string($_GET['id'])."'  and `id`='".mysql_real_escape_string($_GET['videoid'])."'
+				and `land_special_id` in (select `id` from `land_special` where `web_user_id`='".$web_user_id."')
+				order by `isMain` desc";
+			$picture = dbQuery($sql, $_dblink);
+			if($picture[0]['id']){
+				$sql = "update `videos_special` set `isMain`=0 where 
+				`land_special_id` = '".mysql_real_escape_string($_GET['id'])."'";
+				dbQuery($sql, $_dblink);
+				$sql = "update `videos_special` set `isMain`=1 where 
+				`land_special_id` = '".mysql_real_escape_string($_GET['id'])."' and `id`='".mysql_real_escape_string($_GET['videoid'])."'";
+				dbQuery($sql, $_dblink);
+			}
+			?>
+			<script>
+			window.parent.getLands("<?php echo $_GET['idback']; ?>");
+			</script>
+			<?php
+		}
+		else if($_GET['set']=='delete'&&$_GET['videoid']){ //set as primary
+			$sql = "select * from `videos_special` where 
+				`land_special_id` = '".mysql_real_escape_string($_GET['id'])."'  and `id`='".mysql_real_escape_string($_GET['videoid'])."'
+				and `land_special_id` in (select `id` from `land_special` where `web_user_id`='".$web_user_id."')
+				order by `isMain` desc";
+			$picture = dbQuery($sql, $_dblink);
+			if($picture[0]['id']){
+				$sql = "delete from `videos_special` where 
+				`land_special_id` = '".mysql_real_escape_string($_GET['id'])."' and `id`='".mysql_real_escape_string($_GET['videoid'])."'";
+				dbQuery($sql, $_dblink);
+			}
+			?>
+			<script>
+			window.parent.getLands("<?php echo $_GET['idback']; ?>");
+			</script>
+			<?php
+		}
+		
+		$sql = "select * from `videos_special` where 
+			`land_special_id` = '".mysql_real_escape_string($_GET['id'])."' 
+			and `land_special_id` in (select `id` from `land_special` where `web_user_id`='".$web_user_id."')
+			order by `isMain` desc";
+		$videos = dbQuery($sql, $_dblink);
+		$pt = count($videos);
+		?>
+		<div style='text-align:center; padding:20px;'>
+		<form action="manageassets.php?assettype=videos&landtype=land_detail&id=<?php echo $_GET['id']; ?>&idback=<?php echo $_GET['idback']; ?>" method="post" enctype="multipart/form-data">
+		Youtube Video Link<br /><i>e.g. http://www.youtube.com/watch?v=4M6Y06w834w</i><br />
+		<input type="text" name="video" style='width:400px;'>&nbsp;<input type="submit" name="submit" value="Add Video">
+		</form>
+		</div>
+		<?php
+		if($pt){
+			echo "<table style='margin-top:1px;' cellpadding=0 cellspacing=4 >";
+			for($j=0; $j<$pt; $j++){
+				$videoid = explode("v=",$videos[$j]['video']);
+				$videoid = explode("&",$videoid[1]);
+				$videoid = $videoid[0];
+				$iframe = '<iframe width="290" height="150" src="http://www.youtube.com/embed/'.$videoid.'" frameborder="0" allowfullscreen></iframe>';
+				if($j==0){
+					echo "<tr>";
+				}
+				else if($j%5==0){
+					echo "</tr><tr>";
+				}
+				?>
+				<td style='background:#00A4DA; width:290px; text-align:center; padding: 2px 0px 2px 0px; vertical-align:middle' ><?php 
+				if(trim($videos[$j]['video'])){
+					echo "<div>".$iframe."</div>";
+				}
+				else{
+					echo "&nbsp;";
+				}
+				?>
+				<div style='padding:5px;'>
+				<?php
+				if(!$videos[$j]['isMain']){
+					?><a href='manageassets.php?assettype=videos&landtype=land_detail&id=<?php echo $_GET['id']; ?>&idback=<?php echo $_GET['idback']; ?>&videoid=<?php echo $videos[$j]['id']; ?>&set=primary'>Set as Primary</a>&nbsp;<?php
+				}
+				?>
+				<a onclick='return confirm("Are you sure you want to delete this video?")' href='manageassets.php?assettype=videos&landtype=land_detail&id=<?php echo $_GET['id']; ?>&idback=<?php echo $_GET['idback']; ?>&videoid=<?php echo $videos[$j]['id']; ?>&set=delete'
+				style='color:red' >Delete</a>
+				</div>
+				</td>
+				<?php
+			}
+			echo "<tr></table>";
+		}
+	}
+
+
+}
+else if($_GET['assettype']=='images'){
 	if($_GET['landtype']=='land_detail'){ //normal land
 		if($_FILES){
 			$folder = dirname(__FILE__)."/_uploads2/".$_POST['folder']."/";
