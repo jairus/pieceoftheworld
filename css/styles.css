@@ -125,7 +125,7 @@ a:link, a:hover, a:visited{
 	display:none;
 	position:absolute;
 	top:130px;
-	right:110px;
+	right:125px;
 	z-index:1000;
 	cursor:move;
 }
