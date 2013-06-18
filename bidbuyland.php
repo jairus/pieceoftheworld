@@ -231,7 +231,7 @@ function cancelLogin(){
 <body style="cursor: auto;">
 <div id="fb-root"></div>
 <?php
-if($_POST['step']==1){
+if($_GET['step']==1){
 	$discount = 0;
 	$paypalvalue = $_SESSION['px'];
 	$paypalvalue = $paypalvalue - ($paypalvalue * $discount);

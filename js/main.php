@@ -130,6 +130,8 @@ function setSessionPrice(p, sync){ //set the price in session
 			}
 		});
 	}
+	
+	jQuery('#info-buy-span').hide();
 }
 //set coordinates for boxes (used for buying)
 gsessiondetails = "";
@@ -411,6 +413,7 @@ function onMarkerClick(event, type) {
 	jQuery('#image-button').show();
 	jQuery("#loading-button").show();
 	//ZOI
+	jQuery('#info-buy-span').hide();
 	jQuery("#info-span #table_main_info").show();
 	jQuery("#info-span #thumbs").hide();
 	jQuery("#info-span #video").hide();
@@ -1852,6 +1855,7 @@ function ajaxGetMarker(map, x1, y1, x2, y2) { //get exact details of a marker
 		dataType:'html',
 		async:false,
 		success:function(data, textStatus, jqXHR){
+			jQuery('#info-buy-span').hide();
 			markersJSON = data;
 		}
 	});
@@ -2166,17 +2170,17 @@ function ajaxAddRedMarkers(map, force) { //they are not actually red markers... 
 	loadedrz = z;
 }
 
-gBuyOnMarker = false;
-inonBuyLand = false;
+/*gBuyOnMarker = false;
+inonBuyLand = false;*/
 function onBuyLand() {
-	if(inonBuyLand){
+	/*if(inonBuyLand){
 		return 0;
 	}
 	inonBuyLand = true;
 	for(i=0; i<100;i++){
 		
-	}
-	var url = "";
+	}*/
+	//var url = "";
 	if (jQuery('#buy-button').val() == "Click to Buy") {
 		jQuery("#loading-button").show();
 		jQuery('#buy-button').hide();
@@ -2189,10 +2193,19 @@ function onBuyLand() {
 			setCoordsForMarkers(globalcoordsformarkers);
 		}
 		//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
-		url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+		/*url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 		jQuery.colorbox({iframe:true, width:"870px", height:"650px", href:url});
 		jQuery("#loading-button").hide();
-		jQuery('#buy-button').show();
+		jQuery('#buy-button').show();*/
+		
+		jQuery("#info-span").hide();
+		jQuery('#field_land_title').val('');
+		jQuery('#field_land_cover_image').val('');
+		jQuery('#field_land_details').val('');
+		jQuery('#field_land_owner').val('');
+		jQuery("#info-buy-span").show();
+		jQuery("#loading-button").hide();
+		jQuery("#buy-button").show();
 		
 	}
 	else if (jQuery('#buy-button').val() == "Click to Bid") {

@@ -240,7 +240,22 @@ if($_GET['px']!=""){
 
 
 <script type="text/javascript" src="js/twitmarquee/twitmarquee.js"></script>
+<script>
+function loadTrailer(){
+	var url = "";
+	
+	url = "trailer.php";
+	jQuery.colorbox({iframe:true, width:"670px", height:"490px", href:url});
+}
 
+jQuery(document).ready(function() {
+	<?php
+	if(!isset($_SESSION['trailer'])){
+		?> loadTrailer(); <?php
+	}
+	?>
+});
+</script>
 <style>
 .longbutton2{
 	background-color: #006A9B;
@@ -351,7 +366,7 @@ if($_GET['px']!=""){
 			else{
 				?>
 				<div align="right" id='sign_in'>
-					<a class="text_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook'); ">Sign In</a>
+					<a class="text_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook');">Sign In</a>
 				</div><?php
 			}
 			?>
@@ -456,7 +471,10 @@ if($_GET['px']!=""){
 				<div style="padding-top:10px; text-align:center;" class="text_3">The world for sale - piece by piece</div>
 			</div>
 			<div id="content_tutorials" style="display:none;">CONTENT GOES HERE...</div>
-			<div id="content_info" style="display:none;"><?php include_once('includes/contentinfo.php'); ?></div>
+			<div id="content_info" style="display:none;">
+				<?php include_once('includes/contentinfo.php'); ?>
+				<?php include_once('includes/contentbuy.php'); ?>
+			</div>
 			<div id="content_facebook" style="display:none;">
 				<div id='userProfile' style='display:none'>
 					<table width="100%" border="0" cellspacing="0" cellpadding="0">
