@@ -131,7 +131,7 @@ function setSessionPrice(p, sync){ //set the price in session
 		});
 	}
 	
-	jQuery('#info-buy-span').hide();
+	jQuery('#buy_form_results').hide();
 }
 //set coordinates for boxes (used for buying)
 gsessiondetails = "";
@@ -413,7 +413,8 @@ function onMarkerClick(event, type) {
 	jQuery('#image-button').show();
 	jQuery("#loading-button").show();
 	//ZOI
-	jQuery('#info-buy-span').hide();
+	jQuery('#buy_form_results').hide();
+	
 	jQuery("#info-span #table_main_info").show();
 	jQuery("#info-span #thumbs").hide();
 	jQuery("#info-span #video").hide();
@@ -1855,7 +1856,7 @@ function ajaxGetMarker(map, x1, y1, x2, y2) { //get exact details of a marker
 		dataType:'html',
 		async:false,
 		success:function(data, textStatus, jqXHR){
-			jQuery('#info-buy-span').hide();
+			jQuery('#buy_form_results').hide();
 			markersJSON = data;
 		}
 	});
@@ -2172,7 +2173,7 @@ function ajaxAddRedMarkers(map, force) { //they are not actually red markers... 
 
 /*gBuyOnMarker = false;
 inonBuyLand = false;*/
-function onBuyLand() {
+function onBuyLandx() {
 	/*if(inonBuyLand){
 		return 0;
 	}
@@ -2203,7 +2204,7 @@ function onBuyLand() {
 		jQuery('#field_land_cover_image').val('');
 		jQuery('#field_land_details').val('');
 		jQuery('#field_land_owner').val('');
-		jQuery("#info-buy-span").show();
+		jQuery('#buy_form_results').hide();
 		jQuery("#loading-button").hide();
 		jQuery("#buy-button").show();
 		

@@ -191,3 +191,33 @@ function userProfile(userID){
     });
 }
 //END OF TOP LISTS
+
+//BUY OR BID LAND
+function onBuyLand(){
+	if (jQuery('#buy-button').val() == "Click to Buy") {
+		jQuery.ajax({
+			type: 'GET',
+			url: "ajax/get_buyform.php?action=get_buy_form",
+			data: '',
+	
+			success: function(data) {
+				jQuery("#info-span").hide();
+				jQuery('#field_land_title').val('');
+				jQuery('#field_land_cover_image').val('');
+				jQuery('#field_land_details').val('');
+				jQuery('#field_land_owner').val('');
+				jQuery("#loading-button").hide();
+				jQuery("#buy-button").show();
+			
+				jQuery("#buy_form_tab_wrapperonly").html(data);
+            	jQuery('#buy_form_results').fadeIn(200);
+			}
+		});
+	}else if(jQuery('#buy-button').val() == "Click to Bid") {
+		jQuery('#theform')[0].reset();
+		jQuery("#info-span #table_main_info").hide();
+		jQuery('#info-span #div_bid').show();
+		jQuery('#table_bid_form').show();
+	}
+}
+//END OF BUY OR BID LAND
