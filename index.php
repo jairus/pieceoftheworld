@@ -237,25 +237,7 @@ if($_GET['px']!=""){
 <!--END OF INITIALIZE MAP-->
 
 <script src="js/zoi.php?_<?php echo time(); ?>" type="text/javascript"></script>
-
-
 <script type="text/javascript" src="js/twitmarquee/twitmarquee.js"></script>
-<script>
-function loadTrailer(){
-	var url = "";
-	
-	url = "trailer.php";
-	jQuery.colorbox({iframe:true, width:"670px", height:"490px", href:url});
-}
-
-jQuery(document).ready(function() {
-	<?php
-	if(!isset($_SESSION['trailer'])){
-		?> loadTrailer(); <?php
-	}
-	?>
-});
-</script>
 <style>
 .longbutton2{
 	background-color: #006A9B;
@@ -273,15 +255,57 @@ jQuery(document).ready(function() {
 	border:1px solid white;
 }
 </style>
+<script>
+$(document).ready(function() {
+	<?php
+	if(!isset($_SESSION['trailer'])){
+		?> jQuery('#table_intro').show(); <?php
+	}
+	?>
+});
+
+//CLOSE INTRO
+function closeIntro(type){
+	if(type==1){
+		jQuery('#table_intro').hide();
+	}else if(type==2){
+		jQuery.ajax({
+			type: 'GET',
+			url: "ajax/ajax.php?action=createsession",
+			data: '',
+			success: function(data) {
+				jQuery('#table_intro').hide();
+			}
+		});
+	}
+}
+//END OF CLOSE INTRO
+</script>
 </head>
 
 <body>
+<table width="100%" border="0" cellspacing="0" cellpadding="0" style="position:absolute; top:100px; left:0px; z-index:999999; display:none;" id="table_intro">
+  <tr>
+    <td align="center">
+		<div style="width:600px; height:400px;"><iframe width="600" height="400" src="http://www.youtube.com/embed/LR92EnAOhj8" frameborder="0" allowfullscreen></iframe></div>
+		<div style="width:600px; height:auto;">
+			<table width="600" border="0" cellspacing="0" cellpadding="0">
+			  <tr>
+				<td width="300" align="left"><img src="images/intro_skip.png" style="cursor:pointer;" onClick="closeIntro(1);" /></td>
+				<td width="300" align="right"><img src="images/intro_dont_show.png" style="cursor:pointer;" onClick="closeIntro(2);" /></td>
+			  </tr>
+			</table>
+		</div>
+	</td>
+  </tr>
+</table>
+
 <div id="fb-root"></div>
 <table id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
 <div id="top_arc"><img src="images/top_arc.png" /></div>
 <div id="header_top"></div>
 <div id="header_bg">
-	<div id="logo"><a href="index2.php"><img src="images/logo.png" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
+	<div id="logo"><a href="index.php"><img src="images/logo.png" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
 	<div id="updates">
 		<table width="882" height="28" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
