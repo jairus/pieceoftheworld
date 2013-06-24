@@ -922,7 +922,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				});
 				//ZOI
 			
-				jQuery("#land_id").val(gzones[i].ret.json.land_special_id);
+				jQuery("#land_special_id").val(gzones[i].ret.json.land_special_id);
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
 				jQuery("#info-city").show();

@@ -2,11 +2,11 @@
 session_start();
 header('Content-Type: application/javascript');
 ?>
-<!--MAKE BOX DRAGGABLE-->
+// MAKE BOX DRAGGABLE
 jQuery(function(){ jQuery("#popup").draggable({ containment: "window" }); });
-<!--END OF MAKE BOX DRAGGABLE-->
+// END OF MAKE BOX DRAGGABLE
 
-<!--OPEN/CLOSE POPUP-->
+// OPEN/CLOSE POPUP
 function openClosePopUp(menu){
 	jQuery('#content_about').hide();
 	jQuery('#content_top_lists').hide();
@@ -29,7 +29,7 @@ function openClosePopUp(menu){
 	jQuery('#popup').show();
 	
 }
-<!--END OF OPEN/CLOSE POPUP-->
+// END OF OPEN/CLOSE POPUP
 
 //TOP LISTS
 function step1(action, count){
@@ -221,3 +221,18 @@ function onBuyLand(){
 	}
 }
 //END OF BUY OR BID LAND
+
+//OPEN GALLERY
+function openGallery(){
+	jQuery.ajax({
+		type: 'GET',
+		url: "ajax/ajax.php?action=open_gallery&land_id="+jQuery('#land_id').val()+"&land_special_id="+jQuery('#land_special_id').val(),
+		data: "",
+	
+		success: function(data) {
+			jQuery("#gallery_tab_wrapperonly").html(data);
+			jQuery('#galleryresults').fadeIn(200);
+		}
+	});
+}
+//END OF OPEN GALLERY

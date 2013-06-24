@@ -284,6 +284,10 @@ function closeIntro(type){
 </head>
 
 <body>
+<div id='galleryresults'>
+	<div id='gallery_tab_wrapperonly'></div>
+</div>
+
 <table width="100%" border="0" cellspacing="0" cellpadding="0" style="position:absolute; top:150px; left:0px; z-index:999999; display:none;" id="table_intro">
   <tr>
     <td align="center">

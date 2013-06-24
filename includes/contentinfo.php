@@ -85,9 +85,10 @@ function submitBidForm(){
 <center><img src="images/pastedgraphic.jpg" width="235" border="0"></center> 
 </span>
 <input type="hidden" id="land_id" name="land_id" />
+<input type="hidden" id="land_special_id" name="land_special_id" />
 <span id="info-span" style="display:none;">
 	<div id="top_list_title_1" class="text_2"><span id="info-city"></span><span id="info-title"></span></div>
-	<div id="top_list_img_2" align="center"><div class="img"><a id="info-lightbox"><img id="info-img" border="0"></a></div></div>
+	<div id="top_list_img_2" align="center"><div class="img"><a onclick="openGallery();" style="cursor:pointer;"><img id="info-img" border="0"></a></div></div>
 	<div style="float:left; width:290px; height:auto;">
 	<div id="thumbs" style="display:none;" class="text_3"></div>
 	<div id="video" style="display:none;" class="text_3"></div>
