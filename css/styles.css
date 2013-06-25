@@ -159,10 +159,10 @@ a:link, a:hover, a:visited{
 }
 
 #popup_header{
-	float:left;
 	width:290px;
 	height:auto;
-	padding-bottom:10px;
+	position:relative;
+    top:-10px;
 }
 
 #popup_icon_interscape{
@@ -198,6 +198,13 @@ a:link, a:hover, a:visited{
 	border-left:1px solid #FFFFFF;
 	border-right:1px solid #FFFFFF;
 	background-color:#008aba;
+}
+
+#popup_shadow{
+	float:left;
+	width:308px;
+	height:27px;
+	text-align:center;
 }
 /* END OF POPUP */
 

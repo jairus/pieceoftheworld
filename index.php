@@ -564,6 +564,7 @@ function closeIntro(type){
 		</div>
 	</div>
 	<div id="popup_bottom"></div>
+	<div id="popup_shadow"><img src="images/interscape_shadow.png" border="0" /></div>
 </div>
 <!--END OF POPUP-->
 <script type="text/javascript">
