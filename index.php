@@ -288,9 +288,9 @@ function closeIntro(type){
 	<div id='gallery_tab_wrapperonly'></div>
 </div>
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0" style="position:absolute; top:150px; left:0px; z-index:999999; display:none;" id="table_intro">
+<table width="100%" height="100%" border="0" cellspacing="0" cellpadding="0" style="position:absolute; top:130px; right:445px; z-index:999999; display:none;" id="table_intro">
   <tr>
-    <td align="center">
+    <td align="right" valign="top">
 		<div style="width:600px; height:400px;"><iframe width="600" height="400" src="http://www.youtube.com/embed/LR92EnAOhj8" frameborder="0" allowfullscreen></iframe></div>
 		<div style="width:600px; height:auto;">
 			<table width="600" border="0" cellspacing="0" cellpadding="0">
