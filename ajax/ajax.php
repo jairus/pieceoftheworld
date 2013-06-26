@@ -24,12 +24,6 @@ if($_GET['action']=='open_gallery'){
 	}
 	
 	$t = count($r);
-	
-	$myimage = str_replace('%3A', ':', $r[0]['picture']);
-	$size = getimagesize($myimage);
-	
-	$width = intval($size[0]);
-	$height = intval($size[1]);
 	?>
 	<style>
 	#div_images{
