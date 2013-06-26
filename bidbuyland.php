@@ -338,7 +338,7 @@ if($_POST['step']==1){
 									<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 								</form>
 							</div>
-							<div id='skrill' style='padding:10px; text-align:center' class='paymentform'>
+							<div id='skrill' style='padding:10px; text-align:center; display:none' class='paymentform'>
 								<form action="https://www.moneybookers.com/app/payment.pl" method="post" target="_blank">
 								  <input type="hidden" name="pay_to_email" value="pieceoftheworld2013@gmail.com"/>
 								  <input type="hidden" name="status_url" value="http://www.pieceoftheworld.co/ipn_skrill.php?f=<?php echo $foldername; ?>&affid=<?php echo $_SESSION['affid']; ?>"/> 
