@@ -1,5 +1,6 @@
 <?php
 session_start();
+header('Content-Type: text/html; charset=utf-8');
 require_once('user_fxn.php');
 $webUserId = $_SESSION['userdata']['id'];
 
@@ -144,23 +145,23 @@ else {
 			}
 			?>
 			<table width="290" cellspacing="0" cellpadding="0" border="0">
-			  <tbody><tr>
+			  <tbody><tr class='details'>
 				<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
 				<td style="display: table-cell;"><?php echo $likehtml; ?></td>
 				<td></td>
 			  </tr>
-			  <tr>
+			  <tr class='details'>
 				<td height="5" colspan="3"></td>
 			  </tr>
-			  <tr>
+			  <tr class='details'>
 				<td colspan="3" class="text_1">
 					<span><?php echo $rs['land_detail'][$i]['detail']; ?></span>
 				</td>
 			  </tr>
-			  <tr>
+			  <tr class='details'>
 				<td colspan="3" height="5"></td>
 			  </tr>
-			  <tr>
+			  <tr class='details'>
 				<td colspan="3" class="text_1" align="right">
 				<?php
 				if($rs['land_detail'][$i]['land_owner']){
@@ -176,7 +177,7 @@ else {
 				<td colspan="3" class="text_1" align="right"><div>Highest Bid: </div></td>
 			  </tr>
 			  -->
-			  <tr>
+			  <tr class='details'>
 				<td colspan="3" height="10"></td>
 			  </tr>
 			  <tr  class="editor" style='display:none' >
@@ -185,19 +186,19 @@ else {
 						<input type='hidden' name='type' value='landdetail' />
 						<input type='hidden' name='id' value='<?php echo $rs['land_detail'][$i]['id']; ?>' />
 						Title:<br />
-						<input style='width:285px; color:black;' class='text_1' name='title' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['title']); ?>" /><br />
+						<input style='width:285px; color:black;' class='text_1' name='title' type='text' value="<?php echo htmlentities(utf8_decode($rs['land_detail'][$i]['title'])); ?>" /><br />
 						Details:<br />
-						<textarea style='width:285px; color:black;' class='text_1' height:40px;' name='detail'><?php echo htmlentities($rs['land_detail'][$i]['detail']); ?></textarea><br />
+						<textarea style='width:285px; color:black; height:40px;' class='text_1' name='detail'><?php echo htmlentities(utf8_decode($rs['land_detail'][$i]['detail'])); ?></textarea><br />
 						Land Owner:<br />
-						<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities($rs['land_detail'][$i]['land_owner']); ?>" /><br /><br />
+						<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities(utf8_decode($rs['land_detail'][$i]['land_owner'])); ?>" /><br /><br />
 						<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>")' />
 					</form>
-					<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".editbuttons").show();' />
+					<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".details").show();  jQuery(".editbuttons").show();' />
 				</td>
 			  </tr>
 			  <tr class='editbuttons'>
 				<td colspan="3" class="text_1" align='center'>
-					<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".editbuttons").hide();' />
+					<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".details").hide();  jQuery(".editbuttons").hide();' />
 					<input class='longbutton' style="display: block;" type='button' value="Manage Images" onclick='manageAssets("<?php echo htmlentities($rs['land_detail'][$i]['id']);?>", "land_detail", "images", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
 					<input class='longbutton' style="display: block;" type='button' value="Manage Videos" onclick='manageAssets("<?php echo htmlentities($rs['land_detail'][$i]['id']);?>", "land_detail", "videos", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
 				</td>
@@ -239,7 +240,9 @@ else {
 			data: datax,
 			url: '/ajax/page_webuserLands.php',
 			success: function(data){
-				jQuery(".editor").hide(); jQuery(".editbuttons").show();
+				jQuery(".editor").hide(); 
+				jQuery(".details").show(); 
+				jQuery(".editbuttons").show();
 				getLands(id);
 				jQuery("#ownedLandList").show();
 			},
