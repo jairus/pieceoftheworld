@@ -1,9 +1,17 @@
-<? 
-require_once('application.php');
+<?php 
+if(strtolower($_SERVER['HTTP_HOST'])=="pieceoftheworld.com"){
+	$url = "http://pieceoftheworld.co/".ltrim($_SERVER['REQUEST_URI'], "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}else if(strpos(strtolower($_SERVER['HTTP_HOST']), "www.")===0){
+	$url = "http://pieceoftheworld.co/".ltrim($_SERVER['REQUEST_URI'], "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}
 
-//print_ar($_REQUEST);
+session_start(); 
+include_once(dirname(__FILE__).'/ajax/global.php');
 
-<<<<<<< HEAD
 if($_GET['trends']){
 	?>
 	<div class="inner">
@@ -217,15 +225,17 @@ if($_GET['px']!=""){
 <script src="http://cdn.pieceoftheworld.co/js/draggable/jquery-ui.js"></script>
 <link href="http://cdn.pieceoftheworld.co/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
 <!--END OF MAKE BOX DRAGGABLE-->
-=======
-$pageurl = me();
-$CFG->pageurl = $pageurl;
->>>>>>> 813da3e4e9906741918ac2edb01934b2c2a8adfa
 
-//print_ar($pageurl);
+<!-- colorbox -->
+<script src="http://cdn.pieceoftheworld.co/js/colorbox-master/jquery.colorbox.js"></script>
+<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.co/js/colorbox-master/example1/colorbox.css" media="screen" />
+<!-------------->
 
+<!--INITIALIZE MAP-->
+<script src="http://maps.google.com/maps/api/js?sensor=true&libraries=geometry" type="text/javascript"></script>
+<script src="js/main.php?_<?php echo time(); ?>&<?php echo $_SERVER['QUERY_STRING']; ?>" type="text/javascript"></script>
+<!--END OF INITIALIZE MAP-->
 
-<<<<<<< HEAD
 <script src="js/zoi.php?_<?php echo time(); ?>" type="text/javascript"></script>
 <script type="text/javascript" src="js/twitmarquee/twitmarquee.js"></script>
 <style>
@@ -734,68 +744,159 @@ function closeIntro(type){
 		}
 		else{
 			jQuery("#profile_image").hide();
-=======
-$content_page = YContent::getPageByURL($pageurl,$CFG->content_page_content_type_id);
-
-	if(($content_page['id'] > 0 && $content_page['is_active']=="Y") || $_POST['preview'] == "content") {
-		if($_POST['preview'] == "content"){
-			$data = Content::formatPreviewData($_POST['previewData']); //this function converts the data from the backend form posted here
-																		 //into the arrays pulled from the DB normally.
-			
-			$content_page = $data['pagedata'];
-			$content = $data['content'];
-			unset($data);
-		}else{
-			$content = (YContent::get1PageContent($content_page['id'],"",$CFG->content_page_content_type_id,true));
-			$content = $content['eng'];
->>>>>>> 813da3e4e9906741918ac2edb01934b2c2a8adfa
 		}
 		
-		$meta_keywords    = $content_page['meta_keywords'];
-		$meta_description = $content_page['meta_description'];
-		$title       = $content_page['page_title'];
-
-		if($content_page['url'] == "/about"){
-			$title = "About Us | We Pay Cash for Junk Cars | Cash for Damaged Wrecked Cars";
+		if(isset(data.content.name)){
+			jQuery("#profile_name").html(data.content.name);
 		}
-		//sidebar control
-		$sidebar_control_object = SidebarAdControl::generateSidebarInfo('manual',$CFG->pageurl);
-		//print_ar($sidebar_control_object);
-		//$header_code = $content['header_code'] ? $content['header_code'] : null;  //this is for A/B testing
-		
-		include_once('includes/header.inc.php');
+		else{
+			jQuery("#profile_name").html(data.content.useremail);
+		}
+		jQuery("#sign_in").html("<a class='text_1' style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \" >Profile</a>&nbsp;<a class=\"text_1\" style='cursor:pointer' onClick=\"logoutUser();\">Sign Out</a>");
+	}
 
-		$template_file = "includes/layout".(int)$content_page['layout_id'].".php";
-		if(file_exists($template_file)){
-			require($template_file);
+	/*
+	jQuery('.manageImageLink').live('click', function(e){
+		jQuery( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		jQuery( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = jQuery(this).attr('data-id');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'get',
+			data: jQuery('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserPictures.php',
+			success: function(data){
+				jQuery( "#userPanelExtra" ).dialog( {title: "Manage Images"} );
+				jQuery('#userPanelExtra').html(data);
+				resizeHeight();
+			}
+		});
+	});
+	jQuery('.manageTags').live('click', function(e){
+		jQuery( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		jQuery( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = jQuery(this).attr('data-id');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'get',
+			data: jQuery('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserTags.php',
+			success: function(data){
+				jQuery( "#userPanelExtra" ).dialog( {title: "Manage Category and Tags"} );
+				jQuery('#userPanelExtra').html(data);
+				resizeHeight();
+
+			}
+		});
+	});
+	jQuery('.manageVideoLink').live('click', function(e){
+		jQuery( "#userPanelExtra" ).html("<img src='images/loading.gif'>");
+		jQuery( "#userPanelExtra" ).dialog( "open" );
+		e.preventDefault();
+		$id = jQuery(this).attr('data-id');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'get',
+			data: jQuery('#form_'+$id).serialize(),
+			url: 'ajax/page_webuserVideos.php',
+			success: function(data){
+				jQuery( "#userPanelExtra" ).dialog( {title: "Manage Videos"} );
+				jQuery('#userPanelExtra').html(data);
+			}
+		});
+	});
+	*/
+	function getLands(idx){
+		if(!isset(idx)){
+			idx = "";
+		}
+		jQuery('#ownedLandList').html('');
+		jQuery.ajax({
+			dataType: "html",
+			type: 'post',
+			async: true,
+			url: 'ajax/page_webuserLands.php?id='+idx,
+			success: function(data){
+				jQuery('#ownedLandList').html(data);
+				/*
+				jQuery(".editableText").editInPlace({
+					url: "ajax/user_fxn.php?action=edit",
+					saving_animation_color: "#ECF2F8"
+				});
+				jQuery(".editableTextarea").editInPlace({
+					url: "ajax/user_fxn.php?action=edit",
+					saving_animation_color: "#ECF2F8",
+					field_type: "textarea"
+				});
+				*/
+			},
+			error: function(){ alert(error);}
+		});
+	}
+	function nl2br(str) {
+		return (str + '').replace(/([^>\r\n]?)(\r\n|\n\r|\r|\n)/g, '$1'+ '<br />' +'$2');
+	}
+	function isValidEmail(emailAddress) {
+		var pattern = new RegExp(/^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.?$/i);
+		return pattern.test(emailAddress);
+	}
+	
+	function registerUser(){
+		if(!isValidEmail(jQuery("#registerForm input[name='email']").val())){
+			jQuery("#regStatus").html("Invalid Email Address");
+			jQuery("#regStatus").show('slide');
 		} else {
-			echo "<p>&nbsp;<p>&nbsp;
-				<p>Error: Please create a Layout file: $template_file. </p>
-				<p>&nbsp;<p>&nbsp;";
+			jQuery("#regStatus").hide('slide');
+			jQuery.ajax({
+				dataType: "json",
+				type: 'post',
+				async: false,
+				url: "ajax/user_fxn.php?action=register",
+				data: jQuery('#registerForm').serialize(),
+				success: function(data){
+					if(data.status){
+						jQuery('#loadingImageFb1').hide();
+						jQuery('#loadingImageFb2').hide();
+						jQuery('#tabs [href="#ownedLands"]').show();
+						jQuery('#tabs [href="#login"]').hide();
+						jQuery( "#tabs" ).tabs( {active: 5});
+						jQuery('.currentUser').html(data.content.useremail);
+						//getLands();
+						jQuery('#loginHolder').slideToggle();
+						jQuery('#regHolder').slideToggle();
+					} else {
+						jQuery("#regStatus").html(data.message);
+						jQuery("#regStatus").show('slide');
+					}
+				}
+			});
 		}
-		include_once('includes/footer.inc.php');	
-		exit;
 	}
-	else if( $pageurl == '/' || $pageurl == '/index.php' )
-	{
-		$title = 'Planet Junk Cars';
-		$title = 'We Pay Cash for Junk Cars, Wrecked Old Running or Not | Planet Junk Cars';
-		$meta_keywords = $content['meta_keywords'];
-		$meta_description = "Want to get the most money possible for your car? It doesn't matter if its beaten up, broken, damages or wrecked, we buy all makes, all models, in ANY CONDITION. ";
-		include('includes/header.inc.php');
-		include('includes/home.inc.php');
-		include('includes/footer.inc.php');
-	} else {
-
-		$title = 'Planet Junk Cars';
-		// $meta_keywords = $content['meta_keywords'];
-		$meta_description = "404 Page Not Found";
-		include('includes/header.inc.php');
-		include('includes/404.php');
-		include('includes/footer.inc.php');
-
+	function logoutUser(){
+		jQuery.ajax({
+			dataType: "json",
+			type: 'get',
+			async: false,
+			url: "ajax/user_fxn.php?action=logout",
+			success: function(data){
+				if(data.status){
+					// if logged in via FB, then also logout the session
+					if(fbResponse){
+						FB.logout(function(response){
+						});
+					}
+					else {
+					}
+					jQuery("#userProfile").hide();
+					jQuery("#loginForm").show();
+					jQuery("#sign_in").html("<a class=\"text_1\" style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \">Sign In</a>");
+				}
+			}
+		});
 	}
-
-
-
-
+	
+</script>
+</body>
+</html>
