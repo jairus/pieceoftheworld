@@ -39,6 +39,10 @@ if($method=='contribution'){
 	<li <?php if($controller=="tags"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."tags";?>"'>
 		User Tags
 	</li>		
+	<li <?php if($controller=="transactions"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."transactions";?>"'>
+		Transactions
+	</li>		
+	
 	<!--
 	<li <?php if($controller=="sales"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."sales";?>"'>
 		Sales
