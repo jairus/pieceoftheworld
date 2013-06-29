@@ -37,7 +37,9 @@
 		$sql = "insert into `web_users` set 
 			`useremail` = '".strtolower($post['email'])."',
 			`password` = '".md5($post['password'])."',
-			`plain_pass` = '".mysql_real_escape_string($post['password'])."'
+			`plain_pass` = '".mysql_real_escape_string($post['password'])."',
+			`name` = '".mysql_real_escape_string($post['name'])."',
+			`country` = '".mysql_real_escape_string($post['country'])."'
 		";
 		$web_user_id = dbQuery($sql, $_dblink);
 		$web_user_id = $web_user_id['mysql_insert_id'];

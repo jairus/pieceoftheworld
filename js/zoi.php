@@ -12,6 +12,7 @@ function openClosePopUp(menu){
 	jQuery('#content_top_lists').hide();
 	jQuery('#content_tutorials').hide();
 	jQuery('#content_info').hide();
+	jQuery('#content_buy').hide();
 	jQuery('#content_facebook').hide();
 	
 	jQuery('#menu_about').attr("src", 'images/menu_about.png');
