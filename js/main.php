@@ -1371,12 +1371,6 @@ function putBox(event, inLatLng){ //event when a block is clicked
 /*************************** blocks function ********************/
 
 function drawRect(lt, rb, color, opacity) { //draw the actual graphic in the google map
-	if (getCookie("config_showownedland") == "false" && color == fillColorAcquiredPlot) {
-		opacity = 0;
-	}
-	if (getCookie("config_showimportantplaces") == "false" && color == fillColorSpecialArea) {
-		opacity = 0;
-	}
 	strokeColor = "#ffff00"; //yellow
 	//consoleX("-");
 	//consoleX("strokeColor "+strokeColor);
@@ -1395,6 +1389,13 @@ function drawRect(lt, rb, color, opacity) { //draw the actual graphic in the goo
 		map: window.map,
 		bounds: new google.maps.LatLngBounds(lt, rb)
 	});
+	if(color||1){
+		//alert("setMap");
+		rectangle.setOptions({strokeOpacity: 1}); //force show grid
+		rectangle.setVisible(true); //force show grid
+		rectangle.setMap(window.map);
+	}
+	
 	google.maps.event.addListener(rectangle, 'click', function(event) { 
 		putBox(event);
 	});
@@ -1466,6 +1467,7 @@ function drawBlocks(map) {// draw the blocks
 							if (config_showimportantplaces == "false" && color == fillColorSpecialArea) { opacity = 0; }
 							if (config_showownland == "false" && user_email == email) { opacity = 0; }
 							drawRect(result[0], result[1], color, opacity);
+							
 							window.rectanglesxy[window.rectangles.length-1]= result[0]+"-"+result[1];
 						}
 						
