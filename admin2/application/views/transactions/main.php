@@ -3,10 +3,19 @@
 <center>
 <div class='pad10' >
 <form action="<?php echo site_url(); ?>transactions/search/" class='inline' method="post">
-	Search: 
-	Start Date: <input type="text" class="datepicker" id="startDate" name="startDate" value="<?php if(isset($startDate)) echo $startDate?>" /> &nbsp;
-	End Date: <input type="text" class="datepicker" id="endDate" name="endDate" value="<?php if(isset($endDate)) echo $endDate?>" /> &nbsp;	
-	<input type="submit" value="Go" class="button normal" style="padding: 2px;" />
+	Search: 	
+	<select id="searchSelector" name="searchField">
+		<option value="T.id" <?php if(isset($searchField) && $searchField == 'receiptId') echo 'selected' ?> >Receipt No.</option>
+		<option value="txnId" <?php if(isset($searchField) && $searchField == 'txnId') echo 'selected' ?>>Transaction No.</option>
+		<option value="W.useremail" <?php if(isset($searchField) && $searchField == 'useremail') echo 'selected' ?>>User Email</option>
+	<select>
+	<input type="text" name="searchString" value="<?php if(isset($searchString)) echo $searchString?>" />	
+	<br/>
+	<p>
+		Start Date: <input type="text" class="datepicker" id="startDate" name="startDate" value="<?php if(isset($startDate)) echo $startDate?>" /> &nbsp;
+		End Date: <input type="text" class="datepicker" id="endDate" name="endDate" value="<?php if(isset($endDate)) echo $endDate?>" /> &nbsp;			
+		<input type="submit" value="Go" class="button normal" style="padding: 2px;" />
+	</p>
 </form>
 <?php
 if(trim($filter)){
@@ -22,22 +31,22 @@ $t = count($records);
 <div class='list'>
 <table>
 	<tr>
-		<td><strong>Total Amount:</strong> $<?php echo $amountSum?></td>
-		
+		<td><strong>Total Amount:</strong> $<?php if(isset($stats['sumAmount'])) echo number_format($stats['sumAmount'], 2)?></td>
+		<td><strong>Average Amount:</strong> $<?php if(isset($stats['averageAmount'])) echo number_format($stats['averageAmount'], 2)?></td>
+		<td><strong>No. of Sales:</strong> <?php if(isset($stats['salesNo'])) echo number_format($stats['salesNo'])?></td>		
 	</tr>
 </table>
 <br/><br/>
 <table>
 	<tr>
-		<th>Receipt ID</th>
-		<th>Transaction ID</th>
+		<th>Receipt No.</th>
+		<th>Transaction No.</th>
 		<th>Purchase Date</th>
 		<th align="right">Total Amount</th>		
 		<th>Web User Name</th>
 		<th>Email</th>
 		<th>Land Detail ID</th>
 		<th>Is Special Land</th>
-		<th>Picture</th>
 		<th>Certificate</th>
 		<th>Receipt</th>
 	</tr>
@@ -50,12 +59,11 @@ $t = count($records);
 			<td><?php echo $records[$i]['id']; ?></td>
 			<td><?php echo $records[$i]['txnId']; ?></td>
 			<td><?php echo date('M j, Y h:i a', strtotime($records[$i]['dateCreated'])); ?></td>			
-			<td><?php echo $records[$i]['totalAmount']; ?></td>
+			<td>$<?php echo number_format($records[$i]['totalAmount'], 2); ?></td>
 			<td><?php echo $records[$i]['name']; ?></td>
 			<td><?php echo $records[$i]['useremail']; ?></td>
 			<td><?php echo $records[$i]['land_detail_id']; ?></td>
 			<td><?php echo ($records[$i]['isSpecialLand'])? 'Yes' : 'No'; ?></td>
-			<td><?php if($records[$i]['picture']) echo "<a href='".$records[$i]['picture']."' target='_blank' />view</a>"; ?></td>
 			<td><?php if($records[$i]['certificate']) echo "<a href='".$records[$i]['certificate']."' target='_blank' />view</a>"; ?></td>	
 			<td><?php if($records[$i]['emailContent']) { 
 						list($subject, $message) = unserialize($records[$i]['emailContent']);

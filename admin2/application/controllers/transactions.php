@@ -26,13 +26,9 @@ class transactions extends CI_Controller {
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
 	
-		// get total amount
-		$sql = "select sum(totalAmount) as amount from transactions ";
-		$q = $this->db->query($sql);
-		$rs = $q->result_array();
-		$amountSum = $rs[0]['amount'];
 		
 		$data = array();
+		$data['stats'] = $this->getComputations();
 		$data['records'] = $records;
 		$data['export_sql'] = $export_sql;
 		$data['pages'] = $pages;
@@ -42,8 +38,7 @@ class transactions extends CI_Controller {
 		$data['amountSum'] = $amountSum;
 		$data['content'] = $this->load->view('transactions/main', $data, true);		
 		$this->load->view('layout/main', $data);
-	}	
-	
+	}		
 	public function search(){
 		$data = array();
 		$start = $_GET['start'];
@@ -64,6 +59,11 @@ class transactions extends CI_Controller {
 			$sqlWhere .= " AND date(T.dateCreated) <= '".date_format(date_create_from_format('m/d/Y', $_POST['endDate']), 'Y-m-d')."'";
 			$data['endDate'] = $_POST['endDate'];
 		}
+		if($_POST['searchField'] !== '' && $_POST['searchString'] !== '' && in_array( $_POST['searchField'], array('T.id', 'txnId', 'W.useremail')) ) {			
+			$sqlWhere .= " AND ".$_POST['searchField']." = '".mysql_real_escape_string($_POST['searchString'])."'";
+			$data['searchField'] = $_POST['searchField'];
+			$data['searchString'] = $_POST['searchString'];
+		}
 		
 		$sql .= $sqlWhere . " ORDER BY T.dateCreated desc LIMIT $start, $limit";
 		$export_sql = md5($sql);
@@ -72,19 +72,14 @@ class transactions extends CI_Controller {
 		$records = $q->result_array();
 		
 		$sql = "SELECT COUNT(`T`.`id`) AS `cnt` 
-				FROM `transactions` `T` 				
+				FROM `transactions` `T` 	
+				LEFT JOIN web_users W on W.id = T.web_user_id				
 				WHERE 1 $sqlWhere ";
 		$q = $this->db->query($sql);
 		$cnt = $q->result_array();
-		$pages = ceil($cnt[0]['cnt']/$limit);
-
-		// get total amount
-		$sql = "select sum(totalAmount) as amount from transactions T WHERE 1 $sqlWhere ";
-		$q = $this->db->query($sql);
-		$rs = $q->result_array();
-		$amountSum = $rs[0]['amount'];
+		$pages = ceil($cnt[0]['cnt']/$limit);	
 		
-		
+		$data['stats'] = $this->getComputations($sqlWhere);		
 		$data['records'] = $records;		
 		$data['export_sql'] = $export_sql;
 		$data['pages'] = $pages;
@@ -96,5 +91,13 @@ class transactions extends CI_Controller {
 		$data['content'] = $this->load->view('transactions/main', $data, true);		
 		$this->load->view('layout/main', $data);		
 	}	
+	public function getComputations($sqlWhere='')
+	{		
+		$sql = "select sum(T.totalAmount) as sumAmount, avg(T.totalAmount) as averageAmount, count(T.id) as salesNo
+				from transactions T LEFT JOIN web_users W on W.id = T.web_user_id WHERE 1 $sqlWhere ";
+		$q = $this->db->query($sql);
+		$rs = $q->result_array();
+		return (!empty($rs))? $rs[0] : null;
+	}
 }
 ?>

@@ -19,7 +19,7 @@ require_once(dirname(__FILE__)."/ajax/global.php");
  * certFilename -> http://pieceoftheworld.co/_uploads2/1111/certificate.pdf
  */
 $arrData = array('txnId' => '12345',
-				'totalAmount' => '200.00',
+				'totalAmount' => '12345.678',
 				'purchaseDate' => '10:14:55 Sep 11, 2011',
 				'buyerName' => 'Joy Evan',
 				'buyerEmail' => 'djza29@yahoo.com',
@@ -39,28 +39,12 @@ function generateEmailReceipt($arrData)
 {		
 	$arrData['landPlots'] = implode('<br/>',$arrData['plot_list']);
 
-	// process attachments
-	// picture
-	$pixStr = '';
-	if(isset($arrData['pixFilename'])){
-		$attach[] = $arrData['pixFilename'];
-		$pixStr = '<tr><th>Picture:</th><td>(attached)</td></tr>';
-	}	 
-	// certificate
-	$certStr = '';
-	if(isset($arrData['certFilename'])){
-		$attach[] = $arrData['certFilename'];
-		$certStr = '<tr><th>Certificate:</th><td>(attached)</td></tr>';
-	}	 
-	$landOwnerStr = (isset($arrData['landOwner']) && $arrData['landOwner'])? '<tr><th>Land Owner:</th><td>'.$arrData['landOwner'].'</td></tr>' : '';
 	
 	// name wont always be prsent, especially if newly inserted in ipn process
 	$buyerStr = (isset($arrData['buyerName']))? $arrData['buyerName'] .' <'. $arrData['buyerEmail'].'>' : $arrData['buyerEmail'];
 	// note if special land
 	$landTypeStr = ($arrData['isSpecialLand'])? '(Special Land)' : '';
 	
-	$attachments = (!empty($attach))? $attach : null;
-
 	$message = "<img src='pieceoftheworld.co/admin2/media/pieceoft/logo.png' /><br/>
 				Dear {$arrData['buyerName']},
 				<br/><br/><strong>Thank you for your purchase. You now own a piece of the world!</strong>
@@ -68,17 +52,12 @@ function generateEmailReceipt($arrData)
 				<br/><hr/>
 				<h2>Payment Details</h2>
 				<table border='1'>
-					<tr><th>Total Amount:</th><td>\${$arrData['totalAmount']}</td></tr>
+					<tr><th>Total Amount:</th><td>\$".number_format($arrData['totalAmount'],2)."</td></tr>
 					<tr><th>Transaction ID:</th><td>{$arrData['txnId']}</td></tr>
 					<tr><th>Purchase Date:</th><td>{$arrData['purchaseDate']}</td></tr>
 					<tr><th>Buyer:</th><td>{$buyerStr} </td></tr>
 					<tr><th>Land ID:</th><td>{$arrData['landId']} {$landTypeStr} </td></tr>					
-					<tr><th>Land Title:</th><td>{$arrData['landTitle']}</td></tr>										
-					<tr><th>Land Description:</th><td>{$arrData['landDetail']}</td></tr>	
-					{$landOwnerStr}					
 					<tr><th>Land Plots:</th><td>{$arrData['landPlots']}</td></tr>					
-					{$pixStr}
-					{$certStr}
 				</table>				
 				<hr/><br/>It usually takes a few minutes before your purchased piece of the world appears on the map.
 				<br/>If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
