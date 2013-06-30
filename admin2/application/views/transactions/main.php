@@ -39,16 +39,15 @@ $t = count($records);
 <br/><br/>
 <table>
 	<tr>
-		<th>Receipt No.</th>
-		<th>Transaction No.</th>
-		<th>Purchase Date</th>
-		<th align="right">Total Amount</th>		
-		<th>Web User Name</th>
-		<th>Email</th>
-		<th>Land Detail ID</th>
-		<th>Is Special Land</th>
-		<th>Certificate</th>
-		<th>Receipt</th>
+		<th width="50">Receipt No.</th>
+		<th width="50">Transaction No.</th>
+		<th width="150">Purchase Date</th>
+		<th width="150" align="right">Total Amount</th>		
+		<th width="250">Web User Name</th>
+		<th width="250">Email</th>
+		<th width="50">Land Detail ID</th>
+		<th width="30">Special Land</th>		
+		<th width="80">Receipt</th>
 	</tr>
 	<?php
 	
@@ -63,8 +62,7 @@ $t = count($records);
 			<td><?php echo $records[$i]['name']; ?></td>
 			<td><?php echo $records[$i]['useremail']; ?></td>
 			<td><?php echo $records[$i]['land_detail_id']; ?></td>
-			<td><?php echo ($records[$i]['isSpecialLand'])? 'Yes' : 'No'; ?></td>
-			<td><?php if($records[$i]['certificate']) echo "<a href='".$records[$i]['certificate']."' target='_blank' />view</a>"; ?></td>	
+			<td><?php echo ($records[$i]['isSpecialLand'])? 'Yes' : 'No'; ?></td>			
 			<td><?php if($records[$i]['emailContent']) { 
 						list($subject, $message) = unserialize($records[$i]['emailContent']);
 				?>

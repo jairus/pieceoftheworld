@@ -37,7 +37,7 @@ generateEmailReceipt($arrData);
 			
 function generateEmailReceipt($arrData)
 {		
-	$arrData['landPlots'] = implode('<br/>',$arrData['plot_list']);
+	$receiptId = insertTransaction($arrData);	
 
 	
 	// name wont always be prsent, especially if newly inserted in ipn process
@@ -52,13 +52,29 @@ function generateEmailReceipt($arrData)
 				<br/><hr/>
 				<h2>Payment Details</h2>
 				<table border='1'>
-					<tr><th>Total Amount:</th><td>\$".number_format($arrData['totalAmount'],2)."</td></tr>
-					<tr><th>Transaction ID:</th><td>{$arrData['txnId']}</td></tr>
-					<tr><th>Purchase Date:</th><td>{$arrData['purchaseDate']}</td></tr>
-					<tr><th>Buyer:</th><td>{$buyerStr} </td></tr>
-					<tr><th>Land ID:</th><td>{$arrData['landId']} {$landTypeStr} </td></tr>					
-					<tr><th>Land Plots:</th><td>{$arrData['landPlots']}</td></tr>					
-				</table>				
+					<tr>
+						<td align='center'>
+							Piece of the World<br/>
+							169 Duchess Avenue, 266345 Singapore<br/>
+							www.pieceoftheworld.com<br/><br/>
+							Receipt No. {$receiptId}<br/>
+							Buyer ID: {$arrData['web_user_id']}<br/>
+							{$arrData['purchaseDate']}<br/>
+							<table border='1' cellpadding='8'>
+								<tr><th>Item</th>
+									<th>Quantity</th>
+									<th>Total Price</th>
+								</tr>
+								<tr>
+									<td align='center'>Land</td>
+									<td align='center'>".count($arrData['plot_list'])."</td>
+									<td  align='right'>USD ".number_format($arrData['totalAmount'],2)."</td>
+								</tr>
+							</table><br/>
+							GST 0% (Inclusive)													
+						</td>
+					</tr>
+				</table>
 				<hr/><br/>It usually takes a few minutes before your purchased piece of the world appears on the map.
 				<br/>If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
 				
@@ -77,22 +93,33 @@ function generateEmailReceipt($arrData)
 	$emails[1]['email'] = 'djza29@yahoo.com';
 	$emails[1]['name'] = 'Joy';	
 	
+	updateTransaction($receiptId, $subject, $message);	
 	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1); //last parameter for running debug
-	saveTransaction($arrData, $subject, $message );
+	
 }
-function saveTransaction($arrData, $subject, $message )
+function insertTransaction($arrData)
 {
 	global $_dblink;
-	$arrValue = array();
-	$arrData['emailContent'] = array($subject, $message);
+	$arrValue = array();	
 	foreach($arrData as $index => $value){
 		if(is_array($value)) $value = serialize($value);
 		$arrValue[$index] = mysql_real_escape_string($value);
 	}
 	
-	$sql = "insert into transactions (txnId, totalAmount, purchaseDate, web_user_id, land_detail_id, isSpecialLand, pixFilename, certFilename, emailContent) values
-			('{$arrValue['txnId']}','{$arrValue['totalAmount']}','{$arrValue['purchaseDate']}','{$arrValue['web_user_id']}','{$arrValue['landId']}','{$arrValue['isSpecialLand']}','{$arrValue['pixFilename']}','{$arrValue['certFilename']}','{$arrValue['emailContent']}' )";
-echo $sql;		
+	$sql = "insert into transactions (txnId, totalAmount, purchaseDate, web_user_id, land_detail_id, isSpecialLand, pixFilename, certFilename) values
+			('{$arrValue['txnId']}','{$arrValue['totalAmount']}','{$arrValue['purchaseDate']}','{$arrValue['web_user_id']}','{$arrValue['landId']}','{$arrValue['isSpecialLand']}','{$arrValue['pixFilename']}','{$arrValue['certFilename']}')";
+	$rs = dbQuery($sql, $_dblink );
+	$newId = $rs['mysql_insert_id'];
+echo '<hr/>'.$sql . '::: '.$newId ;	
+	return $newId;
+}
+function updateTransaction($id, $subject, $message )
+{
+	global $_dblink;	
+	$emailContent = mysql_real_escape_string(serialize(array($subject, $message)));	
+	
+	$sql = "update transactions set emailContent = '$emailContent' where id = '$id' limit 1";
+echo '<hr/>'.$sql;	
 	dbQuery($sql, $_dblink );
 }
 ?>
