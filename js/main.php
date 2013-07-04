@@ -1,6 +1,6 @@
 <?php
-session_start();
-header('Content-Type: application/javascript');
+@session_start();
+//header('Content-Type: application/javascript');
 ?>
 var fillColorAcquiredPlot = "#FF0000";
 var fillColorAcquiredSpecialArea = "#FF0000";
@@ -231,15 +231,17 @@ function showWorldView(object) {
 	else {
 		initialize(ZOOM_LEVEL_WORLD, google.maps.MapTypeId.HYBRID);
 	}
+	jQuery("#fblikes").html('<iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpieceoftheworld.co&amp;send=false&amp;layout=standard&amp;width=400&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=35&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:400px; height:35px;" allowTransparency="true"></iframe>');
 }	
 //ZOI
 function showVideo(videoStr) {
 	jQuery("#video").empty();
 
-	var mainVideo = '';
-	mainVideo += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video<br /><br />';
+	var mainVideo = '<center>';
+	//mainVideo += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; <a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showThumbs();">Thumbnails</a> &raquo; Video<br /><br />';
 	mainVideo += '<iframe width="290" height="200" src="http://www.youtube.com/embed/'+videoStr+'" frameborder="0" allowfullscreen></iframe>';
-
+	
+	mainVideo += '</center><input class="longbutton" type="button"  onclick="showThumbs();" value="Back" style="display: block;">';
 	jQuery("#video").append(mainVideo);
 
 	jQuery("#info-span #table_main_info").hide();
@@ -917,8 +919,8 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 					}
 				});
 				//ZOI
-			
-				jQuery("#land_id").val(gzones[i].ret.json.land_special_id);
+				jQuery('#land_id').val(gzones[i].ret.json.land_detail_id);
+				jQuery("#land_special_id").val(gzones[i].ret.json.land_special_id);
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
 				jQuery("#info-city").show();
@@ -1106,8 +1108,9 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		}
 		showPopupWindowTabInfo(true);
 		jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
-		jQuery("#info-lightbox").attr("title", "" );
-		jQuery("#info-lightbox").colorbox({width:'550px'});
+		//jQuery("#info-lightbox").attr("title", "" );
+		//alert('colorbox 1');
+		//jQuery("#info-lightbox").colorbox({width:'550px'});
 		jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 		jQuery("#info-img").unbind();
 			
@@ -1120,7 +1123,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 	else if(specialbought){
 		consoleX("special or bought");
 		if(gzones[i].ret.json.thumb_url){
-			jQuery("#info-lightbox").attr("href", gzones[i].ret.json.img_url );
+			//jQuery("#info-lightbox").attr("href", gzones[i].ret.json.img_url );
 			xtitle = "";
 			if(gzones[i].ret.json.land_owner){
 				xtitle = "Land Owner: "+gzones[i].ret.json.land_owner+"<br />";
@@ -1129,16 +1132,22 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 			xtitle = "";
 			jQuery("#info-lightbox").attr("title", xtitle );
 			//jQuery("#info-lightbox").lightBox({fixedNavigation:true});
-			jQuery("#info-lightbox").colorbox({width:'550px'});
+			jQuery("#info-lightbox").click(function(){
+				openGallery();
+				return false;
+			});
+			//alert('colorbox 2');
+			//jQuery("#info-lightbox").colorbox({width:'550px'});
 			jQuery("#info-img")[0].src = gzones[i].ret.json.thumb_url;
 			
 			jQuery("#buy-button").val("Click to Bid");
 			jQuery("#buy-button").show();
 		}
 		else{
-			jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
+			//jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
 			jQuery("#info-lightbox").attr("title", "" );
-			jQuery("#info-lightbox").colorbox({width:'550px'});
+			//alert('colorbox 3');
+			//jQuery("#info-lightbox").colorbox({width:'550px'});
 			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 			jQuery("#info-img").unbind();
 			
@@ -1604,6 +1613,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			//document.getElementById('info-land_owner_container').style.display="none";
 			//document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
 			if (returnText != '[[]]') {
+				jQuery('#land_special_id').val(markerJSON[0].land_special_id);
 				jQuery('#land_id').val(markerJSON[0].land_detail_id);
 				jQuery('#info-title').html(markerJSON[0].title);
 				jQuery('#info-detail').html(markerJSON[0].detail);
@@ -1622,8 +1632,8 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 						videosJSON = data;
 						if(videosJSON){
 							var videoJSON = JSON.parse(videosJSON);
-							var thumbs = '';
-							thumbs += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; Thumbnails<br /><br />';
+							var thumbs = '<center>';
+							//thumbs += '<a style="cursor:pointer; color:#FF0000; text-decoration:none;" onclick="showInfo();">Info</a> &raquo; Thumbnails<br /><br />';
 							
 							for(var i=0; i<videoJSON.length; i++){
 								var videoArr = videoJSON[i].video.split("v=");
@@ -1631,7 +1641,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 							
 								thumbs += '<a style="cursor:pointer;" onclick="showVideo(\''+videoStr+'\');"><img src="http://img.youtube.com/vi/'+videoStr+'/0.jpg" width="80" border="0" /></a> &nbsp;&nbsp; ';
 							}
-							
+							thumbs += '</center><input class="longbutton" type="button"  onclick="showInfo();" value="Back" style="display: block;">';
 							jQuery("#thumbs").append(thumbs);
 							
 							jQuery("#clicktowatch").show();
@@ -1657,7 +1667,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 				if(markerJSON[0].thumb_url){
 					jQuery("#info-img").attr("src", markerJSON[0].thumb_url);
 					//document.getElementById('info-img').src = markerJSON[0].thumb_url;
-					jQuery("#info-lightbox").attr("href", markerJSON[0].img_url );
+					//jQuery("#info-lightbox").attr("href", markerJSON[0].img_url );
 					xtitle = "";
 					if(markerJSON[0].land_owner){
 						xtitle = "Land Owner: "+markerJSON[0].land_owner+"<br />";
@@ -1666,12 +1676,24 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 					xtitle = "";
 					jQuery("#info-lightbox").attr("title", xtitle );
 					//jQuery("#info-lightbox").lightBox({fixedNavigation:true});
-					jQuery("#info-lightbox").colorbox({width:'550px'});
+					//jQuery("#info-lightbox").colorbox({width:'550px'});
+					jQuery("#info-lightbox").click(function(){
+						openGallery();
+						return false;
+					});
+					//alert("colorbox 4");
+					
 				}
 				else{
-					jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
+					//jQuery("#info-lightbox").attr("href", "images/place_holder.png?_=1" );
 					jQuery("#info-lightbox").attr("title", "" );
-					jQuery("#info-lightbox").colorbox({width:'550px'});
+					//jQuery("#info-lightbox").colorbox({width:'550px'});
+					jQuery("#info-lightbox").click(function(){
+						openGallery();
+						return false;
+					});
+					//alert("colorbox 5");
+					
 					jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
 					jQuery("#info-img").unbind();
 				}
@@ -1948,6 +1970,7 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				
 				if(isset(markersJSON[i].count)){
 					icon = 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
+					//icon = 'http://pieceoftheworld.co/images/marker_blue.png';
 					//zoomshell
 					google.maps.event.clearListeners(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click');
 					google.maps.event.addListener(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click', function(event) { 
@@ -1995,10 +2018,12 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				//consoleX(markersJSON[i].country);
 				
 				if(isset(markersJSON[i].count)){
+					iconx = 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
+					//iconx = 'http://pieceoftheworld.co/images/marker_blue.png';
 					var marker = new google.maps.Marker({
 						position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
 						map: map,
-						icon: 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : ""),
+						icon: iconx,
 						ret: markersJSON[i]
 					});
 					//zoomshell
@@ -2196,6 +2221,18 @@ function onBuyLand(show) {
 			jQuery('#btn_buy_land').hide();
 			//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 			url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+			
+			window.open('', 'formpopup', 'width=870,height=670,resizeable,scrollbars');
+			
+			jQuery("#form_main_details").attr("target", 'formpopup');
+			jQuery("#form_main_details").attr("action", url);
+			jQuery("#form_main_details").submit();
+				
+				
+			//form.target = 'formpopup';
+			
+			
+			/*
 			jQuery.colorbox({iframe:true, width:"870px", height:"670px", href:url,
 			onComplete: function() {
 				iframename = jQuery("#cboxLoadedContent iframe").attr("name");
@@ -2204,6 +2241,7 @@ function onBuyLand(show) {
 				jQuery("#form_main_details").submit();
 			}
 			});
+			*/
 			jQuery("#loading-button2").hide();
 			jQuery('#btn_buy_land').show();
 		}
@@ -2213,13 +2251,15 @@ function onBuyLand(show) {
 			jQuery('#btn_continue_without_signing_in').hide();
 			//url = "bidbuyland.php?type=buy&land="+blocksAvailableInDraggableRect+"&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
 			url = "bidbuyland.php?type=buy&thumb="+jQuery('#info-img').attr("src")+"&link="+globallink;
+			window.open(url, 'formpopup', 'width=870,height=670,resizeable,scrollbars');
+			/*
 			jQuery.colorbox({iframe:true, width:"870px", height:"670px", href:url,
 			onComplete: function() {
 				jQuery("#loading-button2").hide();
 				jQuery('#btn_buy_land').show();
 				jQuery('#btn_continue_without_signing_in').show();
 			}});
-			
+			*/
 		}
 		else{
 			jQuery("#loading-button").show();
@@ -2243,6 +2283,15 @@ function onBuyLand(show) {
 					
 					jQuery("#loading-button").hide();
 					jQuery('#buy-button').show();
+					try{
+						jQuery('#tags_1').tagsInput({width:'auto', height:'30px', 
+						'defaultText':''
+						});
+					}
+					catch(e){
+						alert(e.message);
+					}
+					
 				}
 			});
 		}
@@ -2302,6 +2351,12 @@ var blocksAvailableInDraggableRect = "";
 var lastEvent;
 
 function initialize(zoomVal, mapTypeIdVal) {
+	<?php
+	if($_GET['nomap']){
+		?>return 0;<?php
+	}
+	?>
+	
 	//updatePopupWindowTabNews();
 	//updatePopupWindowTabConfig(false);
 	if (map) {

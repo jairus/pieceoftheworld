@@ -25,8 +25,20 @@ error_reporting(E_ERROR );
 if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	$uploads_dir = dirname(__FILE__).'/_uploads/'.$_GET['f'];
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
-
-	if(($_POST['mc_gross']+0)!=($post['amount']+0)&&!$_GET['jairus']){ //inconsistent amount
+	
+	//calculate discounted value
+	$discount = 0.1;
+	$discounted = $post['amount'];
+	$discounted = floor($discounted - ($discounted * $discount));
+	
+	if(
+	
+		(
+			($_POST['mc_gross']+0)!=($post['amount']+0) &&
+			($_POST['mc_gross']+0)!=($discounted+0) 
+		)
+		&&!$_GET['jairus']
+	){ //inconsistent amount
 		exit();
 	}
 	

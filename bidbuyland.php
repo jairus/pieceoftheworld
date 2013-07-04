@@ -24,7 +24,7 @@ if($_POST['step']=="1"){
 		$post = $_POST;
 	}
 	else{
-		$foldername = $_GET['f'];		$foldername = $_GET['f'];
+		$foldername = $_GET['f'];		
 		$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
 		$uploads_http = 'http://pieceoftheworld.co/_uploads/'.$foldername;
 		$filename = $uploads_dir."/post.txt";
@@ -224,11 +224,26 @@ $(document).ready(function() {
 </script>
 <body style="cursor: auto;">
 <div id="fb-root"></div>
+<script>
+// Load the SDK asynchronously
+	(function(d, s, id){
+		var js, fjs = d.getElementsByTagName(s)[0];
+		if (d.getElementById(id)) {return;}
+		js = d.createElement(s); js.id = id;
+		js.src = "//connect.facebook.net/en_US/all.js";
+		fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));
+</script>
 <?php
-if($_POST['step']==1){
-	$discount = 0;
+if($_POST['step']==1||$_GET['fromshare']){
+	if($_GET['post_id']){
+		$discount = 0.1;
+	}
+	else{
+		$discount = 0;
+	}
 	$paypalvalue = $_SESSION['px'];
-	$paypalvalue = $paypalvalue - ($paypalvalue * $discount);
+	$paypalvalue = floor($paypalvalue - ($paypalvalue * $discount));
 	?>
 	<style>
 	td{
@@ -312,8 +327,47 @@ if($_POST['step']==1){
 								jQuery("#"+idx).show();
 							}
 							</script>
-							<input type='radio' name='po' checked onclick='showP("paypal")'> Paypal&nbsp;&nbsp;&nbsp;
-							<input type='radio' name='po' onclick='showP("skrill")'> Skrill (Bank Transfer)
+							<?php
+							function curPageURL() {
+								$pageURL = 'http';
+								if ($_SERVER["HTTPS"] == "on") {$pageURL .= "s";}
+								$pageURL .= "://";
+								if ($_SERVER["SERVER_PORT"] != "80") {
+									$pageURL .= $_SERVER["SERVER_NAME"].":".$_SERVER["SERVER_PORT"].$_SERVER["REQUEST_URI"];
+								}
+								else {
+									$pageURL .= $_SERVER["SERVER_NAME"].$_SERVER["REQUEST_URI"];
+								}
+								return $pageURL;
+							}
+							$imgurl = "http://pieceoftheworld.co/images/pastedgraphic.jpg";
+							$imgurl = urlencode($imgurl);
+							$sharetitle = "I just bought a Piece of the World!";
+							$caption="www.pieceoftheworld.com";
+							$sharetext = "Get yours today at www.pieceoftheworld.com";
+							$link = "http://pieceoftheworld.co/";
+							$return = $link."bidbuyland.php?type=".$_GET['type']."&f=".$foldername."&fromshare=1";
+							
+							$return = urlencode($return);
+							$sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link=".$link."&picture=".$imgurl."&name=".$sharetitle."&caption=".$caption."&description=".$sharetext."&redirect_uri=".$return;
+							
+							if($discount==0){
+								?>
+								<table width='100%' style='margin:10px;'>
+								<tr>
+								<td valign='top' align='left'>
+									<a href='#' onclick="window.location='<?php echo $sharelink; ?>'"><img src='/images/fb_logo.png'></a>
+								</td>
+								<td valign='top' align='left'>
+									Click on the facebook icon top post your new Piece of the World in your timeline and get a 10% discount.
+								</td>
+								</tr>
+								</table>
+								<?php
+							}
+							?>
+							<!--<input type='radio' name='po' checked onclick='showP("paypal")'> Paypal&nbsp;&nbsp;&nbsp;
+							<input type='radio' name='po' onclick='showP("skrill")'> Skrill (Bank Transfer)-->
 							</div>
 							<br /><br />
 							<div id='paypal' style='padding:10px; text-align:center' class='paymentform'>
@@ -366,7 +420,12 @@ if($_POST['step']==1){
 					<tr>
 						<td style='border-top:1px solid #f0f0f0; '>
 						<div style='font-size:12px; font-weight:bold; padding:10px;'>
-						Total: USD <?php echo number_format($_SESSION['px'],2); ?> 
+						Total: USD <?php echo number_format($paypalvalue,2); 
+						
+						if($discount){
+							echo "<br /><i>".($discount*100)."% discount</i>";
+						}
+						?> 
 						<!--<a id="facebookshare" href="https://www.facebook.com/dialog/feed?app_id=454736247931357&link=<?php /* echo "http://pieceoftheworld.co/"; */ echo urlencode($_SESSION['GET']['link']); ?>&picture=<?php if(trim($http_picture)){ echo $http_picture; } else { echo urlencode($_GET['thumb']); } /* echo urlencode("http://www.pieceoftheworld.co/images/pastedgraphic.jpg?_=".time()); */ ?>&name=I just bought a Piece of the World&caption=<?php if(trim($post['title_name'])) { echo $post['title_name']; } else { echo urlencode("Mark your very own Piece of the World!	"); } ?>&description=<?php if(trim($post['detail_name'])) { echo $post['detail_name']; } else { echo urldecode("I just bought myself a piece of the world. <br />Get yours at pieceoftheworld.com"); } ?>&redirect_uri=<?php echo urlencode($urlCurr1."&f=".$foldername."&thumb=".urldecode($_GET['thumb'])); ?>"><img id="facebookshareimg" src="images/fshare.png" border="0" valign="center" height="36"></a>-->
 						</div>
 						</td>
