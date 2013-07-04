@@ -113,5 +113,18 @@ function dbQuery($query, $link="", $connectonly=false){
     return $returnArr;
 }
 
+function checkEmail($email, $mx=true) {
+    if(preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/" , $email))
+    {
+        list($username,$domain)=explode('@',$email);
+        if($mx){
+			if(!getmxrr ($domain,$mxhosts)) {
+				return false;
+			}
+		}
+        return true;
+    }
+    return false;
+}
 
 ?>

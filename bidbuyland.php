@@ -17,19 +17,6 @@ function microtime_float(){
 	list($usec, $sec) = explode(" ", microtime());
 	return ((float)$usec + (float)$sec);
 }
-function checkEmail($email, $mx=false) {
-    if(preg_match("/^([a-zA-Z0-9])+([a-zA-Z0-9\._-])*@([a-zA-Z0-9_-])+([a-zA-Z0-9\._-]+)+$/" , $email))
-    {
-        list($username,$domain)=explode('@',$email);
-        if($mx){
-			if(!getmxrr ($domain,$mxhosts)) {
-				return false;
-			}
-		}
-        return true;
-    }
-    return false;
-}
 if($_POST['step']=="1"){
 	$_SESSION['POST'] = $_POST;
 	if(!$_GET['f']){
@@ -136,6 +123,8 @@ else if($_GET['f']){
 <meta charset="utf-8">
 <title>PieceoftheWorld</title>
 <script src="js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<link rel="stylesheet" type="text/css" href="/js/tagsinput/jquery.tagsinput.css" />
+<script type="text/javascript" src="/js/tagsinput/jquery.tagsinput.js"></script>
 <style>
 .hint{
 	padding-left:20px;
@@ -227,6 +216,11 @@ function cancelLogin(){
 	jQuery(".loginaccount").hide();
 	jQuery("#continuebutton").attr("disabled", false);
 }
+$(document).ready(function() {
+	jQuery('#tags_1').tagsInput({width:'auto', height:'30px', 
+	'defaultText':''
+	});
+});
 </script>
 <body style="cursor: auto;">
 <div id="fb-root"></div>
@@ -284,25 +278,26 @@ if($_POST['step']==1){
 						<td>Name of the land owner</td>
 						<td><?php echo sanitizeX($post['land_owner']); ?></td>
 					</tr>
-					<tr>
-						<td>Image</td>
-						<td>
+					
 						<?php
 						if($post['http_picture']){
 							?>
-							<table>
 							<tr>
-							<td valign='middle'>
-								<a href="<?php echo $post['http_picture']; ?>" target='_blank'><img src="images/image.php?p=<?php echo base64_encode($post['http_picture']); ?>&b=1&mx=50" /></a><br>
-							</td>
+							<td>Image</td>
+							<td>
+								<table>
+								<tr>
+								<td valign='middle'>
+									<a href="<?php echo $post['http_picture']; ?>" target='_blank'><img src="images/image.php?p=<?php echo base64_encode($post['http_picture']); ?>&b=1&mx=50" /></a><br>
+								</td>
+								</tr>
+								</table>
+									</td>
 							</tr>
-							</table>
 							<?php
 						}
 						?>
-						
-						</td>
-					</tr>
+
 					<tr>
 						<td colspan=2 class='header'>
 						<b>Payment Option</b>
@@ -855,6 +850,37 @@ else if(strtolower($_GET['type'])=='buy'){
 						<input type='file' name='image'>
 						
 						</td>
+					</tr>
+					<tr>
+						<td>Category</td>
+						<td>
+						<select name='categoryid'>
+						<?php
+						$sql = "select * from `categories` where `deleted`=0";
+						$categories = dbQuery($sql, $_dblink);
+						$t = count($categories);
+						for($i=0; $i<$t; $i++){
+							if($categories[$i]['id']==$post['categoryid']){
+								echo "<option value='".$categories[$i]['id']."' selected>".$categories[$i]['name']."</option>";
+							}
+							else{
+								echo "<option value='".$categories[$i]['id']."'>".$categories[$i]['name']."</option>";
+							}
+						}
+						?>
+						</select>
+						
+						</td>
+					</tr>
+					<tr>
+						<td>Tags</td>
+						<td>Tag your land to help others find it.<br />Separate each word with ","<br />
+						<input id="tags_1" type="text" class="tags"  name='tags' value="<?php echo sanitizeX($post['tags']); ?>" style='height:40px;' />
+						</td>
+					</tr>
+					<tr>
+						<td>&nbsp;</td>
+						<td>&nbsp;</td>
 					</tr>
 				</table>
 			</td>

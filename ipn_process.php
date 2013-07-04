@@ -298,6 +298,6 @@
 	$emails[1]['name'] = "fuzylogic28@gmail.com";
 	$emails[2]['email'] = $useremail;
 	$emails[2]['name'] = $useremail;
-	$attachments[0] = $uploads_dir."/".$filename;
+	$attachments[0] = $receiptData['certFilename']; //jairus
 	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1); //last parameter for running debug
 ?>

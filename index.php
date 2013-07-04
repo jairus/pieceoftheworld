@@ -153,12 +153,14 @@ if($_GET['px']!=""){
 <!doctype html>
 <html lang="us">
 <head>
-<meta property='og:image' content='http://pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
+<meta property='og:image' content='http://cdn.pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
 <meta property='og:title' content='Piece of the World' />
 <meta charset="utf-8">
 <title>PieceoftheWorld</title>
 <link rel="stylesheet" type="text/css" href="css/styles.css?_<?php echo time(); ?>" />
+
 <script src="http://cdn.pieceoftheworld.co/js/jquery-1.8.3.min.js" type="text/javascript"></script>
+
 <link href="css/twitmarquee.css" media="screen" rel="stylesheet" type="text/css" />
 <style>
 .ui-dialog {
@@ -219,6 +221,8 @@ if($_GET['px']!=""){
 }
 </style>
 
+
+
 <!--IMAGE SLIDE SHOW-->
 <script type="text/javascript" src="http://cdn.pieceoftheworld.co/js/slideshow/slideshow.js" ></script>
 <!--END OF IMAGE SLIDE SHOW-->
@@ -234,13 +238,30 @@ if($_GET['px']!=""){
 <link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.co/js/colorbox-master/example1/colorbox.css" media="screen" />
 <!-------------->
 
+
 <!--INITIALIZE MAP-->
 <script src="http://maps.google.com/maps/api/js?sensor=true&libraries=geometry" type="text/javascript"></script>
-<script src="js/main.php?_<?php echo time(); ?>&<?php echo $_SERVER['QUERY_STRING']; ?>" type="text/javascript"></script>
+<!--<script src="js/main.php?<?php echo $_SERVER['QUERY_STRING']; ?>" type="text/javascript"></script>-->
+
+<script>
+<?php
+include_once(dirname(__FILE__)."/js/main.php");
+?>
+</script>
 <!--END OF INITIALIZE MAP-->
 
-<script src="js/zoi.php?_<?php echo time(); ?>" type="text/javascript"></script>
-<script type="text/javascript" src="js/twitmarquee/twitmarquee.js"></script>
+<!--<script src="js/zoi.php?_<?php echo time(); ?>" type="text/javascript"></script>-->
+<script>
+<?php
+include_once(dirname(__FILE__)."/js/zoi.php");
+?>
+</script>
+
+
+
+
+	
+	
 <style>
 .longbutton2{
 	background-color: #006A9B;
@@ -258,6 +279,8 @@ if($_GET['px']!=""){
 	border:1px solid white;
 }
 </style>
+
+
 <script>
 $(document).ready(function() {
 	<?php
@@ -265,6 +288,7 @@ $(document).ready(function() {
 		?> jQuery('#table_intro').show(); <?php
 	}
 	?>
+	$('#tags_1').tagsInput({width:'auto'});
 });
 
 //CLOSE INTRO
@@ -298,8 +322,8 @@ function closeIntro(type){
 		<div style="width:600px; height:auto;">
 			<table width="600" border="0" cellspacing="0" cellpadding="0">
 			  <tr>
-				<td width="300" align="left"><img src="images/intro_skip.png" style="cursor:pointer;" onClick="closeIntro(1);" /></td>
-				<td width="300" align="right"><img src="images/intro_dont_show.png" style="cursor:pointer;" onClick="closeIntro(2);" /></td>
+				<td width="300" align="left"><img src="http://cdn.pieceoftheworld.co/images/intro_skip.png" style="cursor:pointer;" onClick="closeIntro(1);" /></td>
+				<td width="300" align="right"><img src="http://cdn.pieceoftheworld.co/images/intro_dont_show.png" style="cursor:pointer;" onClick="closeIntro(2);" /></td>
 			  </tr>
 			</table>
 		</div>
@@ -309,14 +333,14 @@ function closeIntro(type){
 
 <div id="fb-root"></div>
 <table id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
-<div id="top_arc"><img src="images/top_arc.png" /></div>
+<div id="top_arc"><img src="http://cdn.pieceoftheworld.co/images/top_arc.png" /></div>
 <div id="header_top"></div>
 <div id="header_bg">
-	<div id="logo"><a href="index.php"><img src="images/logo.png" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
+	<div id="logo"><a href="index.php"><img src="http://cdn.pieceoftheworld.co/images/logo.png" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
 	<div id="updates">
 		<table width="882" height="28" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
-			<td width="27"><img src="images/interscape_white.png" border="0" alt="InterScape" title="InterScape" /></td>
+			<td width="27"><img src="http://cdn.pieceoftheworld.co/images/interscape_white.png" border="0" alt="InterScape" title="InterScape" /></td>
 			<td valign="top" width="855">
 				<div id="trends">
 					
@@ -356,21 +380,21 @@ function closeIntro(type){
 		<table width="435" height="42" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
 			<td valign="top" width="318"><input type="text" class="input_1" style="width:318px; height:27px; border:0; text-align:center;" id="search_enteraplace" name="search" value="Enter your favorite place on earth here..." onFocus="if(this.value=='Enter your favorite place on earth here...'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Enter your favorite place on earth here...'; }" /></td>
-			<td valign="top" width="140"><img src="images/search_btn.png" border="0" alt="Take me there..." title="Take me there..." style="cursor:pointer;" /></td>
+			<td valign="top" width="140"><img src="http://cdn.pieceoftheworld.co/images/search_btn.png" border="0" alt="Take me there..." title="Take me there..." style="cursor:pointer;" /></td>
 		  </tr>
 		</table>
 	</div>
 	<div id="menus">
-		<img src="images/menu_about.png" border="0" alt="About" title="About" style="cursor:pointer;" id="menu_about" onClick="openClosePopUp('about');" /> &nbsp; 
-		<img src="images/menu_top_lists.png" border="0" alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" /> &nbsp; 
-		<!--<img src="images/menu_top_lists.png" width="58" height="14" border="0" alt="Login" title="Login" style="cursor:pointer;" id="menu_login" onClick="openClosePopUp('facebook');" /> &nbsp; -->
-		<!--<img src="images/menu_tutorials.png" width="56" height="14" border="0" alt="Tutorials" title="Tutorials" style="cursor:pointer;" id="menu_tutorials" onClick="openClosePopUp('tutorials');" /> &nbsp; -->
+		<img src="http://cdn.pieceoftheworld.co/images/menu_about.png" border="0" alt="About" title="About" style="cursor:pointer;" id="menu_about" onClick="openClosePopUp('about');" /> &nbsp; 
+		<img src="http://cdn.pieceoftheworld.co/images/menu_top_lists.png" border="0" alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" /> &nbsp; 
+		<!--<img src="http://cdn.pieceoftheworld.co/images/menu_top_lists.png" width="58" height="14" border="0" alt="Login" title="Login" style="cursor:pointer;" id="menu_login" onClick="openClosePopUp('facebook');" /> &nbsp; -->
+		<!--<img src="http://cdn.pieceoftheworld.co/images/menu_tutorials.png" width="56" height="14" border="0" alt="Tutorials" title="Tutorials" style="cursor:pointer;" id="menu_tutorials" onClick="openClosePopUp('tutorials');" /> &nbsp; -->
 	</div>
 	<div id="facebook" style='background:white; width:380px; height:30px; padding-left:10px; padding-top:6px; margin-top:15px; margin-right:20px; float:right; -moz-border-radius: 5px; border-radius: 5px;'>
 		<table height="35" border="0" cellspacing="0" cellpadding="0" id="facebook_table">
 		  <tr>
-			<td colspan=3>
-			<iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpieceoftheworld.co&amp;send=false&amp;layout=standard&amp;width=400&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=35&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:400px; height:35px;" allowTransparency="true"></iframe>
+			<td colspan=3 id='fblikes'>
+			
 			</td>
 		  </tr>
 		</table>
@@ -385,7 +409,7 @@ function closeIntro(type){
 	<div id="popup_top_arc">&nbsp;</div>
 	<div id="popup_content">
 		<div id="popup_header">
-			<div id="popup_icon_interscape"><img src="images/interscape_blue.png" width="21" height="22" border="0" /></div>
+			<div id="popup_icon_interscape"><img src="http://cdn.pieceoftheworld.co/images/interscape_blue.png" width="21" height="22" border="0" /></div>
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
 			<?php
 			if($_SESSION['userdata']){
@@ -439,16 +463,16 @@ function closeIntro(type){
 						?>
 						
 						<div id="top_list_img_1">
-							<div id="slideshow1" style="display:none;"><img src="images/others/1.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow2" style="display:none;"><img src="images/others/2.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow3" style="display:none;"><img src="images/others/3.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow4" style="display:none;"><img src="images/others/4.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow5" style="display:none;"><img src="images/others/5.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow6" style="display:none;"><img src="images/others/6.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow7" style="display:none;"><img src="images/others/7.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow8" style="display:none;"><img src="images/others/8.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow9" style="display:none;"><img src="images/others/9.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow10" style="display:none;"><img src="images/others/10.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow1" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/1.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow2" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/2.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow3" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/3.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow4" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/4.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow5" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/5.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow6" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/6.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow7" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/7.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow8" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/8.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow9" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/9.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow10" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/10.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
 							<div style="display:none;">
 								<a id="slide_link1" onClick="slideGoToSlide(1); return false;"></a>
 								<a id="slide_link2" onClick="slideGoToSlide(2); return false;"></a>
@@ -561,7 +585,7 @@ function closeIntro(type){
 				  </tr>
 				  <tr>
 					<td class="text_1">
-						<img src="images/facebook_signin_icon.png" id="fbloginbutton" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
+						<img src="http://cdn.pieceoftheworld.co/images/facebook_signin_icon.png" id="fbloginbutton" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
 					</td>
 				  </tr>
 				</table>
@@ -570,7 +594,7 @@ function closeIntro(type){
 		</div>
 	</div>
 	<div id="popup_bottom"></div>
-	<div id="popup_shadow"><img src="images/interscape_shadow.png" border="0" /></div>
+	<div id="popup_shadow"><img src="http://cdn.pieceoftheworld.co/images/interscape_shadow.png" border="0" /></div>
 </div>
 <!--END OF POPUP-->
 <script type="text/javascript">
@@ -959,6 +983,14 @@ function closeIntro(type){
 		});
 	}
 	
+</script>
+<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.co/js/tagsinput/jquery.tagsinput.css" />
+<script type="text/javascript" src="http://cdn.pieceoftheworld.co/js/twitmarquee/twitmarquee.js"></script>
+<script type="text/javascript" src="http://cdn.pieceoftheworld.co/js/tagsinput/jquery.tagsinput.js"></script>
+<script>
+jQuery(function(){
+
+});
 </script>
 </body>
 </html>

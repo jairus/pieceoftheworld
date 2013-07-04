@@ -1,8 +1,38 @@
 <?php
-session_start();
-header('Content-Type: text/html; charset=utf-8');
+@session_start();
+
+if($_GET['action']=='updateemail'){
+	require_once 'global.php';
+	function isUnique2($useremail){
+		$sql = "select id from web_users where `useremail` = '".mysql_real_escape_string($useremail)."' and `id`<>'".$_SESSION['userdata']['id']."' limit 1 ";
+		$rs = dbQuery($sql);
+		return (empty($rs))? true : false;	
+	}
+	header('Content-type: text/json');
+	header('Content-type: application/json');
+	$res = array();
+	$email = $_POST['email'];
+	if(!checkEmail($email)){
+		$res['error'] = 'Invalid E-mail Address.';
+	}
+	else if(!isUnique2($email)){
+		$res['error'] = 'Invalid E-mail Address. The E-mail is already registered to an another account.';
+	}
+	else{
+		$sql = "update `web_users` set `useremail`='".mysql_real_escape_string($email)."' where `id`='".$_SESSION['userdata']['id']."'";
+		dbQuery($sql, $_dblink);
+		$_SESSION['userdata']['useremail'] = $email;
+		$res['useremail'] = $email;
+	}
+	echo json_encode($res);
+	exit();
+}
 require_once('user_fxn.php');
+
+header('Content-Type: text/html; charset=utf-8');
+
 $webUserId = $_SESSION['userdata']['id'];
+
 
 if($_POST['type']){ //saving on edit of land
 	if($_POST['type']=='landdetail'){
@@ -29,8 +59,8 @@ if($_POST['type']){ //saving on edit of land
 	exit();
 }
 $rs = getLands($webUserId);
+
 if(empty($rs['land_detail']) && empty($rs['land_special']) ){
-	?><?php
 } 
 else {
 	//echo "<pre>";
@@ -300,6 +330,75 @@ else {
 	</script>
 	<?php
 }
+?>
+<script>
+function updateEmail2(){
+	//alert(jQuery("#form_main_details2").serialize());
+	//jQuery("#update_email_button3").hide();
+	jQuery.ajax({
+		dataType: "json",
+		type: 'post',
+		data: jQuery("#form_main_details2").serialize(), 
+		url: '/ajax/page_webuserLands.php?action=updateemail',
+		success: function(data){
+			if(data['error']){
+				alert(data['error']);
+				jQuery("#update_email_button3").show();
+			}
+			else{
+				jQuery("#zemail2").val(data['useremail']);
+				jQuery("#form_main_details2").show();
+				jQuery("#update_email_button3").show();
+				alert("You have successfully updated your E-mail Address");
+				jQuery("#update_email_button3").show();
+			}
+		}
+	});
+}
+function updateEmail(){
+	//alert(jQuery("#emailupdater").serialize());
+	//jQuery("#update_email_button2").hide();
+	jQuery.ajax({
+		dataType: "json",
+		type: 'post',
+		data: jQuery("#emailupdater2").serialize(),
+		url: '/ajax/page_webuserLands.php?action=updateemail',
+		success: function(data){
+			if(data['error']){
+				alert(data['error']);
+				jQuery("#update_email_button3").show();
+			}
+			else{
+				jQuery("#zemail2").val(data['useremail']);
+				jQuery("#form_main_details2").show();
+				jQuery("#emailupdater2").hide();
+				alert("You have successfully updated your E-mail Address");
+				jQuery("#update_email_button3").show();
+				
+			}
+		}
+	});
+}
+</script>
+<?php
+if(!checkEmail($_SESSION['userdata']['useremail'])){
+	?>
+	<form id='emailupdater2'>
+	<div class='text_1' style='padding-bottom:5px'>Please enter a valid e-mail to continue</div>
+	<div style='padding-bottom:5px'><input class="input_3" type="text" placeholder="E-mail" style="width:283px; height:30px;" name="email"></input></div>
+	<div style='padding-bottom:10px'><input class='longbutton' type='button'  id='update_email_button2' value="Submit" onclick="updateEmail()" /></div>
+	</form>
+	<?php
+	$formstyle = "display:none";
+}
+/*
+?>
+<form id="form_main_details2" method="post" enctype="multipart/form-data" style='margin:0px; <?php echo $formstyle; ?>'>
+	<div style='padding-bottom:5px'><input id='zemail2' class="input_3" type="text" placeholder="E-mail" style="width:283px; height:30px;" name="email" value="<?php echo $_SESSION['userdata']['useremail']; ?>"></input></div>
+	<div style='padding-bottom:10px'><input class='longbutton' type='button'  id='update_email_button3' value="Update E-mail Address" onclick="updateEmail2()" /></div>
+</form>
+<?php
+*/
 exit();
 
 ?>
