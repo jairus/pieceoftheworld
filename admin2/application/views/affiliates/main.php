@@ -148,7 +148,7 @@ $t = count($records);
 				<?php echo $records[$i]['website'];	?>
 			</td>
 			<td>
-				<a href='<?php echo site_url2()."?affid=".($records[$i]['id']); ?>' target='_blank'>Link</a>
+				<a href='<?php echo site_url2()."?a=".($records[$i]['id']); ?>' target='_blank'>Link</a>
 			</td>
 			<td>
 				<?php echo $records[$i]['clicks'];	?>

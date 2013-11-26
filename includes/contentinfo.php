@@ -82,18 +82,19 @@ function submitBidForm(){
 }
 </style>
 <span id="info-span-noselection" style="display:block; padding:5px; padding-top:15px;">
-<center><img src="images/pastedgraphic.jpg" width="235" border="0"></center> 
+<!--<center><img src="images/pastedgraphic.jpg" width="235" border="0"></center> -->
 </span>
 <input type="hidden" id="land_id" name="land_id" />
+<input type="hidden" id="land_special_id" name="land_special_id" />
 <span id="info-span" style="display:none;">
 	<div id="top_list_title_1" class="text_2"><span id="info-city"></span><span id="info-title"></span></div>
-	<div id="top_list_img_2" align="center"><div class="img"><a id="info-lightbox"><img id="info-img" border="0"></a></div></div>
+	<div id="top_list_img_2" align="center"><div class="img"><a id="info-lightbox" style='cursor:pointer'><img id="info-img" border="0"></a></div></div>
 	<div style="float:left; width:290px; height:auto;">
 	<div id="thumbs" style="display:none;" class="text_3"></div>
 	<div id="video" style="display:none;" class="text_3"></div>
 	<table width="290" border="0" cellspacing="0" cellpadding="0" id="table_main_info">
 	  <tr>
-		<td width="150px"><a id='fbsharelink'><img src="images/facebook_icon.png" height="15" border="0" id='fbshare' style="cursor:pointer;" />&nbsp;Share this location</a></td>
+		<td width="150px"><a id='fbsharelink'><img src="http://cdn.pieceoftheworld.com/images/facebook_icon.png" height="15" border="0" id='fbshare' style="cursor:pointer;" />&nbsp;Share this location</a></td>
 		<td id='likecolumn_id'></td>
 		<td></td>
 	  </tr>
@@ -135,7 +136,7 @@ function submitBidForm(){
 	</table>
 	<div id="div_bid" style="display:none;" class="text_3">
 		<form enctype="multipart/form-data" method='post' id='theform' name='theform' style='margin:0px'>
-		<div id="pleasewait" style="display:none; text-align:center;"><img src="images/loading.gif" /></div>
+		<div id="pleasewait" style="display:none; text-align:center;"><img src="http://cdn.pieceoftheworld.com/images/loading.gif" /></div>
 		<div id='bidresults' style="display:none;">
 			<div id='bid_tab_wrapperonly'></div>
 		</div>

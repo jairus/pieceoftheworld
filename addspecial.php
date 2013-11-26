@@ -1198,15 +1198,13 @@ if($_GET['px']!=""){
 		}
 		ret = {};
 		
-		
-		/*
+		//overide
 		ret.city = "block";
 		ret.region = "block";
 		ret.country = "block";
 		ret.areatype = "block";
 		ret.price = 0;
 		return ret;
-		*/
 		
 		url = "http://maps.googleapis.com/maps/api/geocode/json?latlng="+LatLng+"&sensor=true";
 		var price = 0;
@@ -1380,6 +1378,7 @@ if($_GET['px']!=""){
 			retx.country = rtemp.country;
 			retx.areatype = rtemp.areatype;
 		}
+		/*
 		jQuery.ajax({
 			dataType: "html",
 			async: true,
@@ -1390,6 +1389,8 @@ if($_GET['px']!=""){
 				
 			}
 		});
+		
+		*/
 		return ret; //returns ret object
 	}
 	

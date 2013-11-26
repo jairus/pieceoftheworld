@@ -154,10 +154,12 @@ function logout()
 function getLands($id)
 {
 	$rs = array();
-	$sql = "SELECT LD.id, LD.`title`, LD.`detail`, LD.`land_owner`, LD.category_id 
+	$sql = "SELECT LD.`id`, LD.`title`, LD.`detail`, LD.`land_owner`, LD.`category_id`
 			FROM  `land_detail` LD
-			LEFT JOIN land L ON LD.id = L.land_detail_id 
-			WHERE L.web_user_id =  '$id'
+			WHERE LD.`id` in 
+			(
+				select `land`.`land_detail_id` from `land` where `land`.`web_user_id` =  '$id' and `land`.`land_special_id` is NULL
+			)
 			GROUP BY LD.id
 			ORDER BY LD.`id` DESC 			
 			";
@@ -173,10 +175,10 @@ function getLands($id)
 		}			
 	} 
 	
-	$sql = "select LD.id, LD.`title`, LD.`detail`, LD.`land_owner`,  format(LD.price,2) as price
-			from `land_special` LD			
-			where LD.web_user_id = '$id' 			
-			order by LD.`id` desc 
+	$sql = "select LS.id, LS.`title`, LS.`detail`, LS.`land_owner`,  format(LS.price,2) as price
+			from `land_special` LS			
+			where LS.web_user_id = '$id' 			
+			order by LS.`id` desc 
 			";
 	$rs['land_special'] = dbQuery($sql);
 	if(!empty($rs['land_special'])){

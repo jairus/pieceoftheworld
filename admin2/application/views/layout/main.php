@@ -1,4 +1,16 @@
 <?php
+if(strtolower($_SERVER['HTTP_HOST'])=='www.pieceoftheworld.co'||strtolower($_SERVER['HTTP_HOST'])=='pieceoftheworld.co'){
+	$url = "http://pieceoftheworld.com/".ltrim($_SERVER['REQUEST_URI'], "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}
+if(strpos(strtolower($_SERVER['HTTP_HOST']), "www.")===0){
+	$url = "http://pieceoftheworld.com/".ltrim($_SERVER['REQUEST_URI'], "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}
+
+
 @session_start();
 $user = $_SESSION['user'];
 ?>

@@ -225,5 +225,6 @@ if(0){
 
 echo '<center><h2>Thank you for your purchase.</h2></center>';
 ?>
+<script>window.opener.location = window.opener.location;</script>
 </body>
 </html>

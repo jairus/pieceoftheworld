@@ -2,7 +2,7 @@ a img{
 	border-width:0;
 }
 #trends{
-	width:972px;
+	width:855px;
 	margin:0 auto;
 }
 .background .inner{
@@ -12,16 +12,17 @@ a img{
 }
 
 #trends{
-	*z-index:972;
-	_z-index:972;
+	*z-index:855;
+	_z-index:855;
 	position:relative;
 	zoom:1;
 }
 #trends .inner{
-	width:972px;
+	width:855px;
 	overflow:hidden;
 	zoom:1;
 	position:relative;
+	top:-2px;
 }
 #trends ul{
 	margin:0;
@@ -29,20 +30,19 @@ a img{
 	list-style:none;
 	white-space:nowrap;
 	zoom:1;
-	top:-6px;
 	position:relative;
 	z-index:20;
 }
 #trends li{
 	width:243px;
-	height:16px;
+	height:27px;
 	background-color:#007daf;
 	text-align:center;
 	vertical-align:middle;
-	padding:2px;
+	padding:5px;
 	border:1px solid #00a4da;
 	font-family:Arial, Helvetica, sans-serif;
-	font-size:11px;
+	font-size:14px;
 	color:#FFFFFF;
 	cursor:pointer;
 	display:inline;
@@ -79,8 +79,7 @@ a img{
 	top:0;
 	left:0;
 	width:60px;
-	height:16px;
-	padding:2px 0;
+	height:28px;
 	zoom:1;
 	_visibility:hidden;
 	z-index:30;

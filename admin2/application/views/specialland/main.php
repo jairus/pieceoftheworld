@@ -157,6 +157,9 @@ $t = count($records);
 			$imageurl = basename($post['filename']);
 		}
 		*/
+		$sql = "select * from `land` where `land_special_id`='".$records[$i]['id']."'";
+		$q = $this->db->query($sql);
+		$lands = $q->result_array();
 		?>
 		<tr id="tr<?php echo htmlentitiesX($records[$i]['id']); ?>" class="row" >
 			
@@ -172,15 +175,12 @@ $t = count($records);
             <td><?php echo $records[$i]['totalLikes'];	?></td>
 			<td width='300px'>
 			<?php
-			/*if(trim($records[$i]['folder'])){
+			if(trim($lands[0]['id'])){
 				?>
-				[ <a href="<?php echo "/gencert.php?f=".$records[$i]['folder'];	?>" target='_blank' >Generate Cert</a> ] 
-				[ <a href="<?php echo "/gencert.php?f=".$records[$i]['folder'];	?>&email=1" target='_blank' onclick='return confirm("Are you sure you want to resend certificate?");' >Resend Cert</a> ] 
+				[ <a href="<?php echo "/gencert.php?land_id=".$lands[0]['id'];	?>" target='_blank' >Download Cert</a> ] 
+				[ <a href="<?php echo "/gencert.php?land_id=".$lands[0]['id'];	?>&email=1" target='_blank' onclick='return confirm("Are you sure you want to resend certificate?");' >Resend Cert</a> ] 
 				<?php
 			}
-			
-			echo $records[$i]['id'];
-			*/
 			?>
 			[ <a href="<?php echo site_url(); ?>specialland/edit/<?php echo $records[$i]['id']?>" >Edit</a> ] 
 			[ <a style='color: red; cursor:pointer; text-decoration: underline' onclick='deleteRecord("<?php echo htmlentitiesX($records[$i]['id']) ?>"); ' >Delete</a> ]

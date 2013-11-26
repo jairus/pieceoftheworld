@@ -6,6 +6,10 @@ class affiliates extends CI_Controller {
 		$this->load->database();
 	}
 	public function index(){
+		if($_SESSION['user']['affiliate']){
+			$this->edit($_SESSION['user']['id']);
+			return 0;
+		}
 		$table = "affiliates";
 		$controller = $table;
 		
@@ -165,8 +169,10 @@ class affiliates extends CI_Controller {
 	
 	
 	function ajax_delete($id){
-		$sql = "delete from `affiliates` where `id`='".mysql_real_escape_string($id)."'";
-		$this->db->query($sql);
+		if(!$_SESSION['user']['affiliate']){
+			$sql = "delete from `affiliates` where `id`='".mysql_real_escape_string($id)."'";
+			$this->db->query($sql);
+		}
 		//$sql = "delete from `startupkit_product_coupons` where `product_id`='".mysql_real_escape_string($id)."'";
 		//$this->db->query($sql);
 	}
@@ -175,42 +181,64 @@ class affiliates extends CI_Controller {
 		$table = "affiliates";
 		$controller = $table;
 		$error = false;
-		if(!trim($_POST['title'])){
-			?>alertX("Please input affiliate name!");<?php
-			$error = true;
-		}
-		else if(!trim($_POST['website'])){
-			?>alertX("Please input affiliate website!");<?php
-			$error = true;
-		}
-		else if(!trim($_POST['commissionrate'])){
-			?>alertX("Please input commission rate!");<?php
-			$error = true;
+		if(!$_SESSION['user']['affiliate']){
+			if(!trim($_POST['title'])){
+				?>alertX("Please input affiliate name!");<?php
+				$error = true;
+			}
+			else if(!trim($_POST['website'])){
+				?>alertX("Please input affiliate website!");<?php
+				$error = true;
+			}
+			else if(!trim($_POST['commissionrate'])){
+				?>alertX("Please input commission rate!");<?php
+				$error = true;
+			}
 		}
 		
 		if(!$error){
-			$sql = "update `$table` set 
-				`title` = '".mysql_real_escape_string($_POST['title'])."',
-				`detail` = '".mysql_real_escape_string($_POST['detail'])."',
-				`website` = '".mysql_real_escape_string($_POST['website'])."',
-				`email` = '".mysql_real_escape_string($_POST['email'])."',
-				`active` = '".mysql_real_escape_string($_POST['active'])."',
-				`commissionrate` = '".mysql_real_escape_string($_POST['commissionrate'])."',
-				`dateadded` = NOW()
-				where `id` = '".mysql_real_escape_string($_POST['id'])."'
-			";
-			$this->db->query($sql);
-			$insert_id = $this->db->insert_id();
-		
-			?>
-			alertX("Successfully Updated Affiliate '<?php echo htmlentitiesX($_POST['title']); ?>'.");
-			self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
-			<?php
+			if(!$_SESSION['user']['affiliate']){
+				$sql = "update `$table` set 
+					`title` = '".mysql_real_escape_string($_POST['title'])."',
+					`detail` = '".mysql_real_escape_string($_POST['detail'])."',
+					`website` = '".mysql_real_escape_string($_POST['website'])."',
+					`email` = '".mysql_real_escape_string($_POST['email'])."',
+					`password` = '".mysql_real_escape_string($_POST['password'])."',
+					`active` = '".mysql_real_escape_string($_POST['active'])."',
+					`commissionrate` = '".mysql_real_escape_string($_POST['commissionrate'])."',
+					`discountrate` = '".mysql_real_escape_string($_POST['discountrate'])."',
+					`dateadded` = NOW()
+					where `id` = '".mysql_real_escape_string($_POST['id'])."'
+				";
+				$this->db->query($sql);
+				if(!$_SESSION['user']['affiliate']){
+					?>
+					alertX("Successfully Updated Affiliate '<?php echo htmlentitiesX($_POST['title']); ?>'.");
+					self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_POST['id']; ?>";
+					<?php
+				}
+				else{
+					?>
+					alertX("Successfully Updated Details");
+					self.location = "<?php echo site_url(); echo $controller; ?>/edit/<?php echo $_SESSION['user']['id']; ?>";
+					<?php
+				}
+			}
+			else{
+			
+
+			}
+			
 		}
 		?>jQuery("#record_form *").attr("disabled", false);<?php
 	}
 	
 	public function edit($id){
+		if($_SESSION['user']['affiliate']&&$id!=$_SESSION['user']['id']){
+			redirect_to(site_url()."affiliates/");
+			exit();
+		}
+		
 		$table = "affiliates";
 		$controller = $table;
 		$sql = "select * from `$table` where `id` = '".mysql_real_escape_string($id)."' limit 1" ;
@@ -228,6 +256,17 @@ class affiliates extends CI_Controller {
 		$cnt = $q->result_array();
 		$commission = $cnt[0]['commission'];
 		$record['commission'] = $commission;
+		
+		$sql = "select sum(`gross`) as `gross` from `affiliate_commissions` where `affiliate_id`='".$record['id']."'";
+		$q = $this->db->query($sql);
+		$cnt = $q->result_array();
+		$gross = $cnt[0]['gross'];
+		$record['gross'] = $gross;
+		
+		$sql = "select * from `affiliate_commissions` where `affiliate_id`='".$record['id']."' order by `id` desc limit 10";
+		$q = $this->db->query($sql);
+		$transactions = $q->result_array();
+		$record['transactions'] = $transactions;
 		
 		$data['record'] = $record;
 		$data['content'] = $this->load->view($controller.'/add', $data, true);

@@ -1,4 +1,5 @@
 <?php
+
 $controller = $this->router->class;
 $method = $this->router->method;
 if($method=='revision'){
@@ -7,13 +8,29 @@ if($method=='revision'){
 if($method=='contribution'){
 	$controller = "contributions";
 }
+
+if($_SESSION['user']['affiliate']){
+	if($controller!="affiliates"){
+		ob_end_clean();
+		?>
+		<script>
+			self.location = "<?php echo site_url(); ?>affiliates";
+		</script>
+		<?php
+		exit();
+	}
+	return 0;
+}
 ?>
-<ul>
+<ul >
 	<li <?php if($controller=="latest"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."latest";?>"'>
 		Latest Updates
 	</li>
 	<li <?php if($controller=="land"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."land";?>"'>
-		Land
+		Single Land
+	</li>
+	<li <?php if($controller=="bundledland"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."bundledland";?>"'>
+		Bundled Land
 	</li>
 	<li <?php if($controller=="specialland"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."specialland";?>"'>
 		Special Land
@@ -39,6 +56,10 @@ if($method=='contribution'){
 	<li <?php if($controller=="tags"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."tags";?>"'>
 		User Tags
 	</li>		
+	<li <?php if($controller=="transactions"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."transactions";?>"'>
+		Transactions
+	</li>		
+	
 	<!--
 	<li <?php if($controller=="sales"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."sales";?>"'>
 		Sales

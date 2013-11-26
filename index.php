@@ -1,18 +1,51 @@
 <?php 
-if(strtolower($_SERVER['HTTP_HOST'])=="pieceoftheworld.com"){
-	echo "Coming Soon";
-	exit();
-	
-	$url = "http://pieceoftheworld.co/".ltrim($_SERVER['REQUEST_URI'], "/");
+session_start(); 
+if(strtolower($_SERVER['HTTP_HOST'])=='www.pieceoftheworld.co'||strtolower($_SERVER['HTTP_HOST'])=='pieceoftheworld.co'){
+	$url = "http://pieceoftheworld.com/".ltrim($_SERVER['REQUEST_URI'], "/");
 	header ('HTTP/1.1 301 Moved Permanently');
 	header ('Location: '.$url);
-}else if(strpos(strtolower($_SERVER['HTTP_HOST']), "www.")===0){
-	$url = "http://pieceoftheworld.co/".ltrim($_SERVER['REQUEST_URI'], "/");
+}
+if(strpos(strtolower($_SERVER['HTTP_HOST']), "www.")===0){
+	$url = "http://pieceoftheworld.com/".ltrim($_SERVER['REQUEST_URI'], "/");
 	header ('HTTP/1.1 301 Moved Permanently');
 	header ('Location: '.$url);
 }
 
-session_start(); 
+if($_GET['signupfb']){
+	$_SESSION['signupfb'] = 1;
+}
+
+if(($_GET['start']||$_SERVER['QUERY_STRING'])&&!$_SESSION['start']){
+	$_SESSION['start'] = 1;
+	/*
+	if(!$_GET['start']&&$_SERVER['QUERY_STRING']){
+		$url = trim("http://pieceoftheworld.com/?".$_SERVER['QUERY_STRING'], "/");
+	}
+	else{
+		$url = trim("http://pieceoftheworld.com/", "/");
+	}
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+	*/
+}
+
+if($_GET['home']){
+	unset($_SESSION['start']);
+	$url = trim("http://pieceoftheworld.com/", "/");
+	header ('HTTP/1.1 301 Moved Permanently');
+	header ('Location: '.$url);
+}
+
+if(!trim($_SERVER['QUERY_STRING'])){
+	unset($_SESSION['start']);
+}
+
+if(!$_SESSION['start']){
+	include_once(dirname(__FILE__)."/home.php");
+	exit();
+}
+
+
 include_once(dirname(__FILE__).'/ajax/global.php');
 
 if($_GET['trends']){
@@ -53,13 +86,19 @@ if($_GET['trends']){
 			$t = count($c);
 			for($i=0; $i<$t; $i++){
 				if(!trim($c[$i]['land_owner'])){
-					//$sql = "select * from ``"
+					$str = "'".trim($c[$i]['title'])."'";
+					?>
+					<li>
+						<a href="?xy=<?php echo $c[$i]['x']."~".$c[$i]['y']; ?>" class="search_link" name="<?php echo htmlentities($str) ?>" rel="nofollow"><?php echo stripslashes(strip_tags($str)); ?></a>
+						<em class="description"></em>
+					</li>
+					<?php
 				}
 				else{
 					$str = trim($c[$i]['land_owner'])." just bought '".trim($c[$i]['title'])."'";
 					?>
 					<li>
-						<a href="?xy=<?php echo $c[$i]['x']."~".$c[$i]['y']; ?>" class="search_link" name="<?php echo htmlentities($str) ?>" rel="nofollow"><?php echo strip_tags($str); ?></a>
+						<a href="?xy=<?php echo $c[$i]['x']."~".$c[$i]['y']; ?>" class="search_link" name="<?php echo htmlentities($str) ?>" rel="nofollow"><?php echo stripslashes(strip_tags($str)); ?></a>
 						<em class="description"></em>
 					</li>
 					<?php
@@ -73,7 +112,7 @@ if($_GET['trends']){
 		</ul>
 		</div>
 	</div>
-	<span class="fade fade-left">&nbsp;</span><span class="fade fade-right">&nbsp;</span>
+	<!--<span class="fade fade-left">&nbsp;</span><span class="fade fade-right">&nbsp;</span>-->
 	<?php
 	exit();
 }
@@ -126,12 +165,14 @@ if($_GET['coords']){
 	exit();
 }
 
-if($_GET['affid']){
-	$_SESSION['affid'] = $_GET['affid'];
-	$sql = "select * from `affiliates` where `id`='".$_SESSION['affid']."'  and `active`=1";
+if($_GET['a']){
+	$sql = "select * from `affiliates` where `id`='".$_GET['a']."'  and `active`=1";
 	$r = dbQuery($sql, $_dblink);
 	$r = $r[0];
 	if($r['id']){
+		$_SESSION['affid'] = $_GET['a'];
+		setcookie("affid", "", (time()-(3600*24*30)));  /* 30 days */
+		setcookie("affid", $_SESSION['affid'], (time()+(3600*24*30)));  /* 30 days */
 		$sql = "insert into `affiliate_clicks` set 
 			`affiliate_id`='".$r['id']."',
 			`server_json`='".mysql_real_escape_string(json_encode($_SERVER))."',
@@ -140,8 +181,12 @@ if($_GET['affid']){
 		dbQuery($sql, $_dblink);
 	}
 	header ('HTTP/1.1 301 Moved Permanently');
-	header ('Location: index.php');
+	header ('Location: http://pieceoftheworld.com');
 	exit();
+}
+if($_COOKIE['affid']){
+	//print_r($_COOKIE);
+	$_SESSION['affid'] = $_COOKIE['affid'];
 }
 
 if($_GET['px']!=""){
@@ -153,15 +198,22 @@ if($_GET['px']!=""){
 <!doctype html>
 <html lang="us">
 <head>
-<meta property='og:image' content='http://cdn.pieceoftheworld.co/images/pastedgraphic_fb.jpg' />
+<meta property='fb:app_id' content='454736247931357' />
+<meta property='og:image' content='http://pieceoftheworld.com/images/og_fb.jpg' />
 <meta property='og:title' content='Piece of the World' />
+<?php
+if(!$_SERVER['QUERY_STRING']){
+	?><meta property='og:url' content='http://pieceoftheworld.com/'/><?php
+}
+?>
+<meta property='og:type' content='website'/>
+<meta property='og:description'  content="The world is now for sale, piece by piece. Claim your land and own it forever or give it away as a fun or romantic gift. Upload a picture, write a text and receive a certificate of ownership. Be creative and more importantly have fun!"/>
+<meta name="description" content="The world is now for sale, piece by piece. Claim your land and own it forever or give it away as a fun or romantic gift. Upload a picture, write a text and receive a certificate of ownership. Be creative and more importantly have fun!"/>
 <meta charset="utf-8">
 <title>PieceoftheWorld</title>
-<link rel="stylesheet" type="text/css" href="css/styles.css?_<?php echo time(); ?>" />
-
-<script src="http://cdn.pieceoftheworld.co/js/jquery-1.8.3.min.js" type="text/javascript"></script>
-
-<link href="css/twitmarquee.css" media="screen" rel="stylesheet" type="text/css" />
+<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.com/css/styles.css" />
+<script src="http://cdn.pieceoftheworld.com/js/jquery-1.8.3.min.js" type="text/javascript"></script>
+<link href="http://cdn.pieceoftheworld.com/css/twitmarquee.css" media="screen" rel="stylesheet" type="text/css" />
 <style>
 .ui-dialog {
     width: 450px;
@@ -219,23 +271,27 @@ if($_GET['px']!=""){
 	padding-bottom:5px;
 	margin-top:5px;
 }
+a:link img{
+	border:none;
+}
+
 </style>
 
 
 
-<!--IMAGE SLIDE SHOW-->
-<script type="text/javascript" src="http://cdn.pieceoftheworld.co/js/slideshow/slideshow.js" ></script>
-<!--END OF IMAGE SLIDE SHOW-->
+
 
 <!--MAKE BOX DRAGGABLE-->
-<script src="http://cdn.pieceoftheworld.co/js/draggable/jquery-1.9.1.js"></script>
-<script src="http://cdn.pieceoftheworld.co/js/draggable/jquery-ui.js"></script>
-<link href="http://cdn.pieceoftheworld.co/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
+<script src="http://cdn.pieceoftheworld.com/js/draggable/jquery-1.9.1.js"></script>
+<script src="http://cdn.pieceoftheworld.com/js/draggable/jquery-ui.js"></script>
+<link href="http://cdn.pieceoftheworld.com/css/jquery-ui-1.9.2.custom.min.css" rel="stylesheet">
 <!--END OF MAKE BOX DRAGGABLE-->
 
 <!-- colorbox -->
-<script src="http://cdn.pieceoftheworld.co/js/colorbox-master/jquery.colorbox.js"></script>
-<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.co/js/colorbox-master/example1/colorbox.css" media="screen" />
+
+<script src="http://cdn.pieceoftheworld.com/js/colorbox-master/jquery.colorbox.js"></script>
+<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.com/js/colorbox-master/example1/colorbox.css" media="screen" />
+
 <!-------------->
 
 
@@ -255,13 +311,21 @@ include_once(dirname(__FILE__)."/js/main.php");
 <?php
 include_once(dirname(__FILE__)."/js/zoi.php");
 ?>
+
+<?php
+if($_SESSION['start']&&!$_GET['xy']){
+	?>
+	link = "http://pieceoftheworld.com/";
+	history.pushState(null, null, link);
+	<?php
+}
+?>
 </script>
 
 
 
 
-	
-	
+<link href="css/main2.css" rel="stylesheet">
 <style>
 .longbutton2{
 	background-color: #006A9B;
@@ -278,6 +342,107 @@ include_once(dirname(__FILE__)."/js/zoi.php");
 	margin-bottom:3px;
 	border:1px solid white;
 }
+
+
+#popup_content{
+	background-color: #ffffff;
+}
+
+#popup_bottom {
+    background-color: #ffffff;
+}
+#popup_top {
+    background-color: #ffffff;	
+}
+.text_2 {
+    color: #000000;
+}
+.text_1 {
+    color: #000000;
+	font-size:13px;
+}
+a:hover{
+	color:#000000;
+	text-decoration:underline;
+}
+
+#popup_top_arc {
+    background-image: url("images/popup_top_right_white.png");
+}
+.details a:link, .details a:hover, .details a:visited {
+    color: #000000;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+}
+#table_main_info a:link, #table_main_info a:hover, #table_main_info a:visited{
+	color: #000000;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 13px;
+    text-decoration: none;
+}
+
+.select {
+    background-color: #5F96E6 !important;
+}
+.longbutton {
+    background-color: #5F96E6 !important;
+}
+
+#top_list_title_1 {
+    background-color: #5F96E6;
+}
+
+#top_list_title_1 .text_2{
+	color:white;
+}
+#info-title{
+	color:white;
+}
+.text_3 {
+    color: #000000;
+}
+.link_1:hover {
+    color: #FFFFFF;
+    font-family: Arial,Helvetica,sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    text-decoration: none;
+}
+
+#top_list_categories {
+    background-color: #5F96E6;
+}
+#top_list_categories:hover {
+    background-color: #A5BFDD;
+}
+#top_list_categories_active {
+    background-color: #A5BFDD;
+}
+#top_list_items{
+	background-color: #A5BFDD;
+}
+#top_list_items:hover{
+	background-color: #5F96E6;
+}
+#links {
+    float: left;
+    height: auto;
+    margin-left: 47px;
+    margin-top: 16px;
+    width: auto;
+}
+
+#popup {
+    top: 60px;
+}
+#theprice, #info-detail{
+	color:#000000;
+}
+
+#search_inside{
+	border:0px;
+}
 </style>
 
 
@@ -285,7 +450,7 @@ include_once(dirname(__FILE__)."/js/zoi.php");
 $(document).ready(function() {
 	<?php
 	if(!isset($_SESSION['trailer'])&&!count($_GET)){
-		?> jQuery('#table_intro').show(); <?php
+		?> jQuery('#table_introxx').show(); <?php
 	}
 	?>
 	$('#tags_1').tagsInput({width:'auto'});
@@ -294,54 +459,119 @@ $(document).ready(function() {
 //CLOSE INTRO
 function closeIntro(type){
 	if(type==1){
-		jQuery('#table_intro').hide();
+		//jQuery('#table_introxx').hide();
+		jQuery('#table_introxx').css({'display':'none'});
+		jQuery("#introvid").html("");
 	}else if(type==2){
 		jQuery.ajax({
 			type: 'GET',
 			url: "ajax/ajax.php?action=createsession",
 			data: '',
 			success: function(data) {
-				jQuery('#table_intro').hide();
+				//jQuery('#table_introxx').hide();
+				jQuery('#table_introxx').css({'display':'none'});
+				jQuery("#introvid").html("");
 			}
 		});
 	}
 }
 //END OF CLOSE INTRO
 </script>
-</head>
+<script>
+function takeMe(){
+	geocoder.geocode( {'address': jQuery("#search_enteraplace").val() }, function(results, status) {
+		if (status == google.maps.GeocoderStatus.OK) {
+			
+			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+			map.setCenter(results[0].geometry.location);
+			map.setZoom(17);
+		} 
+		else {
+			alert("That address wasn't found!");
+			//alert('Geocode was not successful for the following reason: ' + status);
+		}
+		/*
+		response(jQuery.map(results, function(item) {
+			jQuery("#latitude").val(item.latitude);
+			jQuery("#longitude").val(item.longitude);
+			var location = new google.maps.LatLng(item.latitude, item.longitude);
+			//searchMarker.setPosition(location);
+			map.setZoom(15);
+			map.setCenter(location);
+			//}
+		}));
+		*/
+		
+	})
+}
+jQuery(function(){
+	jQuery("#search_enteraplace").keypress(function(event) {
+		if ( event.which == 13 ) {
+			takeMe();
+		}
+	});
 
+});
+</script>
+</head>
 <body>
 <div id='galleryresults'>
 	<div id='gallery_tab_wrapperonly'></div>
 </div>
 
-<table width="100%" border="0" cellspacing="0" cellpadding="0" style="position:absolute; top:130px; right:445px; z-index:999999; display:none;" id="table_intro">
-  <tr>
-    <td align="right" valign="top">
-		<div style="width:600px; height:400px;"><iframe width="600" height="400" src="http://www.youtube.com/embed/LR92EnAOhj8" frameborder="0" allowfullscreen></iframe></div>
-		<div style="width:600px; height:auto;">
-			<table width="600" border="0" cellspacing="0" cellpadding="0">
-			  <tr>
-				<td width="300" align="left"><img src="http://cdn.pieceoftheworld.co/images/intro_skip.png" style="cursor:pointer;" onClick="closeIntro(1);" /></td>
-				<td width="300" align="right"><img src="http://cdn.pieceoftheworld.co/images/intro_dont_show.png" style="cursor:pointer;" onClick="closeIntro(2);" /></td>
-			  </tr>
-			</table>
-		</div>
-	</td>
-  </tr>
-</table>
-
 <div id="fb-root"></div>
 <table id='loadinggrid' ><tr><td valign='middle' align='center'>Loading Data...</td></tr></table>
-<div id="top_arc"><img src="http://cdn.pieceoftheworld.co/images/top_arc.png" /></div>
-<div id="header_top"></div>
 <div id="header_bg">
-	<div id="logo"><a href="index.php"><img src="http://cdn.pieceoftheworld.co/images/logo.png" border="0" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
-	<div id="updates">
+	<div id="header">
+		<div id="logo"><a href="?start=1"><img src="alt/images/logo.png" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
+		<div id="search">
+			<div id="search_inside">
+				<div id="search_field"><input type="text" class="input_1" style="width:257px; height:20px; padding:0px 10px;" id="search_enteraplace" name="search" value="Search for an address or place to buy" onFocus="if(this.value=='Search for an address or place to buy'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Search for an address or place to buy'; }" /></div>
+				<div id="search_button"><img src="images/btn_search.png" border="0" alt="Take me there..." title="Take me there..." style="cursor:pointer;" /></div>
+			</div>
+		</div>
+		<div id="links" class="text_1">
+		<a alt="Home" title="Home" style="cursor:pointer;" id="menu_top_lists" onClick="self.location='?start=1'" class="link_1">Home</a>&nbsp; &nbsp; 
+		<a alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" class="link_1">Top Lists</a> &nbsp; &nbsp;<?php
+			if($_SESSION['userdata']){
+				?><div style='display:inline' id='sign_in'>
+					<a style='cursor:pointer' class="link_1" onClick="logoutUser();">Sign Out</a>&nbsp;&nbsp;&nbsp;<a class="link_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook'); ">Profile</a>&nbsp;
+				</div><?php
+			}
+			else{
+				?><div style='display:inline' id='sign_in'>
+					<a onclick="updateProfile(); openClosePopUp('facebook');" style="cursor:pointer;" class="link_1">Sign in</a>
+				</div><?php
+			}
+			?>
+			
+			
+		</div>
+	</div>
+</div>
+<div id="header_arc"></div>
+<div id="map_canvas"></div>
+<div id="footer">
+	<style>
+	#trends li {
+    background-color: #5F96E6;
+    border: 1px solid #5F96E6;
+	}
+		
+	#trends a.active, #trends a:hover {
+		color: #ffffff !important;
+	}
+	#trends{
+		width:950px;
+	}
+	#trends .inner{
+		width:950px;
+	}
+	</style>
+	<div id="updates" style='float:left; padding-top:12px; padding-left:170px;'>
 		<table width="882" height="28" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
-			<td width="27"><img src="http://cdn.pieceoftheworld.co/images/interscape_white.png" border="0" alt="InterScape" title="InterScape" /></td>
-			<td valign="top" width="855">
+			<td valign="top" width="950px">
 				<div id="trends">
 					
 				</div>
@@ -376,55 +606,28 @@ function closeIntro(type){
 		  </tr>
 		</table>
 	</div>
-	<div id="search">
-		<table width="435" height="42" border="0" cellspacing="0" cellpadding="0">
-		  <tr>
-			<td valign="top" width="318"><input type="text" class="input_1" style="width:318px; height:27px; border:0; text-align:center;" id="search_enteraplace" name="search" value="Enter your favorite place on earth here..." onFocus="if(this.value=='Enter your favorite place on earth here...'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Enter your favorite place on earth here...'; }" /></td>
-			<td valign="top" width="140"><img src="http://cdn.pieceoftheworld.co/images/search_btn.png" border="0" alt="Take me there..." title="Take me there..." style="cursor:pointer;" /></td>
-		  </tr>
-		</table>
-	</div>
-	<div id="menus">
-		<img src="http://cdn.pieceoftheworld.co/images/menu_about.png" border="0" alt="About" title="About" style="cursor:pointer;" id="menu_about" onClick="openClosePopUp('about');" /> &nbsp; 
-		<img src="http://cdn.pieceoftheworld.co/images/menu_top_lists.png" border="0" alt="Top Lists" title="Top Lists" style="cursor:pointer;" id="menu_top_lists" onClick="openClosePopUp('top_lists');" /> &nbsp; 
-		<!--<img src="http://cdn.pieceoftheworld.co/images/menu_top_lists.png" width="58" height="14" border="0" alt="Login" title="Login" style="cursor:pointer;" id="menu_login" onClick="openClosePopUp('facebook');" /> &nbsp; -->
-		<!--<img src="http://cdn.pieceoftheworld.co/images/menu_tutorials.png" width="56" height="14" border="0" alt="Tutorials" title="Tutorials" style="cursor:pointer;" id="menu_tutorials" onClick="openClosePopUp('tutorials');" /> &nbsp; -->
-	</div>
-	<div id="facebook" style='background:white; width:380px; height:30px; padding-left:10px; padding-top:6px; margin-top:15px; margin-right:20px; float:right; -moz-border-radius: 5px; border-radius: 5px;'>
-		<table height="35" border="0" cellspacing="0" cellpadding="0" id="facebook_table">
-		  <tr>
-			<td colspan=3 id='fblikes'>
-			
-			</td>
-		  </tr>
-		</table>
-	</div>
+	<div style="float:right; width:auto; height:auto; margin-right:145px; margin-top:15px; color:#FFFFFF; font-family:Arial, Helvetica, sans-serif; font-size:15px;">Copyright Piece of the World Pte Ltd 2013</div>
 </div>
-<div id="header_arc">&nbsp;</div>
-<div id="map_canvas"></div>
+
+
 
 <!--POPUP-->
-<div id="popup" style="display:none;">
+<div id="popup" style="display:none; width:312px;">
+	<?php
+	/*
+	?>
 	<div id="popup_top">&nbsp;</div>
 	<div id="popup_top_arc">&nbsp;</div>
-	<div id="popup_content">
+	<?php
+	*/
+	?>
+	<div id="popup_content" style='padding:10px; border:2px solid #7F97E8'>
 		<div id="popup_header">
-			<div id="popup_icon_interscape"><img src="http://cdn.pieceoftheworld.co/images/interscape_blue.png" width="21" height="22" border="0" /></div>
+			<!--
+			<div id="popup_icon_interscape"><img src="http://cdn.pieceoftheworld.com/images/interscape_blue.png" width="21" height="22" border="0" /></div>
 			<div id="popup_title_interscape" class="text_2">InterScape</div>
-			<?php
-			if($_SESSION['userdata']){
-				?>
-				<div align="right" id='sign_in'>
-					<a class="text_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook'); ">Profile</a>&nbsp;<a style='cursor:pointer' class="text_1" onClick="logoutUser();">Sign Out</a>
-				</div><?php
-			}
-			else{
-				?>
-				<div align="right" id='sign_in'>
-					<a class="text_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook');">Sign In</a>
-				</div><?php
-			}
-			?>
+			-->
+			
 		</div>
 		<div id="popup_main_content">
 			<div id="content_about" style="display:none;">
@@ -435,7 +638,7 @@ function closeIntro(type){
 				
 				<p>You will receive a certificate by email proving that you are the exclusive owner. Should you receive a good offer, you can sell your piece of the world, hopefully making a profit.</p>
 				
-				<p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90 ($ 6.93 if shared on Facebook).</p>
+				<p>Each piece represents an acre of our planet and it can be yours today! What part of the world means something special to you? That cafe where you met your spouse? The arena of your favorite football team? Your childhood home? Your school or university? One square costs $ 9.90.</p>
 				
 				<p>So join us and set your mark - get your piece of the world today.</p>
 				
@@ -463,16 +666,16 @@ function closeIntro(type){
 						?>
 						
 						<div id="top_list_img_1">
-							<div id="slideshow1" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/1.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow2" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/2.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow3" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/3.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow4" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/4.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow5" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/5.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow6" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/6.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow7" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/7.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow8" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/8.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow9" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/9.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
-							<div id="slideshow10" style="display:none;"><img src="http://cdn.pieceoftheworld.co/images/others_0/10.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow1" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/1.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow2" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/2.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow3" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/3.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow4" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/4.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow5" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/5.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow6" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/6.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow7" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/7.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow8" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/8.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow9" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/9.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
+							<div id="slideshow10" style="display:none;"><img src="http://cdn.pieceoftheworld.com/images/others_0/10.png" width="140" height="120" alt="PieceOfTheWorld" title="PieceOfTheWorld" border="0" /></div>
 							<div style="display:none;">
 								<a id="slide_link1" onClick="slideGoToSlide(1); return false;"></a>
 								<a id="slide_link2" onClick="slideGoToSlide(2); return false;"></a>
@@ -485,7 +688,7 @@ function closeIntro(type){
 								<a id="slide_link9" onClick="slideGoToSlide(9); return false;"></a>
 								<a id="slide_link10" onClick="slideGoToSlide(10); return false;"></a>
 							</div>
-							<script>startSlideShow(10000);</script>
+							
 						</div>
 					</td>
 					<td width="10">&nbsp;</td>
@@ -532,6 +735,60 @@ function closeIntro(type){
 			</div>
 			<div id='content_buy' style="display:none;">
 				<?php include_once('includes/contentbuy.php'); ?>
+			</div>
+			<style>
+			#content_cta div{
+				padding-top:0px;
+			}
+			</style>
+			<div id="content_cta" style="display:none;">
+			<?php
+			/*
+			?><table width='100%'>
+			<tr>
+				<td colspan=2 style='color:#000000; font-family:Arial; font-size:14px; font-weight:bold'>Buy a Romantic Gift</td>
+			</tr>
+			<tr>
+				<td valign='top'><img src='http://cdn.pieceoftheworld.com/images/cta1.png' /></td>
+				<td valign='top' style='color:#000000; font-family:Arial; font-size:12px;' >
+				 "The place where she said yes! I bought this to my wife on our anniversary" /Johan
+				</td>
+			</tr>
+			<tr>
+				<td colspan=2 style='color:#000000; font-family:Arial; font-size:14px; font-weight:bold'>Be Creative</td>
+			</tr>
+			<tr>
+				<td valign='top'><img src='http://cdn.pieceoftheworld.com/images/cta2.png' /></td>
+				<td valign='top' style='color:#000000; font-family:Arial; font-size:12px;' >
+				 "I bought Old Trafford because I’m a Liverpool fan" /Liverpool forever
+				</td>
+			</tr>
+			<tr>
+				<td colspan=2 style='color:#000000; font-family:Arial; font-size:14px; font-weight:bold'>Buy your own virtual place</td>
+			</tr>
+			<tr>
+				<td valign='top'><img src='http://cdn.pieceoftheworld.com/images/cta3.png' /></td>
+				<td valign='top' style='color:#000000; font-family:Arial; font-size:12px;' >
+				  "My very own beach! =)" /Sarah
+				</td>
+			</tr>
+			</table>
+			<?php
+			*/
+			?>
+			<table width='100%'>
+			<tr>
+				<td style='color:#000000; font-family:Arial; font-size:14px; font-weight:bold'>
+				<!--
+				<div><a style='font-size:16px; text-decoration:underline; color:#000000'>Welcome to pieceoftheworld.com</a></div>
+				<div>1. Zoom or Search</div>
+				<div>2. A grid will appear</div>
+				<div>3. Select the piece you want</div>
+				-->
+				<div><img src='images/intro_interscape.jpg'></div>
+				</td>
+			</tr>
+			</table>
 			</div>
 			<div id="content_facebook" style="display:none;">
 				<div id='userProfile'>
@@ -585,7 +842,7 @@ function closeIntro(type){
 				  </tr>
 				  <tr>
 					<td class="text_1">
-						<img src="http://cdn.pieceoftheworld.co/images/facebook_signin_icon.png" id="fbloginbutton" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
+						<img src="http://cdn.pieceoftheworld.com/images/facebook_signin_icon.png" id="fbloginbutton" width="150" height="22" border="0" style="cursor:pointer;" onClick="loginFb()" />
 					</td>
 				  </tr>
 				</table>
@@ -593,8 +850,14 @@ function closeIntro(type){
 			</div>
 		</div>
 	</div>
+	<?php
+	/*
+	?>
 	<div id="popup_bottom"></div>
-	<div id="popup_shadow"><img src="http://cdn.pieceoftheworld.co/images/interscape_shadow.png" border="0" /></div>
+	<?php
+	*/
+	?>
+	<div id="popup_shadow"><img src="http://cdn.pieceoftheworld.com/images/interscape_shadow.png" border="0" /></div>
 </div>
 <!--END OF POPUP-->
 <script type="text/javascript">
@@ -618,7 +881,7 @@ function closeIntro(type){
 		jQuery("#fbloginbutton").show();
 		FB.init({
 			appId      : '454736247931357', // App ID
-			channelUrl : '//pieceoftheworld.co/channel.html',
+			channelUrl : '//pieceoftheworld.com/channel.html',
 			status     : true, // check login status
 			cookie     : true, // enable cookies to allow the server to access the session
 			xfbml      : true  // parse XFBML
@@ -652,6 +915,18 @@ function closeIntro(type){
 				}
 			});
 		});
+		
+		<?php
+		if($_SESSION['signupfb']){
+			?>
+			//loginFb();
+			updateProfile();
+			openClosePopUp('facebook');
+			jQuery("#fbloginbutton").trigger("click");
+			<?php
+			//unset($_SESSION['signupfb']);
+		}
+		?>
 
 	};
 
@@ -672,7 +947,7 @@ function closeIntro(type){
 	} else {
 		jQuery("#userProfile").hide();
 		jQuery("#loginForm").show();
-		openClosePopUp('facebook');
+		openClosePopUp('cta');
 	}
 	
 	/****************************************************************************************************/
@@ -835,7 +1110,7 @@ function closeIntro(type){
 		else{
 			jQuery("#profile_name").html(data.content.useremail);
 		}
-		jQuery("#sign_in").html("<a class='text_1' style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \" >Profile</a>&nbsp;<a class=\"text_1\" style='cursor:pointer' onClick=\"logoutUser();\">Sign Out</a>");
+		jQuery("#sign_in").html('<a style=\'cursor:pointer\' class="link_1" onClick="logoutUser();">Sign Out</a>&nbsp;&nbsp;&nbsp;<a class="link_1" style="cursor:pointer;" onClick="updateProfile(); openClosePopUp(\'facebook\'); ">Profile</a>&nbsp;');
 	}
 
 	/*
@@ -900,7 +1175,7 @@ function closeIntro(type){
 			dataType: "html",
 			type: 'post',
 			async: true,
-			url: 'ajax/page_webuserLands.php?id='+idx,
+			url: 'ajax/page_webuserLands.php?id='+idx+'&t='+(new Date()).getTime(),
 			success: function(data){
 				jQuery('#ownedLandList').html(data);
 				/*
@@ -965,7 +1240,7 @@ function closeIntro(type){
 			url: "ajax/user_fxn.php?action=logout",
 			success: function(data){
 				//alert("about");
-				openClosePopUp("about");
+				openClosePopUp("cta");
 				if(data.status){
 					// if logged in via FB, then also logout the session
 					if(fbResponse){
@@ -976,7 +1251,8 @@ function closeIntro(type){
 					}
 					jQuery("#userProfile").hide();
 					jQuery("#loginForm").show();
-					jQuery("#sign_in").html("<a class=\"text_1\" style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \">Sign In</a>");
+					//jQuery("#sign_in").html("<a class=\"text_1\" style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \">Sign In</a>");
+					jQuery("#sign_in").html('<a onclick="updateProfile(); openClosePopUp(\'facebook\');" style="cursor:pointer;" class="link_1">Sign in</a>');
 					
 				}
 			}
@@ -984,9 +1260,18 @@ function closeIntro(type){
 	}
 	
 </script>
-<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.co/js/tagsinput/jquery.tagsinput.css" />
-<script type="text/javascript" src="http://cdn.pieceoftheworld.co/js/twitmarquee/twitmarquee.js"></script>
-<script type="text/javascript" src="http://cdn.pieceoftheworld.co/js/tagsinput/jquery.tagsinput.js"></script>
+<?php
+if($_SESSION['signupfb']){
+	unset($_SESSION['signupfb']);
+}
+?>
+<link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.com/js/tagsinput/jquery.tagsinput.css" />
+<script type="text/javascript" src="http://cdn.pieceoftheworld.com/js/twitmarquee/twitmarquee.js"></script>
+<script type="text/javascript" src="http://cdn.pieceoftheworld.com/js/tagsinput/jquery.tagsinput.js"></script>
+<!--IMAGE SLIDE SHOW-->
+<script type="text/javascript" src="http://cdn.pieceoftheworld.com/js/slideshow/slideshow.js" ></script>
+<!--END OF IMAGE SLIDE SHOW-->
+<script>startSlideShow(10000);</script>
 <script>
 jQuery(function(){
 

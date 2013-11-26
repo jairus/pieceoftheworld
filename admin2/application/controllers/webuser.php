@@ -10,7 +10,7 @@ class webuser extends CI_Controller {
 		$start += 0;
 		$limit = 50;
 				
-		$sql = "select id, useremail, fb_id, name, gender, location from `web_users` where 1 limit $start, $limit";
+		$sql = "select id, useremail, fb_id, name, gender, location from `web_users` where 1 order by `id` desc limit $start, $limit";
 		$export_sql = md5($sql);
 		$_SESSION['export_sqls'][$export_sql] = $sql;
 		$q = $this->db->query($sql);

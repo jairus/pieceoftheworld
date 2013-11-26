@@ -184,10 +184,10 @@ $t = count($records);
                 ?></td>
 			<td width='300px'>
 			<?php
-			if(trim($records[$i]['folder'])&&0){
+			if(trim($records[$i]['id'])){
 				?>
-				[ <a href="<?php echo "/gencert.php?f=".$records[$i]['folder'];	?>" target='_blank' >Generate Cert</a> ] 
-				[ <a href="<?php echo "/gencert.php?f=".$records[$i]['folder'];	?>&email=1" target='_blank' onclick='return confirm("Are you sure you want to resend certificate?");' >Resend Cert</a> ] 
+				[ <a href="<?php echo "/gencert.php?land_id=".$records[$i]['id'];	?>" target='_blank' >Download Cert</a> ] 
+				[ <a href="<?php echo "/gencert.php?land_id=".$records[$i]['id'];	?>&email=1" target='_blank' onclick='return confirm("Are you sure you want to resend certificate?");' >Resend Cert</a> ] 
 				<?php
 			}
 			?>

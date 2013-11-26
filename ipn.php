@@ -29,19 +29,20 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	//calculate discounted value
 	$discount = 0.1;
 	$discounted = $post['amount'];
-	$discounted = floor($discounted - ($discounted * $discount));
+	$discounted = $discounted - ($discounted * $discount);
 	
 	if(
-	
-		(
-			($_POST['mc_gross']+0)!=($post['amount']+0) &&
-			($_POST['mc_gross']+0)!=($discounted+0) 
+		(			
+			$_POST['mc_gross'] != $post['paypalvalue']
 		)
 		&&!$_GET['jairus']
 	){ //inconsistent amount
 		exit();
 	}
-	
+	$zfolder = $_GET['f'];
+	$txnId = "PAYPAL-".$_POST['txn_id'];
+	$mc_gross = $_POST['mc_gross'];
+	$affid = $_GET['affid'];
 	include_once(dirname(__FILE__)."/ipn_process.php");
 	
 }

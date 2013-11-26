@@ -25,6 +25,8 @@ class specialland extends CI_Controller {
 		$cnt = $q->result_array();
 		$pages = ceil($cnt[0]['cnt']/$limit);
 		
+		
+		
 		$data = array();
 		$data['records'] = $records;
 		$data['export_sql'] = $export_sql;

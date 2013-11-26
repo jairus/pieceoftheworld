@@ -1,4 +1,5 @@
 <?php
+	ob_start();
 	/*
 	$post
 		Array
@@ -15,12 +16,26 @@
 
 		)
 	*/
+	$receiptData = array(); // to be passed in receipt.php
 	
 	$useremail = trim($post['email']);
 	//if user email is invalid
 	if($useremail==""){
 		exit();
 	}
+	
+	
+	$receiptData['txnId'] = $txnId;	//from ipn.php or g2s_success.php		
+	$receiptData['fbdiscount'] = $post['fbdiscount'];	
+	$receiptData['affdiscount'] = $post['affdiscount'];		
+	$receiptData['paypalvalue'] = $post['paypalvalue'];	
+	$receiptData['affname'] = $post['affname'];	
+	$receiptData['purchaseDate'] = $post['payment_date'];		
+	$receiptData['totalAmount'] = $mc_gross; //from ipn.php or g2s_success.php		
+	$receiptData['buyerEmail'] = $useremail;	
+	$receiptData['landTitle'] = $post['title'];	
+	$receiptData['landDetail'] = $post['description'];	
+	$receiptData['landOwner'] = $post['land_owner'];
 	
 	//get web user id
 	if(trim($post['web_user_id'])){ //check if there is a passed id
@@ -32,21 +47,23 @@
 	$web_user = dbQuery($sql, $_dblink);
 	if($web_user[0]['id']){
 		$web_user_id = $web_user[0]['id'];
+		$receiptData['buyerName'] = $web_user[0]['name'];
 	}
 	else{
 		$sql = "insert into `web_users` set 
 			`useremail` = '".strtolower($post['email'])."',
 			`password` = '".md5($post['password'])."',
-			`plain_pass` = '".mysql_real_escape_string($post['password'])."',
-			`name` = '".mysql_real_escape_string($post['name'])."',
-			`country` = '".mysql_real_escape_string($post['country'])."'
+			`plain_pass` = '".mysql_real_escape_string($post['password'])."'
 		";
 		$web_user_id = dbQuery($sql, $_dblink);
 		$web_user_id = $web_user_id['mysql_insert_id'];
 	}
+	$receiptData['web_user_id'] = $web_user_id;	
 	
 	$coords = json_decode(stripslashes($post['coords']));
 	$points = $coords->points;
+	$receiptData['plot_list'] = $points;
+	
 	list($x, $y) = explode("-", $points[0]);
 	$sql = "select * from `land` where `x`='".$x."' and `y`='".$y."'";
 	$land = dbQuery($sql, $_dblink);
@@ -59,11 +76,15 @@
 			`title` = '".mysql_real_escape_string($post['title'])."',
 			`detail` = '".mysql_real_escape_string($post['description'])."',
 			`land_owner` = '".mysql_real_escape_string($post['land_owner'])."',
+			`category_id` = '".mysql_real_escape_string($post['categoryid'])."',
+			`tags` = '".mysql_real_escape_string($post['tags'])."',
 			`web_user_id`='".$web_user_id."',
 			`datebought`=NOW()
 			where `id` = '".$land_special_id."'
 		";
 		dbQuery($sql, $_dblink);
+		$receiptData['isSpecialLand'] = true;
+		$receiptData['landId'] = $land[0]['land_special_id'];
 		
 		//set the land
 		//get the points
@@ -121,20 +142,26 @@
 						";
 						echo $sql."<br>";
 						dbQuery($sql, $_dblink);
+						$receiptData['pixFilename'] = $picture;
 					}
 				}
 			}
 		}
 	}
 	else{
+		$receiptData['isSpecialLand'] = false;
+		
 		//insert land detail
 		$sql = "insert into `land_detail` set
 			`title` = '".mysql_real_escape_string($post['title'])."',
 			`detail` = '".mysql_real_escape_string($post['description'])."',
-			`land_owner` = '".mysql_real_escape_string($post['land_owner'])."'
+			`land_owner` = '".mysql_real_escape_string($post['land_owner'])."',
+			`category_id` = '".mysql_real_escape_string($post['categoryid'])."',
+			`tags` = '".mysql_real_escape_string($post['tags'])."'
 		";
 		$land_detail_id = dbQuery($sql, $_dblink);
 		$land_detail_id = $land_detail_id['mysql_insert_id'];
+		$receiptData['landId'] = $land_detail_id;
 		
 		//set the land
 		//get the points
@@ -192,6 +219,7 @@
 						";
 						echo $sql."<br>";
 						dbQuery($sql, $_dblink);
+						$receiptData['pixFilename'] = $picture;
 					}
 				}
 			}
@@ -199,35 +227,20 @@
 	
 	}
 	
-
-	
-	
-	//if there is an affiliate
-	if(trim($_GET['affid'])){
-		$sql = "select * from `affiliates` where `id`='".$_GET['affid']."' and `active`=1";
-		$r = dbQuery($sql, $_dblink);
-		$r = $r[0];
-		if($r['id']){
-			$rate = trim($r['commissionrate']);
-			//if percentage
-			if(strpos($rate, "%")!==false){
-				$rate = $rate*1;
-				$rate = $rate/100;
-				$commission = $_POST['mc_gross']*$rate;
+	//tags
+	$tags = explode(",",$post['tags']);
+	foreach($tags as $tag){
+		if(trim($tag)){
+			$sql = "select * from `tags` where LOWER(`name`) = '".mysql_real_escape_string(strtolower(trim($tag)))."'";
+			$itag = dbQuery($sql, $_dblink);
+			if($itag[0]){
+				$sql = "update `tags` set `useCounter` = (`useCounter`+1) where `name` = '".mysql_real_escape_string(trim($tag))."'";
+				dbQuery($sql, $_dblink);
 			}
-			//if fixed
 			else{
-				$rate = $rate*1;
-				$commission = $rate;
+				$sql = "insert into `tags` set `useCounter` = 1, `name` = '".mysql_real_escape_string(trim($tag))."'";
+				dbQuery($sql, $_dblink);
 			}
-			
-			$sql = "insert into `affiliate_commissions` set 
-				`affiliate_id`='".$r['id']."',
-				`server_json`='".mysql_real_escape_string(json_encode($_SERVER))."',
-				`commission` = '".$commission."',
-				`dateadded`=NOW()
-			";
-			dbQuery($sql, $_dblink);
 		}
 	}
 	
@@ -243,61 +256,23 @@
 	//delete pictures_special
 	$sql  = "DELETE FROM `pictures_special` WHERE `land_special_id` not in (select `id` from `land_special`)";
 	dbQuery($sql, $_dblink);
-	
-	
-	/*
-	if ($land_special_id != -1) {
-		$sql = "UPDATE land_special SET owner_user_id=".$owner_user_id.", title='".mysql_real_escape_string($title)."', detail='".mysql_real_escape_string($detail)."', picture='".$picture."' WHERE id=".$land_special_id;
-		$result = mysql_query($sql);
-	}
-	mysql_close($con);
-	*/
-	
-	// Send email
-	$from = "noreply@pieceoftheworld.co";
-	$fromname = "PieceOfTheWorld.com";
-	$bouncereturn = "pieceoftheworld2013@gmail.com"; //where the email will forward in cases of bounced email
-	$subject = "Land purchased by $useremail";
-	$message = "Purchased land has been associated with the below given information:<br /><br />";
-	$message .= "Email: ".$useremail."<br />";
-	$message .= "Title: ".$title."<br />";
-	$message .= "Detail: ".$detail."<br />";
-	$message .= "Picture: (Attached)<br /><br />";
-	$message .= "This following plots have been purchased:<br /><br />";
-	foreach ($plot_list as $tPlot) {
-		$message .= $tPlot."\r\n";
-	}
-	$iid = mysql_insert_id();
-	if($iid){
-		$message .= "ID: ".$iid."\r\n";
-	}
-	
-	$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
-	$emails[0]['name'] = "pieceoftheworld2013@gmail.com";
-	$emails[1]['email'] = "fuzylogic28@gmail.com";
-	$emails[1]['name'] = "fuzylogic28@gmail.com";
-	$attachments[0] = $post['filename'];
-	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1); //last parameter for running debug
-	
-	
-	$file = "http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f'];
+		
+	// create certificate
+	$file = "http://pieceoftheworld.com/certificate/generate_cert.php?f=".$zfolder;
 	$contents = file_get_contents($file);
 	$filename = "certificate.pdf";
 	file_put_contents($uploads_dir."/".$filename, $contents);
 	
-	$from = "noreply@pieceoftheworld.co";
-	$fromname = "PieceOfTheWorld.com";
-	$bouncereturn = "pieceoftheworld2013@gmail.com"; //where the email will forward in cases of bounced email
-	$message = "<b>Thank you for your purchase. You now own a piece of the world!</b><br/>
-	It usually takes a few minutes before your purchased piece of the world appears on the map. If it should not appear or you have any other questions, please contact pieceoftheworld2013@gmail.com.
-	";
+	$receiptData['certFilename'] = $uploads_dir."/".$filename;
 	
-	$emails[0]['email'] = "pieceoftheworld2013@gmail.com";
-	$emails[0]['name'] = "pieceoftheworld2013@gmail.com";
-	$emails[1]['email'] = "fuzylogic28@gmail.com";
-	$emails[1]['name'] = "fuzylogic28@gmail.com";
-	$emails[2]['email'] = $useremail;
-	$emails[2]['name'] = $useremail;
-	$attachments[0] = $receiptData['certFilename']; //jairus
-	emailBlast($from, $fromname, $subject, $message, $emails, $bouncereturn, $attachments,  1); //last parameter for running debug
+	$receiptData['affid'] = $affid; //from ipn.php or g2s_success.php
+	
+	print_r($receiptData);
+	
+	require_once(dirname(__FILE__)."/receipt.php");
+	$receiptStat = generateEmailReceipt($receiptData);
+	ob_end_clean();
 ?>
+<script>
+self.location = 'http://pieceoftheworld.com/ppc2.php';
+</script>

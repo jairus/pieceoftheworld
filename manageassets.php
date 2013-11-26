@@ -280,7 +280,20 @@ if($_GET['assettype']=='videos'){
 else if($_GET['assettype']=='images'){
 	if($_GET['landtype']=='land_detail'){ //normal land
 		if($_FILES){
+			$pieces = explode("/", $_POST['folder']);
+			//print_r($pieces);
+			
+			$t = count($pieces);
+			for($i=0; $i<$t; $i++){
+				$str = "";
+				for($j=0; $j<=$i; $j++){
+					$str.=$pieces[$j]."/";
+				}
+				$folder = dirname(__FILE__)."/_uploads2/".$str;
+				@mkdir($folder, 0777);
+			}
 			$folder = dirname(__FILE__)."/_uploads2/".$_POST['folder']."/";
+			//echo $folder;
 			$http = "http%3A//pieceoftheworld.co/_uploads2/".$_POST['folder']."/";
 			$newfilename = $folder.$_FILES['image']['name'];
 			while(file_exists($newfilename)){
@@ -390,7 +403,7 @@ else if($_GET['assettype']=='images'){
 			echo "<tr></table>";
 		}
 		else{
-			$sql = "select `id` from `land` where `web_user_id`='".$web_user_id."' order by `id` asc limit 1 ";
+			$sql = "select `id` from `land` where `web_user_id`='".$web_user_id."' and `land_detail_id`='".$_GET['id']."' order by `id` asc limit 1 ";
 			$folder = dbQuery($sql, $_dblink);
 			$folder = "land/".$folder[0]['id']."/images";
 			?>

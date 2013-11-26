@@ -169,42 +169,96 @@ else{
 ?>
 <tr>
 <td width='50%'> 
-	<table width="100%">
-		<tr class="odd required">
-		  <td>* Name:</td>
-		  <td><input type="text" name="title" size="40"></td>
-		</tr>
-		<tr class="even required">
-		  <td>* Website:</td>
-		  <td><input type="text" name="website" size="40"></td>
-		</tr>
-		<tr class="odd required">
-		  <td>* Commission Rate:</td>
-		  <td><input type="text" name="commissionrate" size="40"><div class='hint'>e.g. 5% (for percentage) 5.0 (for fixed commission value)</div></td>
-		</tr>
-		<tr class="even required">
-		  <td>E-mail:</td>
-		  <td><input type="text" name="email" size="40"></td>
-		</tr>
-		<tr class="odd">
-		  <td>Active?</td>
-		  <td><input type="checkbox" name="active" value="1" checked="checked" />
-		  </td>
-		</tr>
-	</table>
+	<?php
+	if(!$_SESSION['user']['affiliate']){
+		?>
+		<table width="100%">
+			<tr class="odd required">
+			  <td>* Name:</td>
+			  <td><input type="text" name="title" size="40"></td>
+			</tr>
+			<tr class="even required">
+			  <td>* Website:</td>
+			  <td><input type="text" name="website" size="40"></td>
+			</tr>
+			<tr class="odd required">
+			  <td>* Commission Rate:</td>
+			  <td><input type="text" name="commissionrate" size="40"><div class='hint'>e.g. 5% (for percentage) 5.0 (for fixed commission value)</div></td>
+			</tr>
+			<tr class="even required">
+			  <td>Discount Rate:</td>
+			  <td><input type="text" name="discountrate" size="40"><div class='hint'>e.g. 5% (for percentage) 5.0 (for fixed discount value)</div></td>
+			</tr>
+			<tr class="odd required">
+			  <td>E-mail:</td>
+			  <td><input type="text" name="email" size="40"></td>
+			</tr>
+			<tr class="even required">
+			  <td>Password:</td>
+			  <td><input type="text" name="password" size="40"></td>
+			</tr>
+			<tr class="odd">
+			  <td>Active?</td>
+			  <td><input type="checkbox" name="active" value="1" checked="checked" />
+			  </td>
+			</tr>
+		</table>
+		<?php
+	}
+	else{
+		?>
+		<table width="100%">
+			<tr class="odd required">
+			  <td>* Name:</td>
+			  <td><input type="text" name="title" size="40" disabled></td>
+			</tr>
+			<tr class="even required">
+			  <td>* Website:</td>
+			  <td><input type="text" name="website" size="40" disabled></td>
+			</tr>
+			<tr class="odd required">
+			  <td>* Commission Rate:</td>
+			  <td><input type="text" name="commissionrate" size="40" disabled></td>
+			</tr>
+			<tr class="even required">
+			  <td>Discount Rate:</td>
+			  <td><input type="text" name="discountrate" size="40" disabled></td>
+			</tr>
+			<tr class="odd required">
+			  <td>E-mail:</td>
+			  <td><input type="text" name="email" size="40" disabled></td>
+			</tr>
+		</table>
+		<?php
+	}
+	?>
 </td>
 <td width='50%'>
 	<table width="100%">
-		<tr class="even">
-		  <td>More Details:</td>
-		  <td><textarea name="detail"></textarea></td>
-		</tr>
+		<?php
+		if(!$_SESSION['user']['affiliate']){
+			?>
+			<tr class="even">
+			  <td>More Details:</td>
+			  <td><textarea name="detail"></textarea></td>
+			</tr>
+			<?php
+		}
+		else{
+			?>
+			<tr class="even">
+			  <td>More Details:</td>
+			  <td><textarea name="detail" disabled></textarea></td>
+			</tr>
+			<?php
+		}
+		?>
 		<?php
 		if($record['id']){
 			?>
 			<tr class="odd">
 			  <td>URL:</td>
-			  <td><a href='<?php echo site_url2()."?affid=".($record['id']); ?>' target='_blank'>Link</a></td>
+			  <td><a href='<?php echo site_url2()."?a=".($record['id']); ?>' target='_blank'>Link</a></td>
 			</tr>
 			<tr class="even required">
 			  <td>Clicks:</td>
@@ -214,27 +268,72 @@ else{
 			  <td>Total Commission:</td>
 			  <td><?php echo $record['commission']; ?></td>
 			</tr>
+			<tr class="even required">
+			  <td>Total Gross:</td>
+			  <td><?php echo $record['gross']; ?></td>
+			</tr>
 			<?php
 		}
 		?>
   </table>
 </td>
 </tr>
-
 <tr>
 	<td colspan="2" class='center'>
-		<table width='100%'>
+	<?php
+	$transactions = $record['transactions'];
+	?>
+	<table width="100%">
 		<tr>
-			<td width=100%>
-				<input type="button" id='savebutton' value="Save" onclick="saveRecord()" />
-			</td>
-			<?php 
-			if($record['id']){
-				?><td><input type="button" style='background:red; color:white' value="Delete" onclick="deleteRecord('<?php echo $record['id']; ?>')" /></td><?php
-			}
-			?>
+		  <td colspan=4><b>Last 10 Transactions</td>
 		</tr>
-		</table>
+		<tr>
+			<td width='25%' class='even'><b>Receipt No.</td>
+			<td width='25%' class='even'><b>Gross</td>
+			<td width='25%' class='even'><b>Commission</td>
+			<td width='25%' class='even'><b>Date</td>
+		</tr>
+		<?php
+		$t = count($transactions);
+		for($i=0; $i<$t; $i++){
+			?>
+			<tr>
+				<td width='25%'><?php echo $transactions[$i]['transaction_id']; ?></td>
+				<td width='25%'><?php echo $transactions[$i]['gross']; ?></td>
+				<td width='25%'><?php echo $transactions[$i]['commission']; ?></td>
+				<td width='25%'><?php echo date("M d, Y H:i:s", strtotime($transactions[$i]['dateadded'])); ?></td>
+			</tr>
+			<?php
+		}
+		?>
+	</table>
+	</td>
+</tr>
+<tr>
+	<td colspan="2" class='center'>
+		<?php
+		if(!$_SESSION['user']['affiliate']){
+			?>
+			<table width='100%'>
+			<tr>
+				<td width=100%>
+					<input type="button" id='savebutton' value="Save" onclick="saveRecord()" />
+				</td>
+				<?php 
+				if($record['id']){
+					?><td><input type="button" style='background:red; color:white' value="Delete" onclick="deleteRecord('<?php echo $record['id']; ?>')" /></td><?php
+				}
+				?>
+			</tr>
+			</table>
+			<?php
+		}
+		else{
+			?>
+			
+			<?php
+		}
+		?>
 	</td>
 </tr>
 </td>
@@ -244,7 +343,9 @@ else{
 <?php
 if($record){
 	foreach($record as $key=>$value){
-		if($key=="active"){
+		if($key=="transactions"){
+		}
+		else if($key=="active"){
 			if($value=="1"){
 				?>
 				jQuery('[name="<?php echo $key; ?>"]').attr("checked", true);

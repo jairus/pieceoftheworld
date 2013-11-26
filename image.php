@@ -1,10 +1,19 @@
 <?php
 require_once 'ajax/global.php';
 
-if($_GET['marker']){
 
+if($_GET['marker']){
+	
 	// Set the content-type
 	header('Content-Type: image/png');
+	
+	$cache = dirname(__FILE__)."/_pins/".md5($_SERVER['REQUEST_URI']).".png";
+	
+	if(file_exists($cache)){
+		echo file_get_contents($cache);
+		exit();
+	}
+	
 	// Create the image
 	if($_GET['red']){
 		//$im = imagecreatefrompng(dirname(__FILE__)."/images/marker_red.png");
@@ -51,6 +60,7 @@ if($_GET['marker']){
 	imagealphablending($im, true);	
 	imagesavealpha($im, true);
 	imagepng($im, null, 9);
+	imagepng($im, $cache, 9);
 	imagedestroy($im);
 	exit();
 	
@@ -78,23 +88,27 @@ else if($_GET['special']){
 	}
 }
 else if($_GET['dir']){
-		$picture = explode("/_uploads2/", base64_decode($_GET['dir']));
-		$dir = dirname($picture[1]);
-		$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
-		if(!file_exists($picturex)){
-			$picturex = dirname(__FILE__)."/_uploads2/".urldecode($picture[1]);
+	
+	$picture = explode("/_uploads2/", base64_decode($_GET['dir']));
+	
+	print_r($_GET);
+	exit();
+	$dir = dirname($picture[1]);
+	$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
+	if(!file_exists($picturex)){
+		$picturex = dirname(__FILE__)."/_uploads2/".urldecode($picture[1]);
+	}
+	$picture = $picturex;
+	if(file_exists($picture)){
+		header("Content-Type: image/png");
+		if(!$_GET['w']&&!$_GET['h']){
+			showThumbx($picture, 132, 78);
 		}
-		$picture = $picturex;
-		if(file_exists($picture)){
-			header("Content-Type: image/png");
-			if(!$_GET['w']&&!$_GET['h']){
-				showThumbx($picture, 132, 78);
-			}
-			else{
-				showThumbx($picture, $_GET['w'], $_GET['h']);
-			}
+		else{
+			showThumbx($picture, $_GET['w'], $_GET['h']);
 		}
-		exit();
+	}
+	exit();
 }
 else{
 	$sql = "select * from `pictures` where `land_id`='".$_GET['land_detail_id']."' and isMain=1";

@@ -61,6 +61,19 @@ if($_POST['type']){ //saving on edit of land
 $rs = getLands($webUserId);
 
 if(empty($rs['land_detail']) && empty($rs['land_special']) ){
+	?>
+	<table width="100%">
+		<tbody><tr>
+			<td style="color:#000000; font-family:Arial; font-size:14px; font-weight:bold">
+			<?php
+			echo "<center>You currently dont own any virtual land.</center>";
+			?>
+			<div><img src="images/intro_interscape.jpg"></div>
+			</td>
+		</tr>
+		</tbody></table>
+
+	<?php
 } 
 else {
 	//echo "<pre>";
@@ -112,144 +125,231 @@ else {
 	$ldt = count($rs['land_detail']);
 	$lst = count($rs['land_special']);
 	for($i=0; $i<$ldt; $i++){
+		$prefix1 = "landdetail_";
+		$prefix2 = "land_detail";
 		?>
-		<div id='landdetail_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
-			<?php
-			/*
-			<div class='div'><?php echo $rs['land_detail'][$i]['detail']; ?></div>
-			$pt = count($rs['land_detail'][$i]['pictures']);
-			if($pt){
-				if($pt%2){
-					$pt+=1;
-				}
-				echo "<table style='width:284px; margin-top:1px;' cellpadding=0 cellspacing=4 >";
-				for($j=0; $j<$pt; $j++){
-					if($j==0){
-						echo "<tr>";
-					}
-					else if($j%2==0){
-						echo "</tr><tr>";
-					}
-					?>
-					<td style='background:#00A4DA; width:50%; text-align:center; padding: 2px 0px 2px 0px; vertical-align:middle' ><?php 
-					if(trim($rs['land_detail'][$i]['pictures'][$j]['picture'])){
-						?><img src='/image.php?dir=<?php echo base64_encode($rs['land_detail'][$i]['pictures'][$j]['picture']); ?>' /><?php
-					}
-					else{
-						echo "&nbsp;";
-					}
-					?></td>
-					<?php
-				}
-				echo "<tr></table>";
-			}
-			*/
-			$imgdir = $rs['land_detail'][$i]['pictures'][0]['picture'];
-			
+		<div id='<?php echo $prefix1; ?><?php echo $rs[$prefix2][$i]['id']; ?>' style='display:none'>
+		<?php
+		$imgdir = $rs[$prefix2][$i]['pictures'][0]['picture'];
+		if(!trim($imgdir)){
+			$imgdir = dirname(__FILE__)."/../images/place_holder_default.jpg";
+			$imgurl = "http://pieceoftheworld.co/image.php?abs=".base64_encode($imgdir)."&w=290&h=150";
+		}
+		else{
 			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=290&h=150";
-			$imgurl = urlencode($imgurl);
-			$x1 = $rs['land_detail'][$i]['land'][0]['x'];
-			$y1 = $rs['land_detail'][$i]['land'][0]['y'];
-			$sharetitle = $rs['land_detail'][$i]['title'];
-			$sharetext = $rs['land_detail'][$i]['detail'];
-			if(!$sharetitle){
-				$sharetitle = "Mark your very own Piece of the World!";
-			}
-			if(!$sharetext){
-				$sharetext = "Get your own piece of the world at pieceoftheworld.com";
-			}
-			$link = "http://pieceoftheworld.co/?xy=".$x1."~".$y1;
-			$sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link=".$link."&picture=".$imgurl."&name=Piece of the World&caption=".$sharetitle."&description=".$sharetext."&redirect_uri=".$link;
-			$likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='.$link.'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
-			
-			if(trim($imgdir)){
-				?>
-				<div align="center">
-					<div class="img" style='padding-top:7px; padding-bottom:7px;'>
-						<a title="" class="xcboxElement">
-						<img src='/image.php?dir=<?php echo base64_encode($imgdir); ?>&w=290&h=150' />
-						</a>
-					</div>
+		}
+		
+		//teleportid
+		$teleportid = $prefix1.$rs[$prefix2][$i]['id']."_".$rs[$prefix2][$i]['land'][0]['x']."_".$rs[$prefix2][$i]['land'][0]['y'];
+		
+		$imgurl_d = $imgurl;
+		$imgurl = urlencode($imgurl);
+
+		$x1 = $rs[$prefix2][$i]['land'][0]['x'];
+		$y1 = $rs[$prefix2][$i]['land'][0]['y'];
+		$sharetitle = $rs[$prefix2][$i]['title'];
+		$sharetext = $rs[$prefix2][$i]['detail'];
+		if(!$sharetitle){
+			$sharetitle = "Mark your very own Piece of the World!";
+		}
+		if(!$sharetext){
+			$sharetext = "Get your own piece of the world at pieceoftheworld.com";
+		}
+		$link = "http://pieceoftheworld.com/?xy=".$x1."~".$y1;
+		$sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link=".$link."&picture=".$imgurl."&name=Piece of the World&caption=".$sharetitle."&description=".$sharetext."&redirect_uri=".$link;
+		$likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='.$link.'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+
+		if(trim($imgdir)){
+			?>
+			<div align="center">
+				<div class="img" style='padding-top:7px; padding-bottom:7px;'>
+					<a title="" class="xcboxElement">
+					<img src='<?php echo $imgurl_d; ?>' onclick="landDetails('<?php echo $teleportid?>')" style='cursor:pointer' />
+					</a>
 				</div>
+			</div>
+			<?php
+		}
+		?>
+		<table width="290" cellspacing="0" cellpadding="0" border="0">
+		  <tbody><tr class='details'>
+			<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
+			<td style="display: table-cell;"><?php echo $likehtml; ?></td>
+			<td></td>
+		  </tr>
+		  <tr class='details'>
+			<td height="5" colspan="3"></td>
+		  </tr>
+		  <tr class='details'>
+			<td colspan="3" class="text_1">
+				<span><?php echo $rs[$prefix2][$i]['detail']; ?></span>
+			</td>
+		  </tr>
+		  <tr class='details'>
+			<td colspan="3" height="5"></td>
+		  </tr>
+		  <tr class='details'>
+			<td colspan="3" class="text_1" align="right">
+			<?php
+			if($rs[$prefix2][$i]['land_owner']){
+				?>
+				<div>Owner: <?php echo $rs[$prefix2][$i]['land_owner']; ?></div></td>
 				<?php
 			}
 			?>
-			<table width="290" cellspacing="0" cellpadding="0" border="0">
-			  <tbody><tr class='details'>
-				<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
-				<td style="display: table-cell;"><?php echo $likehtml; ?></td>
-				<td></td>
-			  </tr>
-			  <tr class='details'>
-				<td height="5" colspan="3"></td>
-			  </tr>
-			  <tr class='details'>
-				<td colspan="3" class="text_1">
-					<span><?php echo $rs['land_detail'][$i]['detail']; ?></span>
-				</td>
-			  </tr>
-			  <tr class='details'>
-				<td colspan="3" height="5"></td>
-			  </tr>
-			  <tr class='details'>
-				<td colspan="3" class="text_1" align="right">
-				<?php
-				if($rs['land_detail'][$i]['land_owner']){
-					?>
-					<div>Owner: <?php echo $rs['land_detail'][$i]['land_owner']; ?></div></td>
-					<?php
-				}
-				?>
-				
-			  </tr>
-			  <!--
-			  <tr>
-				<td colspan="3" class="text_1" align="right"><div>Highest Bid: </div></td>
-			  </tr>
-			  -->
-			  <tr class='details'>
-				<td colspan="3" height="10"></td>
-			  </tr>
-			  <tr  class="editor" style='display:none' >
-				<td colspan=3 class='text_1'>
-					<form id='landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>' style='margin:0px;'>
-						<input type='hidden' name='type' value='landdetail' />
-						<input type='hidden' name='id' value='<?php echo $rs['land_detail'][$i]['id']; ?>' />
-						Title:<br />
-						<input style='width:285px; color:black;' class='text_1' name='title' type='text' value="<?php echo htmlentities(utf8_decode($rs['land_detail'][$i]['title'])); ?>" /><br />
-						Details:<br />
-						<textarea style='width:285px; color:black; height:40px;' class='text_1' name='detail'><?php echo htmlentities(utf8_decode($rs['land_detail'][$i]['detail'])); ?></textarea><br />
-						Land Owner:<br />
-						<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities(utf8_decode($rs['land_detail'][$i]['land_owner'])); ?>" /><br /><br />
-						<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("landdetail_form_<?php echo $rs['land_detail'][$i]['id']; ?>", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>")' />
-					</form>
-					<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".details").show();  jQuery(".editbuttons").show();' />
-				</td>
-			  </tr>
-			  <tr class='editbuttons'>
-				<td colspan="3" class="text_1" align='center'>
-					<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".details").hide();  jQuery(".editbuttons").hide();' />
-					<input class='longbutton' style="display: block;" type='button' value="Manage Images" onclick='manageAssets("<?php echo htmlentities($rs['land_detail'][$i]['id']);?>", "land_detail", "images", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
-					<input class='longbutton' style="display: block;" type='button' value="Manage Videos" onclick='manageAssets("<?php echo htmlentities($rs['land_detail'][$i]['id']);?>", "land_detail", "videos", "<?php echo "landdetail_".$rs['land_detail'][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
-				</td>
-			  </tr>
-			  <tr>
-				<td colspan="3" height="10"></td>
-			  </tr>
-			</tbody>
-			</table>
 			
-			
-			
-			
+		  </tr>
+		  <!--
+		  <tr>
+			<td colspan="3" class="text_1" align="right"><div>Highest Bid: </div></td>
+		  </tr>
+		  -->
+		  <tr class='details'>
+			<td colspan="3" height="10"></td>
+		  </tr>
+		  <tr  class="editor" style='display:none' >
+			<td colspan=3 class='text_1'>
+				<form id='<?php echo $prefix1; ?>form_<?php echo $rs[$prefix2][$i]['id']; ?>' style='margin:0px;'>
+					<input type='hidden' name='type' value='landdetail' />
+					<input type='hidden' name='id' value='<?php echo $rs[$prefix2][$i]['id']; ?>' />
+					Title:<br />
+					<input style='width:285px; color:black;' class='text_1' name='title' type='text' value="<?php echo htmlentities(utf8_decode(stripslashes($rs[$prefix2][$i]['title']))); ?>" /><br />
+					Details:<br />
+					<textarea style='width:285px; color:black; height:40px;' class='text_1' name='detail'><?php echo htmlentities(utf8_decode(stripslashes($rs[$prefix2][$i]['detail']))); ?></textarea><br />
+					Land Owner:<br />
+					<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities(utf8_decode(stripslashes($rs[$prefix2][$i]['land_owner']))); ?>" /><br /><br />
+					<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("<?php echo $prefix1; ?>form_<?php echo $rs[$prefix2][$i]['id']; ?>", "<?php echo $prefix1.$rs[$prefix2][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>")' />
+				</form>
+				<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".details").show();  jQuery(".editbuttons").show();' />
+			</td>
+		  </tr>
+		  <tr class='editbuttons'>
+			<td colspan="3" class="text_1" align='center'>
+				<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".details").hide();  jQuery(".editbuttons").hide();' />
+				<input class='longbutton' style="display: block;" type='button' value="Manage Images" onclick='manageAssets("<?php echo htmlentities($rs[$prefix2][$i]['id']);?>", "<?php echo $prefix2; ?>", "images", "<?php echo $prefix1.$rs[$prefix2][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
+				<input class='longbutton' style="display: block;" type='button' value="Manage Videos" onclick='manageAssets("<?php echo htmlentities($rs[$prefix2][$i]['id']);?>", "<?php echo $prefix2; ?>", "videos", "<?php echo $prefix1.$rs[$prefix2][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
+			</td>
+		  </tr>
+		  <tr>
+			<td colspan="3" height="10"></td>
+		  </tr>
+		</tbody>
+		</table>
 		</div>
 		<?php
 	}
 	
 	for($i=0; $i<$lst; $i++){
+		$prefix1 = "landspecial_";
+		$prefix2 = "land_special";
 		?>
-		<div id='landspecial_<?php echo $rs['land_detail'][$i]['id']; ?>' style='display:none'>
-			<div class='div'><?php echo $rs['land_detail'][$i]['detail']; ?></div>
+		<div id='<?php echo $prefix1; ?><?php echo $rs[$prefix2][$i]['id']; ?>' style='display:none'>
+		<?php
+		$imgdir = $rs[$prefix2][$i]['pictures'][0]['picture'];
+		if(!trim($imgdir)){
+			$imgdir = dirname(__FILE__)."/../images/place_holder_default.jpg";
+			$imgurl = "http://pieceoftheworld.co/image.php?abs=".base64_encode($imgdir)."&w=290&h=150";
+		}
+		else{
+			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=290&h=150";
+		}
+		
+		//teleportid
+		$teleportid = $prefix1.$rs[$prefix2][$i]['id']."_".$rs[$prefix2][$i]['land'][0]['x']."_".$rs[$prefix2][$i]['land'][0]['y'];
+
+		$imgurl_d = $imgurl;
+		$imgurl = urlencode($imgurl);
+
+		$x1 = $rs[$prefix2][$i]['land'][0]['x'];
+		$y1 = $rs[$prefix2][$i]['land'][0]['y'];
+		$sharetitle = $rs[$prefix2][$i]['title'];
+		$sharetext = $rs[$prefix2][$i]['detail'];
+		if(!$sharetitle){
+			$sharetitle = "Mark your very own Piece of the World!";
+		}
+		if(!$sharetext){
+			$sharetext = "Get your own piece of the world at pieceoftheworld.com";
+		}
+		$link = "http://pieceoftheworld.com/?xy=".$x1."~".$y1;
+		$sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link=".$link."&picture=".$imgurl."&name=Piece of the World&caption=".$sharetitle."&description=".$sharetext."&redirect_uri=".$link;
+		$likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='.$link.'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+
+		if(trim($imgdir)){
+			?>
+			<div align="center">
+				<div class="img" style='padding-top:7px; padding-bottom:7px;'>
+					<a title="" class="xcboxElement">
+					<img src='<?php echo $imgurl_d; ?>' onclick="landDetails('<?php echo $teleportid?>')" style='cursor:pointer' />
+					</a>
+				</div>
+			</div>
+			<?php
+		}
+		?>
+		<table width="290" cellspacing="0" cellpadding="0" border="0">
+		  <tbody><tr class='details'>
+			<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
+			<td style="display: table-cell;"><?php echo $likehtml; ?></td>
+			<td></td>
+		  </tr>
+		  <tr class='details'>
+			<td height="5" colspan="3"></td>
+		  </tr>
+		  <tr class='details'>
+			<td colspan="3" class="text_1">
+				<span><?php echo $rs[$prefix2][$i]['detail']; ?></span>
+			</td>
+		  </tr>
+		  <tr class='details'>
+			<td colspan="3" height="5"></td>
+		  </tr>
+		  <tr class='details'>
+			<td colspan="3" class="text_1" align="right">
+			<?php
+			if($rs[$prefix2][$i]['land_owner']){
+				?>
+				<div>Owner: <?php echo $rs[$prefix2][$i]['land_owner']; ?></div></td>
+				<?php
+			}
+			?>
+			
+		  </tr>
+		  <!--
+		  <tr>
+			<td colspan="3" class="text_1" align="right"><div>Highest Bid: </div></td>
+		  </tr>
+		  -->
+		  <tr class='details'>
+			<td colspan="3" height="10"></td>
+		  </tr>
+		  <tr  class="editor" style='display:none' >
+			<td colspan=3 class='text_1'>
+				<form id='<?php echo $prefix1; ?>form_<?php echo $rs[$prefix2][$i]['id']; ?>' style='margin:0px;'>
+					<input type='hidden' name='type' value='landdetail' />
+					<input type='hidden' name='id' value='<?php echo $rs[$prefix2][$i]['id']; ?>' />
+					Title:<br />
+					<input style='width:285px; color:black;' class='text_1' name='title' type='text' value="<?php echo htmlentities(utf8_decode(stripslashes($rs[$prefix2][$i]['title']))); ?>" /><br />
+					Details:<br />
+					<textarea style='width:285px; color:black; height:40px;' class='text_1' name='detail'><?php echo htmlentities(utf8_decode(stripslashes($rs[$prefix2][$i]['detail']))); ?></textarea><br />
+					Land Owner:<br />
+					<input style='width:285px; color:black;' class='text_1' name='land_owner' type='text' value="<?php echo htmlentities(utf8_decode(stripslashes($rs[$prefix2][$i]['land_owner']))); ?>" /><br /><br />
+					<input class='longbutton' style="display: block;" type='button' value="Save" onclick='saveLandDetails("<?php echo $prefix1; ?>form_<?php echo $rs[$prefix2][$i]['id']; ?>", "<?php echo $prefix1.$rs[$prefix2][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>")' />
+				</form>
+				<input class='longbutton' style="display: block;" type='button' value="Back" onclick='jQuery(".editor").hide(); jQuery(".details").show();  jQuery(".editbuttons").show();' />
+			</td>
+		  </tr>
+		  <tr class='editbuttons'>
+			<td colspan="3" class="text_1" align='center'>
+				<input class='longbutton' style="display: block;" type='button' value="Edit" onclick='jQuery(".editor").show(); jQuery(".details").hide();  jQuery(".editbuttons").hide();' />
+				<input class='longbutton' style="display: block;" type='button' value="Manage Images" onclick='manageAssets("<?php echo htmlentities($rs[$prefix2][$i]['id']);?>", "<?php echo $prefix2; ?>", "images", "<?php echo $prefix1.$rs[$prefix2][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
+				<input class='longbutton' style="display: block;" type='button' value="Manage Videos" onclick='manageAssets("<?php echo htmlentities($rs[$prefix2][$i]['id']);?>", "<?php echo $prefix2; ?>", "videos", "<?php echo $prefix1.$rs[$prefix2][$i]['id']; ?>_<?php echo $x1; ?>_<?php echo $y1; ?>");' />
+			</td>
+		  </tr>
+		  <tr>
+			<td colspan="3" height="10"></td>
+		  </tr>
+		</tbody>
+		</table>
 		</div>
 		<?php
 	}
@@ -310,12 +410,14 @@ else {
 	</script>
 	<?php
 	echo "<select id='ownedlands' class='select' onchange='landDetails(this.value)' style='text-align:center'>";
-	
+	$land_count = 0;
 	for($i=0; $i<$ldt; $i++){
-		echo "<option style='text-align:center' value='landdetail_".$rs['land_detail'][$i]['id']."_".$rs['land_detail'][$i]['land'][0]['x']."_".$rs['land_detail'][$i]['land'][0]['y']."'>".$rs['land_detail'][$i]['title']."</option>";
+		echo "<option style='text-align:center' value='landdetail_".$rs['land_detail'][$i]['id']."_".$rs['land_detail'][$i]['land'][0]['x']."_".$rs['land_detail'][$i]['land'][0]['y']."'>".stripslashes($rs['land_detail'][$i]['title'])."</option>";
+		$land_count++;
 	}
 	for($i=0; $i<$lst; $i++){
-		echo "<option style='text-align:center' value='landspecial_".$rs['land_special'][$i]['id']."_".$rs['land_special'][$i]['land'][0]['x']."_".$rs['land_special'][$i]['land'][0]['y']."'>".$rs['land_special'][$i]['title']."</option>";
+		echo "<option style='text-align:center' value='landspecial_".$rs['land_special'][$i]['id']."_".$rs['land_special'][$i]['land'][0]['x']."_".$rs['land_special'][$i]['land'][0]['y']."'>".stripslashes($rs['land_special'][$i]['title'])."</option>";
+		$land_count++;
 	}
 	echo "</select>";
 	?>
@@ -324,6 +426,9 @@ else {
 		<?php
 		if($_GET['id']){
 			?>jQuery("#ownedlands").val("<?php echo $_GET['id']; ?>");<?php
+		}
+		if($land_count==1){
+			landDetails(jQuery("#ownedlands").val());
 		}
 		?>
 		landDetails(jQuery("#ownedlands").val(), true);

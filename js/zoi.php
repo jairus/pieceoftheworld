@@ -1,6 +1,6 @@
 <?php
-session_start();
-header('Content-Type: application/javascript');
+@session_start();
+//header('Content-Type: application/javascript');
 ?>
 <!--MAKE BOX DRAGGABLE-->
 jQuery(function(){ jQuery("#popup").draggable({ containment: "window" }); });
@@ -14,11 +14,12 @@ function openClosePopUp(menu){
 	jQuery('#content_info').hide();
 	jQuery('#content_buy').hide();
 	jQuery('#content_facebook').hide();
+	jQuery('#content_cta').hide();
 	
-	jQuery('#menu_about').attr("src", 'images/menu_about.png');
-	jQuery('#menu_top_lists').attr("src", 'images/menu_top_lists.png');
-	jQuery('#menu_tutorials').attr("src", 'images/menu_tutorials.png');
-	jQuery('#menu_'+menu).attr("src", 'images/menu_'+menu+'_active.png');
+	jQuery('#menu_about').attr("src", 'http://cdn.pieceoftheworld.com/images/menu_about.png');
+	jQuery('#menu_top_lists').attr("src", 'http://cdn.pieceoftheworld.com/images/menu_top_lists.png');
+	jQuery('#menu_tutorials').attr("src", 'http://cdn.pieceoftheworld.com/images/menu_tutorials.png');
+	jQuery('#menu_'+menu).attr("src", 'http://cdn.pieceoftheworld.com/images/menu_'+menu+'_active.png');
 	
 	jQuery('#content_'+menu).show();
 	if(menu=='facebook'){
@@ -192,3 +193,19 @@ function userProfile(userID){
     });
 }
 //END OF TOP LISTS
+
+//OPEN GALLERY
+function openGallery(){
+	//alert('open');
+	jQuery.ajax({
+		type: 'GET',
+		url: "ajax/ajax.php?action=open_gallery&land_id="+jQuery('#land_id').val()+"&land_special_id="+jQuery('#land_special_id').val(),
+		data: "",
+	
+		success: function(data) {
+			jQuery("#gallery_tab_wrapperonly").html(data);
+			jQuery('#galleryresults').fadeIn(200);
+		}
+	});
+}
+//END OF OPEN GALLERY

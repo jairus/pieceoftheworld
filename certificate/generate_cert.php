@@ -71,6 +71,51 @@ if(isset($_GET['f'])){
 	}
 	
 }
+else if($_GET['land_id']){
+	$post = array();
+	$sql = "select * from `land` where `id`='".mysql_real_escape_string($_GET['land_id'])."'";
+	$land = dbQuery($sql, $_dblink);
+	$theid = $land[0]["land_detail_id"];
+	$post['filename'] = "";
+	
+	//get image
+	$sql = "select * from `pictures` where `land_id`='".$theid."' order by `isMain` desc";
+	$pics = dbQuery($sql, $_dblink);
+	if(!$pics[0]['id']&&$land[0]['land_special_id']){
+		$theid = $land[0]["land_special_id"];
+		$sql = "select * from `pictures_special` where `land_special_id`='".$land[0]['land_special_id']."' order by `isMain` desc";
+		$pics = dbQuery($sql, $_dblink);
+		
+		
+		$sql = "select `land_special`.*, `web_users`.`useremail` from `land_special` left join `web_users` on (`land_special`.`web_user_id`=`web_users`.`id`) where `land_special`.`id`='".$land[0]['land_special_id']."'";
+		$zland = dbQuery($sql, $_dblink);
+		$useremail = $zland[0]['useremail'];
+		$land_owner = $zland[0]['land_owner'];
+		$title = $zland[0]['title'];
+		$detail = $zland[0]['detail'];
+	}
+	else{
+		$sql = "select `land_detail`.* from `land_detail` where `land_detail`.`id`='".$land[0]['land_detail_id']."'";
+		$zland = dbQuery($sql, $_dblink);
+		$land_owner = $zland[0]['land_owner'];
+		$title = $zland[0]['title'];
+		$detail = $zland[0]['detail'];
+		
+		$sql = "select * from `web_users` where `id`='".$land[0]["web_user_id"]."'";
+		$zland = dbQuery($sql, $_dblink);
+		$useremail = $zland[0]['useremail'];
+	}
+	if($pics[0]['id']){
+		if(trim($pics[0]['picture'])){
+			$folder = explode("_uploads2/",$pics[0]['picture']);
+			$filename = $folder[1];
+			$filename = dirname(__FILE__)."/../_uploads2/".$filename;
+			$post['filename'] = $filename;
+		}
+	}
+	$post['filename'] = urldecode($post['filename']);
+
+}
 else{
 	exit();
 }
@@ -150,8 +195,8 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 		imagecopyresampled( $tmp_img, $img, (($side1-$new_width)/2), (($side2-$new_height)/2), 0, 0, $new_width, $new_height, $width, $height );
 	}
 	else{
-		$side1 = $thumbWidth;
-		$side2 = $thumbHeight;
+		$side1 = $new_width+20;
+		$side2 = $new_height+20;
 		$tmp_img = imagecreatetruecolor( $side1, $side2 );
 		$white = imagecolorallocate($tmp_img, 255, 255, 255);
 		imagefill($tmp_img, 0, 0, $white);
@@ -184,21 +229,38 @@ function showThumb($src, $thumbWidth, $thumbHeight, $dest="", $thumb=false, $ret
 	
 }
 
-$html = "<html>
-<style>
-.image{
-	position:absolute; left:100px;
+if($_GET['land_id']){
+	$html = "<html>
+	<style>
+	.image{
+		position:absolute; left:100px;
+	}
+	.text1{
+		position:absolute; left:50px;
+	}
+	</style>
+	<body style='margin:0px;'>
+		<div class='image'><img src='http://pieceoftheworld.co/certificate/generate_cert.php?land_id=".$_GET['land_id']."&image=1' /></div>
+	</body>
+	</html>
+	";
 }
-.text1{
-	position:absolute; left:50px;
+else{
+	$html = "<html>
+	<style>
+	.image{
+		position:absolute; left:100px;
+	}
+	.text1{
+		position:absolute; left:50px;
+	}
+	</style>
+	<body style='margin:0px;'>
+		<div class='image'><img src='http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f']."&image=1' /></div>
+	</body>
+	</html>
+	";
 }
-</style>
-<body style='margin:0px;'>
-	<div class='image'><img src='http://pieceoftheworld.co/certificate/generate_cert.php?f=".$_GET['f']."&image=1' /></div>
-</body>
-</html>
-";
-
 
 
 
@@ -209,7 +271,7 @@ if(isset($_GET['image'])){
 	header('Content-Type: image/png');
 
 	// Create the image
-	$im = imagecreatefromjpeg("image_h.jpg"); 
+	$im = imagecreatefromjpeg("image_h2.jpg"); 
 
 	// Create some colors
 	$white = imagecolorallocate($im, 255, 255, 255);
@@ -223,28 +285,29 @@ if(isset($_GET['image'])){
 	//imagettftext($im, 20, 0, 11, 21, $grey, $font, $text);
 
 	$font = 'arial.ttf';
-	imagettftext($im, ceil(20*1.66), 0, ceil(100*1.66), ceil(150*1.66), $red, $font, "ID: ".$theid);
+	imagettftext($im, ceil(20*1.66), 0, ceil(100*1.66), ceil(150*1.33), $red, $font, "ID: ".$theid);
 
 
 	// Add the text
 	//Owner
 	$font = 'arialbd.ttf';
-	imagettftext($im, ceil(9*1.66), 0, ceil((285-20)*1.66), ceil(303*1.66), $black, $font, "Owner:");
+	imagettftext($im, ceil(9*1.66), 0, ceil((285-20)*2.4), ceil(303*1.44), $black, $font, "Owner:");
 	$font = 'arial.ttf';
 	$owner = $land_owner;
 	if(!trim($owner)){
 		$owner = $useremail;
 	}
-	imagettftext($im, ceil(9*1.66), 0, ceil((335-20)*1.66), ceil(303*1.66), $black, $font, $owner);
+	imagettftext($im, ceil(9*1.66), 0, ceil((335-30)*2.4), ceil(303*1.44), $black, $font, $owner);
 	
 	$font = 'arialbd.ttf';
-	imagettftext($im, ceil(9*1.66), 0, ceil((285-20)*1.66), ceil(320*1.66), $black, $font, "Date:");
+	imagettftext($im, ceil(9*1.66), 0, ceil((285-20)*2.4), ceil(320*1.44), $black, $font, "Date:");
 	$font = 'arial.ttf';
 	$date = date("M d, Y");
-	imagettftext($im, ceil(9*1.66), 0, ceil((322-20)*1.66), ceil(320*1.66), $black, $font, $date);
+	imagettftext($im, ceil(9*1.66), 0, ceil((322-30)*2.4), ceil(320*1.44), $black, $font, $date);
+	
 	
 	$font = 'arialbd.ttf';
-	imagettftext($im, ceil(9*1.66), 0, ceil((285-20)*1.66), ceil(354*1.66), $black, $font, $title);
+	imagettftext($im, ceil(9*1.66), 0, ceil((285-20)*2.4), ceil(354*1.44), $black, $font, $title);
 	$font = 'arial.ttf';
 	$text = $detail;
 	$atext = explode(" ", $text);
@@ -256,12 +319,28 @@ if(isset($_GET['image'])){
 			$str .= "\n";
 		}
 	}
-	imagettftext($im, ceil(8*1.66), 0, ceil((285-20)*1.66), ceil(370*1.66), $black, $font, $str);
+	imagettftext($im, ceil(8*1.66), 0, ceil((285-20)*2.4), ceil(370*1.46), $black, $font, $str);
 	
+		
 	if($post['filename']){
-		$theimage = showThumb($post['filename'], ceil(135*1.66), ceil(135*1.3*1.66), dirname($post['filename'])."/"."cert_".basename($post['filename']).".png", true, true);
-		imagecopyresampled( $im, $theimage, ceil(115*1.66), ceil(287*1.66), 0, 0, imagesx($theimage), imagesy($theimage), imagesx($theimage), imagesy($theimage) );
+		$image_width = ceil(222*1.70);
+		$image_height = ceil(135*1.3*1.65);
+		if(is_file(dirname($post['filename'])."/"."cert_".basename($post['filename']).".png")||is_file($post['filename']) ){
+			$theimage = showThumb($post['filename'], $image_width, $image_height, dirname($post['filename'])."/"."cert_".basename($post['filename']).".png", false, true);
+		}
+		else{
+			$theimage = showThumb(dirname(__FILE__)."/default.jpg", $image_width, $image_height, dirname($post['filename'])."/"."cert_".basename($post['filename']).".png", false, true);
+		}
+		
 	}
+	else{
+		$theimage = showThumb(dirname(__FILE__)."/default.jpg", $image_width, $image_height, dirname($post['filename'])."/"."cert_".basename($post['filename']).".png", false, true);
+	}
+	$aimage_width = imagesx($theimage);
+	$aimage_height = imagesy($theimage);
+	$plusx = abs($aimage_width-$image_width)/2;
+	$plusy = abs($aimage_height-$image_height)/2;
+	imagecopyresampled( $im, $theimage, ceil(115*1.70)+$plusx, ceil(287*1.32)+$plusy, 0, 0, imagesx($theimage), imagesy($theimage), imagesx($theimage), imagesy($theimage) );
 	
 	// Using imagepng() results in clearer text compared with imagejpeg()
 	imagepng($im, null, 0);

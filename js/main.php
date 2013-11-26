@@ -231,7 +231,7 @@ function showWorldView(object) {
 	else {
 		initialize(ZOOM_LEVEL_WORLD, google.maps.MapTypeId.HYBRID);
 	}
-	jQuery("#fblikes").html('<iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpieceoftheworld.co&amp;send=false&amp;layout=standard&amp;width=400&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=35&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:400px; height:35px;" allowTransparency="true"></iframe>');
+	jQuery("#fblikes").html('<iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fpieceoftheworld.com&amp;send=false&amp;layout=standard&amp;width=400&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=35&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:400px; height:35px;" allowTransparency="true"></iframe>');
 }	
 //ZOI
 function showVideo(videoStr) {
@@ -430,6 +430,7 @@ function onMarkerClick(event, type) {
 	}
 	jQuery("#clicktozoom").click(function () {
 		var loc = new google.maps.LatLng(event.latLng.lat(),event.latLng.lng());
+		map.setMapTypeId(google.maps.MapTypeId.HYBRID);
 		map.setZoom(17);
 		map.setCenter(loc);
 		jQuery("#clicktozoom").hide();
@@ -458,16 +459,27 @@ function onMarkerClick(event, type) {
 
 var blocksHidden = true;
 function onIdle(manualCall) {
+	consoleX("onIdle");
+	
+	
 	if (map == null) { return; }
+	consoleX("zoom "+map.getZoom());
+	if (map.getZoom() >= 15&&map.getMapTypeId()!=google.maps.MapTypeId.HYBRID) { //if block mode
+		map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+	}
+	else if(map.getZoom() < 15&&map.getMapTypeId()!=google.maps.MapTypeId.ROADMAP){
+		map.setMapTypeId(google.maps.MapTypeId.ROADMAP);
+	}
+	
 	if (map.getZoom() >= 17) { //if block mode
-		consoleX("show blocks");
+		consoleX("show blocks x");
 		drawBlocks(map);
 		blocksHidden = false;
 	}
 	else {
 		unsetGZones();
 		if(!blocksHidden){
-			consoleX("hide blocks");
+			consoleX("hide blocks x");
 			var i = 0;
 			process = function(){
 				for(; i<window.rectangles.length; i++){
@@ -480,8 +492,12 @@ function onIdle(manualCall) {
 			}
 			process();
 			blocksHidden = true;
+			
+			openClosePopUp('cta');
 		}
 	}
+
+	
 	setTimeout(function(){ //delay adding of markers by 200ms
 		if (map.getZoom() >= 17){ //if block mode
 			for(i=0; i<globalRedMarkers.length; i++){
@@ -494,6 +510,7 @@ function onIdle(manualCall) {
 		}
 	},
 	200); 
+	
 }
 
 function getBlockMarker(x, y) { //get the lat and long position for the marker from points
@@ -795,6 +812,9 @@ function unsetGZones(){ //unset global selected blocks (zones)
 	if(map.getZoom()>=17){ //if block view only
 		updatePopupWindowTabInfoNew();
 	}
+	else{
+		
+	}
 }
 
 function calculateTotal(sync){ //calculated total blocks
@@ -833,7 +853,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		showPopupWindowTabInfo(false);
 		return false;
 	}
-	consoleX("updatePopupWindowTabInfoNew");
+	consoleX("updatePopupWindowTabInfoNew 2");
 	
 	shareowner = "";
 	sharetitle = "";
@@ -924,7 +944,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 				jQuery("#info-title").html(gzones[i].ret.json.title);
 				jQuery("#info-detail").html(gzones[i].ret.json.detail);
 				jQuery("#info-city").show();
-				var fbLikeLink = "http://pieceoftheworld.co/viewLand.php?landId=" + gzones[i].ret.json['id'] + "&specialLandId=" + gzones[i].ret.json['land_special_id'];
+				//var fbLikeLink = "http://pieceoftheworld.com/viewLand.php?landId=" + gzones[i].ret.json['id'] + "&specialLandId=" + gzones[i].ret.json['land_special_id'];
 				//alert(fbLikeLink);
 				//jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
 				//FB.XFBML.parse();
@@ -1111,7 +1131,11 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		//jQuery("#info-lightbox").attr("title", "" );
 		//alert('colorbox 1');
 		//jQuery("#info-lightbox").colorbox({width:'550px'});
-		jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
+		
+		jQuery("#info-img")[0].src = "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1";
+		//https://maps.googleapis.com/maps/api/staticmap?center=".$lat.",".$lng."&size=53x53&maptype=roadmap&sensor=false&zoom=17
+		
+		
 		jQuery("#info-img").unbind();
 			
 		jQuery("#buy-button").val("Click to Buy");
@@ -1119,6 +1143,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		details += "<hr />Total: USD "+total.toFixed(2);
 		jQuery("#info-title").html("Buy Land");
 		jQuery("#info-detail").html(details);
+		//alert('0');
 	}
 	else if(specialbought){
 		consoleX("special or bought");
@@ -1148,7 +1173,7 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 			jQuery("#info-lightbox").attr("title", "" );
 			//alert('colorbox 3');
 			//jQuery("#info-lightbox").colorbox({width:'550px'});
-			jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
+			jQuery("#info-img")[0].src = "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1";
 			jQuery("#info-img").unbind();
 			
 			jQuery("#buy-button").val("Click to Bid");
@@ -1181,9 +1206,13 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		}
 		
 		showPopupWindowTabInfo(true);
+		//alert('1');
 	}
 	else{
+		//bitch
 		showPopupWindowTabInfo(false);
+		openClosePopUp('cta');
+		//alert('2');
 		return false;
 	}
 	
@@ -1194,22 +1223,41 @@ function updatePopupWindowTabInfoNew(){ //updated of tab info from block view
 		sharetext = "Get your own piece of the world at pieceoftheworld.com";
 	}
 	
-	//link = "http://pieceoftheworld.co/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[0].ret.inLatLng.lng();
+	//link = "http://pieceoftheworld.com/?latlong="+gzones[0].ret.inLatLng.lat()+"~"+gzones[0].ret.inLatLng.lng();
 	
-	points = gzones[0].ret.points;
+	if(jQuery("#info-img")[0].src == "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1"){
+		//jQuery("#info-img")[0].src = "https://maps.googleapis.com/maps/api/staticmap?center="+gzones[firstindex].ret.inLatLng.lat()+","+gzones[firstindex].ret.inLatLng.lng()+"&size=290x150&maptype=satellite&sensor=false&zoom=17";
+		jQuery("#info-img")[0].src = "http://pieceoftheworld.com/images/shareimage.php?lat="+gzones[firstindex].ret.inLatLng.lat()+"&lng="+gzones[firstindex].ret.inLatLng.lng()+"&zoom="+map.getZoom();
+		shareimage = encodeURIComponent("http://pieceoftheworld.com/images/shareimage.php?lat="+gzones[firstindex].ret.inLatLng.lat()+"&lng="+gzones[firstindex].ret.inLatLng.lng()+"&zoom="+map.getZoom()+"&size=200x200");
+	}
+	else{
+		shareimage = encodeURIComponent(jQuery('#info-img').attr("src"));
+	}	
+	points = gzones[firstindex].ret.points;
 	xy = points.split("-");
 	//alert("from points");
-	link = "http://pieceoftheworld.co/?xy="+xy[0]+"~"+xy[1];
+	link = "http://pieceoftheworld.com/?xy="+xy[0]+"~"+xy[1];
+	
+	history.pushState(null, null, link);
 	
 	globallink = link;
-	//link = encodeURIComponent(link);
-	sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+jQuery('#info-img').attr("src")+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
+	link = encodeURIComponent(link);
+	
+	
+	sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+shareimage+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 	//sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 
 	//remove fb like button if the previously clicked land is valid
-	likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='+link+'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+	//likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='+link+'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+	//jQuery("#likecolumn_id").html(likehtml);
+	//jQuery("#likecolumn_id").show();
+	
+	likehtml = '<iframe id="zlikebutton" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
 	jQuery("#likecolumn_id").html(likehtml);
 	jQuery("#likecolumn_id").show();
+	//jQuery("#zlikebutton").attr(src, 'http://www.facebook.com/plugins/like.php?href='+link+'&send=false&layout=button_count&width=30&show_faces=false&amp;font=arial&colorscheme=light&action=like&height=21&appId=454736247931357');
+	jQuery("#zlikebutton")[0].src='http://www.facebook.com/plugins/like.php?href='+link+'&send=false&layout=button_count&width=30&show_faces=false&font=arial&colorscheme=light&action=like&height=21&appId=454736247931357';
+	
 	jQuery('#fbLikeHolder').html('');
 
 	jQuery("#fbsharelink").attr("href", sharelink);
@@ -1222,21 +1270,28 @@ var gattached = []; //attached blocks from 1 block
 
 function putBox(event, inLatLng){ //event when a block is clicked
 	consoleX("putBox");
+	auto = false;
 	gBuyOnMarker = false;
+	
+	if(isset(inLatLng)){
+		xlatLng = inLatLng;
+		auto = true;
+	}
+	else{
+		xlatLng = event.latLng;
+	}
+	
+	
 	//disable block clicking when zoomed out
-	if(map.getZoom()<17){
+	if(map.getZoom()<17&&!auto){
 		unsetGZones();
 		//alert("1");
 		return 0;
 	}
 	jQuery("#clicktozoom").hide();
 	var projection = new MercatorProjection();
-	if(isset(inLatLng)){
-		xlatLng = inLatLng;
-	}
-	else{
-		xlatLng = event.latLng;
-	}
+	
+	
 	var worldCoordinate = projection.fromLatLngToPoint(xlatLng);
 	worldCoordinate.x = Math.floor(worldCoordinate.x);
 	worldCoordinate.y = Math.floor(worldCoordinate.y);
@@ -1247,13 +1302,11 @@ function putBox(event, inLatLng){ //event when a block is clicked
 	);
 	var LtLgNE = bounds.getNorthEast();
 	var LtLgSW = bounds.getSouthWest();
-	
 	strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
 	jQuery("#tabs").tabs("select",0);
-	
-	
 	jQuery("#buy-button").hide();
 	jQuery("#loading-button").show();
+	
 	/***************************/
 	ret = {};
 	//put in the box
@@ -1264,116 +1317,124 @@ function putBox(event, inLatLng){ //event when a block is clicked
 		new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
 	];
 	
-	zone = new google.maps.Polygon({
-		paths: zoneCoords,
-		strokeColor: "#ffffff",
-		strokeOpacity: 1,
-		strokeWeight: 2,
-		fillColor: "#40E0D0",
-		fillOpacity: 0.2,
-		zIndex: 10000,
-		ret: ret //just extra 'ret' object variable
-	});
-	google.maps.event.addListener(zone, 'click', function(event){
-		this.ret.price = 0;
-		this.ret.active = 0;
-		this.setMap(); //remove the box
-		//consoleX(this.ret.attached);
-		if(isset(this.ret.attached)){
-			//alert(this.ret.attached.length);
-			if(this.ret.attached.length > 0){
-				unsetGZones();
-				//alert("3");
+	try{
+		zone = new google.maps.Polygon({
+			paths: zoneCoords,
+			strokeColor: "#ffffff",
+			strokeOpacity: 1,
+			strokeWeight: 2,
+			fillColor: "#40E0D0",
+			fillOpacity: 0.2,
+			zIndex: 10000,
+			ret: ret //just extra 'ret' object variable
+		});
+		google.maps.event.addListener(zone, 'click', function(event){
+			this.ret.price = 0;
+			this.ret.active = 0;
+			this.setMap(); //remove the box
+			//consoleX(this.ret.attached);
+			if(isset(this.ret.attached)){
+				//alert(this.ret.attached.length);
+				if(this.ret.attached.length > 0){
+					unsetGZones();
+					//alert("3");
+				}
 			}
-		}
-		calculateTotal(); //calculate total of 
-		updatePopupWindowTabInfoNew();
-	});
-	zone.setMap(window.map);
-	//alert("box is set");
+			calculateTotal(); //calculate total of 
+			updatePopupWindowTabInfoNew();
+
+		});
+		zone.setMap(window.map);
+	}
+	catch(e){
+		alert(e.message);
+	}
 	/***************************/
 	
 	setTimeout(
-	function(){
-		//new update popup info
-		ret = getBlockInfoNew(xlatLng, strlatlong, worldCoordinate);
-		if(ret.colored){
-			unsetGZones();
-			//alert("2");
-		}
-		else{
-			if(isset(inLatLng)){
-				zone.setMap(null);
+		function(){
+			//new update popup info
+			ret = getBlockInfoNew(xlatLng, strlatlong, worldCoordinate);
+			if(ret.colored){
 				unsetGZones();
-				return 0;
+				//alert("2");
 			}
-			//remove all colored selections
-			for(i=0; i<gzones.length; i++){
-				if(gzones[i].ret.colored==1){
-					gzones[i].ret.active = 0;
-					gzones[i].setMap();
-				}
-			}
-			//remove all attached selections
-			for(i=0; i<gattached.length; i++){
-				gattached[i].setVisible(false);
-				gattached[i].setMap(null);
-			}
-			gattached = [];
-		}
-		ret.active = 1;
-		zone.ret = ret;
-		
-		gzones.push(zone);
-		calculateTotal();
-		updatePopupWindowTabInfoNew();
-		
-		if(ret.attached){
-			thex = worldCoordinate.x;
-			they = worldCoordinate.y;
-			for(i=0; i<ret.attached.length; i++){
-				if(ret.attached[i].x==thex && ret.attached[i].y==they){
-					continue;
-				}
-				worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
-				var block = getBlockLTRB(worldCoordinate);
-				var bounds = new google.maps.LatLngBounds(
-					new google.maps.LatLng(block[0].lat(),block[0].lng()),
-					new google.maps.LatLng(block[1].lat(),block[1].lng())
-				);
-				var LtLgNE = bounds.getNorthEast();
-				var LtLgSW = bounds.getSouthWest();
-				
-				//strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
-				
-				//put in the box
-				var zoneCoords = [
-					new google.maps.LatLng(LtLgNE.lat(), LtLgNE.lng()),
-					new google.maps.LatLng(LtLgNE.lat(), LtLgSW.lng()),
-					new google.maps.LatLng(LtLgSW.lat(), LtLgSW.lng()),
-					new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
-				];
-				ret.active = 1;
-				zone = new google.maps.Polygon({
-					paths: zoneCoords,
-					strokeColor: "#ffffff",
-					strokeOpacity: 1,
-					strokeWeight: 2,
-					fillColor: "#40E0D0",
-					fillOpacity: 0.2,
-					zIndex: 10000
-				});
-				gattached.push(zone);
-				google.maps.event.addListener(zone, 'click', function(event){
+			else{
+				if(auto&&0){
+					alert('here');
+					zone.setMap(null);
 					unsetGZones();
-					//alert("4");
-					calculateTotal(); //calculate total of 
-					updatePopupWindowTabInfoNew();
-				});
-				zone.setMap(window.map);
+					return 0;
+				}
+				//remove all colored selections
+				for(i=0; i<gzones.length; i++){
+					if(gzones[i].ret.colored==1){
+						gzones[i].ret.active = 0;
+						gzones[i].setMap();
+					}
+				}
+				//remove all attached selections
+				for(i=0; i<gattached.length; i++){
+					gattached[i].setVisible(false);
+					gattached[i].setMap(null);
+				}
+				gattached = [];
+			}
+			ret.active = 1;
+			zone.ret = ret;
+			
+			gzones.push(zone);
+			calculateTotal();
+			updatePopupWindowTabInfoNew();
+			
+			if(ret.attached){
+				thex = worldCoordinate.x;
+				they = worldCoordinate.y;
+				for(i=0; i<ret.attached.length; i++){
+					if(ret.attached[i].x==thex && ret.attached[i].y==they){
+						continue;
+					}
+					worldCoordinate = new google.maps.Point(ret.attached[i].x-1, ret.attached[i].y-1);
+					var block = getBlockLTRB(worldCoordinate);
+					var bounds = new google.maps.LatLngBounds(
+						new google.maps.LatLng(block[0].lat(),block[0].lng()),
+						new google.maps.LatLng(block[1].lat(),block[1].lng())
+					);
+					var LtLgNE = bounds.getNorthEast();
+					var LtLgSW = bounds.getSouthWest();
+					
+					//strlatlong = LtLgNE.lat()+","+LtLgNE.lng();
+					
+					//put in the box
+					var zoneCoords = [
+						new google.maps.LatLng(LtLgNE.lat(), LtLgNE.lng()),
+						new google.maps.LatLng(LtLgNE.lat(), LtLgSW.lng()),
+						new google.maps.LatLng(LtLgSW.lat(), LtLgSW.lng()),
+						new google.maps.LatLng(LtLgSW.lat(), LtLgNE.lng())
+					];
+					ret.active = 1;
+					zone = new google.maps.Polygon({
+						paths: zoneCoords,
+						strokeColor: "#ffffff",
+						strokeOpacity: 1,
+						strokeWeight: 2,
+						fillColor: "#40E0D0",
+						fillOpacity: 0.2,
+						zIndex: 10000
+					});
+					gattached.push(zone);
+					google.maps.event.addListener(zone, 'click', function(event){
+						unsetGZones();
+						//alert("4");
+						calculateTotal(); //calculate total of 
+						updatePopupWindowTabInfoNew();
+						
+					});
+					zone.setMap(window.map);
+				}
 			}
 		}
-	},
+	,
 	100);
 }
 
@@ -1568,7 +1629,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 	jQuery("#info-title").html("Loading...");
 	jQuery("#info-detail").html("");
 	
-	jQuery("#info-img").attr("src", "images/place_holder_small.png?_=1");
+	jQuery("#info-img").attr("src", "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1");
 	jQuery("#clicktozoom").hide();
 	
 	jQuery("#likecolumn_id").hide();
@@ -1609,9 +1670,9 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			markerJSON = JSON.parse(returnText);
 			jQuery("#info-land_owner_container").hide();
 			jQuery("#info-land_bid_container").hide();
-			jQuery("#info-img").attr("src", "images/place_holder_small.png?_=1");
+			jQuery("#info-img").attr("src", "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1");
 			//document.getElementById('info-land_owner_container').style.display="none";
-			//document.getElementById('info-img').src = "images/place_holder_small.png?_=1";
+			//document.getElementById('info-img').src = "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1";
 			if (returnText != '[[]]') {
 				jQuery('#land_special_id').val(markerJSON[0].land_special_id);
 				jQuery('#land_id').val(markerJSON[0].land_detail_id);
@@ -1694,7 +1755,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 					});
 					//alert("colorbox 5");
 					
-					jQuery("#info-img")[0].src = "images/place_holder_small.png?_=1";
+					jQuery("#info-img")[0].src = "http://pieceoftheworld.com/images/place_holder_default.jpg?_=1";
 					jQuery("#info-img").unbind();
 				}
 		
@@ -1763,9 +1824,9 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 					setCity(strlatlong, 1, numblocks);
 				}
 				
-				jQuery("#info-img").attr("src", 'images/place_holder_small.png?_=1');
+				jQuery("#info-img").attr("src", 'http://pieceoftheworld.com/images/place_holder_default.jpg?_=1');
 				jQuery("#buy-button").val("Click to Buy");
-				//document.getElementById('info-img').src = 'images/place_holder_small.png?_=1';
+				//document.getElementById('info-img').src = 'http://pieceoftheworld.com/images/place_holder_default.jpg?_=1';
 				//document.getElementById('buy-button').value = "Click to Buy";
 
 				//document.getElementById('buy-img').src = 'images/place_holder.png';
@@ -1777,19 +1838,23 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 			if(!sharetext){
 				sharetext = "Get your own piece of the world at pieceoftheworld.com";
 			}
-			//link = "http://pieceoftheworld.co/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
+			//link = "http://pieceoftheworld.com/?latlong="+inLatLng.lat()+"~"+inLatLng.lng();
 			
-			link = "http://pieceoftheworld.co/?xy="+x1+"~"+y1;
+			link = "http://pieceoftheworld.com/?xy="+x1+"~"+y1;
+			history.pushState(null, null, link);
 			
 			globallink = link;
-			//link = encodeURIComponent(link);
+			link = encodeURIComponent(link);
 			sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+jQuery("#info-img").attr("src")+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 			//sharelink = "https://www.facebook.com/dialog/feed?app_id=454736247931357&link="+link+"&picture="+document.getElementById('info-img').src+"&name=Piece of the World&caption="+sharetitle+"&description="+sharetext+"&redirect_uri="+link;
 			
+			//alert(1);
 			
-			likehtml = '<iframe src="//www.facebook.com/plugins/like.php?href='+link+'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
+			likehtml = '<iframe id="zlikebutton" scrolling="no" frameborder="0" style="border:none; overflow:hidden; height:21px; width:75px;" allowTransparency="true"></iframe>'; 
 			jQuery("#likecolumn_id").html(likehtml);
 			jQuery("#likecolumn_id").show();
+			//jQuery("#zlikebutton")[0].src='http://www.facebook.com/plugins/like.php?href='+link+'&amp;send=false&amp;layout=button_count&amp;width=30&amp;show_faces=false&amp;font=arial&amp;colorscheme=light&amp;action=like&amp;height=21&amp;appId=454736247931357';
+			jQuery("#zlikebutton")[0].src='http://www.facebook.com/plugins/like.php?href='+link+'&send=false&layout=button_count&width=30&show_faces=false&font=arial&colorscheme=light&action=like&height=21&appId=454736247931357';
 	
 			jQuery("#fbsharelink").attr("href", sharelink);
 			jQuery("#fbsharelink").show();
@@ -1797,7 +1862,7 @@ function updatePopupWindowTabInfo(inLatLng, strlatlong) {
 
 			// for facebook like button. only like sold land, sold specialland, unsold specialland
 			//if(markerJSON[0]['owner_user_id'] || markerJSON[0]['land_special_id'] != null){
-			var fbLikeLink = "http://pieceoftheworld.co/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
+			var fbLikeLink = "http://pieceoftheworld.com/viewLand.php?landId=" + markerJSON[0]['id'] + "&specialLandId=" + markerJSON[0]['land_special_id'];
 			//jQuery('#fbLikeHolder').html('<fb:like href="'+ fbLikeLink + '" ref="land" layout="standard" show-faces="true" width="450" action="like" colorscheme="light" /></fb:like>');
 			//FB.XFBML.parse();
 			//} else {
@@ -1969,8 +2034,8 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				}
 				
 				if(isset(markersJSON[i].count)){
-					icon = 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
-					//icon = 'http://pieceoftheworld.co/images/marker_blue.png';
+					icon = 'http://cdn.pieceoftheworld.com/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
+					//icon = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 					//zoomshell
 					google.maps.event.clearListeners(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click');
 					google.maps.event.addListener(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click', function(event) { 
@@ -1994,15 +2059,15 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				}
 				else{
 					if(markersJSON[i].owner_user_id>0){
-						icon = 'http://pieceoftheworld.co/images/marker_blue.png';
+						icon = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 						if(isset(markersJSON[i].land_detail_id)){
 							if(markersJSON[i].land_detail_id>0){
-								icon = 'http://pieceoftheworld.co/images/marker_blue.png';
+								icon = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 							}
 						}
 					}
 					else{
-						icon = 'http://pieceoftheworld.co/images/marker_blue.png';
+						icon = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 					}
 					google.maps.event.clearListeners(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click');
 					google.maps.event.addListener(markersrefnew[markersJSON[i].x+"-"+markersJSON[i].y], 'click', function(event) { 
@@ -2018,8 +2083,8 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				//consoleX(markersJSON[i].country);
 				
 				if(isset(markersJSON[i].count)){
-					iconx = 'http://cdn.pieceoftheworld.co/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
-					//iconx = 'http://pieceoftheworld.co/images/marker_blue.png';
+					iconx = 'http://cdn.pieceoftheworld.com/image.php?marker=1&count='+((isset(markersJSON[i].count))? markersJSON[i].count : "");
+					//iconx = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 					var marker = new google.maps.Marker({
 						position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
 						map: map,
@@ -2050,10 +2115,10 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 				}
 				else{
 					if(markersJSON[i].owner_user_id>0){
-						img = 'http://pieceoftheworld.co/images/marker_blue.png';
+						img = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 						if(isset(markersJSON[i].land_detail_id)){
 							if(markersJSON[i].land_detail_id>0){
-								img = 'http://pieceoftheworld.co/images/marker_blue.png';
+								img = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 							}
 						}
 						
@@ -2069,7 +2134,7 @@ function setRedMarkers(map, markersJSON){ //this are actually green markers (spe
 						});
 					}
 					else{
-						img = 'http://pieceoftheworld.co/images/marker_blue.png';
+						img = 'http://cdn.pieceoftheworld.com/images/marker_blue.png';
 						consoleX(img);
 						var marker = new google.maps.Marker({
 							position: getBlockMarker(markersJSON[i].x, markersJSON[i].y),
@@ -2368,7 +2433,7 @@ function initialize(zoomVal, mapTypeIdVal) {
 	mapTypeIdVal = typeof mapTypeIdVal !== 'undefined' ? mapTypeIdVal : google.maps.MapTypeId.TERRAIN;
 	var mapOptions = {
 		zoom: zoomVal,
-		mapTypeId: mapTypeIdVal  // ROADMAP, SATELLITE, HYBRID, TERRAIN
+		mapTypeId: google.maps.MapTypeId.TERRAIN  // ROADMAP, SATELLITE, HYBRID, TERRAIN
 	};
 	map = new google.maps.Map(document.getElementById('map_canvas'), mapOptions);
 	geocoder = new google.maps.Geocoder();
@@ -2426,19 +2491,23 @@ function initialize(zoomVal, mapTypeIdVal) {
 		$x += 0;
 		$y += 0;
 		?>
-		var projection = new MercatorProjection();
-		var point = {};
-		point.x = <?php echo $x-1;?>;
-		point.y = <?php echo $y-1;?>;
-		var inLatLng = projection.fromPointToLatLng(point);
-		var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
-		//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
-		map.setZoom(17);
-		map.setCenter(loc);
-		var result = getBlockLTRB(new google.maps.Point(point.x, point.y));
-		putBox(null, result[0]);
-		//updatePopupWindowTabInfo(inLatLng);
-		//jQuery("#clicktozoom").hide();
+		setTimeout(function(){
+			var projection = new MercatorProjection();
+			var point = {};
+			point.x = <?php echo $x-1;?>;
+			point.y = <?php echo $y-1;?>;
+			var inLatLng = projection.fromPointToLatLng(point);
+			var loc = new google.maps.LatLng(inLatLng.lat(),inLatLng.lng());
+			//consoleX(inLatLng.lat()+" - "+inLatLng.lng());
+			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+			map.setZoom(17);
+			map.setCenter(loc);
+			var result = getBlockLTRB(new google.maps.Point(point.x, point.y));
+			putBox(null, result[0]);
+			//updatePopupWindowTabInfo(inLatLng);
+			//jQuery("#clicktozoom").hide();
+			},
+		200);
 		<?php
 	}
 	?>
@@ -2472,7 +2541,8 @@ jQuery(function() {
 			jQuery("#longitude").val(ui.item.longitude);
 			var location = new google.maps.LatLng(ui.item.latitude, ui.item.longitude);
 			//searchMarker.setPosition(location);
-			map.setZoom(15);
+			map.setMapTypeId(google.maps.MapTypeId.HYBRID);
+			map.setZoom(17);
 			map.setCenter(location);
 		}
 	});
@@ -2551,4 +2621,11 @@ function getHighestBid(land_id){
 			}
 		}
 	});
+}
+function showImage(type, encoded){
+	jQuery('.img').each(function() {
+		jQuery(this).addClass("desaturate");
+	});
+	jQuery('#img'+type).removeClass('desaturate')
+	jQuery('#image_main').attr('src', "/image.php?dir="+encoded+"&w=500&h=500");
 }

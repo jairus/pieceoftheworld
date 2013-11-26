@@ -29,7 +29,6 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 			`x`, 
 			`y`, 
 			`land_special_id`, 
-			`land_detail_id`, 
 			`web_user_id`,
 			`a`.`country`, 
 			`a`.`region`, 
@@ -114,7 +113,6 @@ if (count($keys)>1&&!$_GET['default']) { //count should be more than 1 cause _ a
 				`a`.`id` AS `id`, 
 				`a`.`x`, 
 				`a`.`y`, 
-				`a`.`land_detail_id`, 
 				`a`.`country`, 
 				`a`.`region`, 
 				`a`.`city`, 
@@ -337,8 +335,8 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 			showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 			//if not special land
-			$markers[0]['thumb_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
-			$markers[0]['img_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
+			$markers[0]['thumb_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/thumb_".basename($picture.".png");
+			$markers[0]['img_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/450_".basename($picture.".png");
 		}
 		else{
 			
@@ -364,6 +362,13 @@ else if($markers[0]['owner_user_id']){ //if bought
 				$markers[0]['points'] = $points;
 			}
 		}
+		else{
+			$sql = "select `x`, `y` from `land` where `land_detail_id`='".$markers[0]['land_detail_id']."'";
+			$points = dbQuery($sql, $_dblink);
+			if(count($points)){
+				$markers[0]['points'] = $points;
+			}
+		}
 		
 		if($markers[0]['land_special_id']){ //if special bought
 			$sql = "select * from `pictures_special` where `land_special_id`='".$markers[0]['land_special_id']."' and isMain=1";
@@ -383,8 +388,8 @@ else if($markers[0]['owner_user_id']){ //if bought
 					showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 					//if not special land
-					$markers[0]['thumb_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
-					$markers[0]['img_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
+					$markers[0]['thumb_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/thumb_".basename($picture.".png");
+					$markers[0]['img_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/450_".basename($picture.".png");
 				}
 				else{
 					
@@ -412,8 +417,8 @@ else if($markers[0]['owner_user_id']){ //if bought
 					showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 					//if not special land
-					$markers[0]['thumb_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/thumb_".basename($picture.".png");
-					$markers[0]['img_url'] = "http://pieceoftheworld.co/_uploads2/".$dir."/450_".basename($picture.".png");
+					$markers[0]['thumb_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/thumb_".basename($picture.".png");
+					$markers[0]['img_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/450_".basename($picture.".png");
 				}
 				else{
 					
@@ -440,6 +445,8 @@ if(isset($_GET['print'])){
 else{
 	
 	if(count($markers)){
+		$markers[0]['title'] = stripslashes($markers[0]['title']);
+		$markers[0]['detail'] = stripslashes($markers[0]['detail']);
 		echo json_encode($markers);
 	}
 	else{
