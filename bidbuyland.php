@@ -359,7 +359,14 @@ if($_POST['step']==1||$_GET['fromshare']){
 							<?php
 						}
 						?>
-
+					<tr>
+						<td colspan=2 class='header'>
+						<b>Coupon Code</b>
+						</td>
+					</tr>
+					<tr>
+						<td colspan=2><input type='text' id='couponcode' /><input type='button' value='Submit Coupon Code' /></td>
+					</tr>
 					<tr>
 						<td colspan=2 class='header'>
 						<b>Payment Option</b>

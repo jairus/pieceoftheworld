@@ -153,6 +153,7 @@ class affiliates extends CI_Controller {
 				`website` = '".mysql_real_escape_string($_POST['website'])."',
 				`email` = '".mysql_real_escape_string($_POST['email'])."',
 				`active` = '".mysql_real_escape_string($_POST['active'])."',
+				`coupon` = '".mysql_real_escape_string($_POST['coupon'])."',
 				`commissionrate` = '".mysql_real_escape_string($_POST['commissionrate'])."',
 				`dateadded` = NOW()
 			";
@@ -205,6 +206,7 @@ class affiliates extends CI_Controller {
 					`email` = '".mysql_real_escape_string($_POST['email'])."',
 					`password` = '".mysql_real_escape_string($_POST['password'])."',
 					`active` = '".mysql_real_escape_string($_POST['active'])."',
+					`coupon` = '".mysql_real_escape_string($_POST['coupon'])."',
 					`commissionrate` = '".mysql_real_escape_string($_POST['commissionrate'])."',
 					`discountrate` = '".mysql_real_escape_string($_POST['discountrate'])."',
 					`dateadded` = NOW()

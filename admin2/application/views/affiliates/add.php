@@ -198,6 +198,10 @@ else{
 			  <td><input type="text" name="password" size="40"></td>
 			</tr>
 			<tr class="odd">
+			  <td>Coupon Code:</td>
+			  <td><input type="text" name="coupon" size="40"></td>
+			</tr>
+			<tr class="even">
 			  <td>Active?</td>
 			  <td><input type="checkbox" name="active" value="1" checked="checked" />
 			  </td>
@@ -224,7 +228,11 @@ else{
 			  <td>Discount Rate:</td>
 			  <td><input type="text" name="discountrate" size="40" disabled></td>
 			</tr>
-			<tr class="odd required">
+			<tr class="odd">
+			  <td>Coupon Code:</td>
+			  <td><input type="text" name="coupon" size="40" disabled></td>
+			</tr>
+			<tr class="even required">
 			  <td>E-mail:</td>
 			  <td><input type="text" name="email" size="40" disabled></td>
 			</tr>

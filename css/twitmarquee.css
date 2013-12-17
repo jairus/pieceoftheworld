@@ -36,14 +36,14 @@ a img{
 #trends li{
 	width:243px;
 	height:27px;
-	background-color:#007daf;
+	background-color:#ff;
 	text-align:center;
 	vertical-align:middle;
 	padding:5px;
 	border:1px solid #00a4da;
 	font-family:Arial, Helvetica, sans-serif;
 	font-size:14px;
-	color:#FFFFFF;
+	color:#007DAF;
 	cursor:pointer;
 	display:inline;
 	zoom:1;

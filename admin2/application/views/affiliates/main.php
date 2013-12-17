@@ -121,8 +121,8 @@ $t = count($records);
 		<th>Name</th>
 		<th>E-mail</th>
 		<th>Affiliate Website</th>
-		<th>URL</th>
-		<th>Clicks</th>
+		<th>URL/Coupon Code</th>
+		<th>Clicks/Use</th>
 		<th>Total Commission</th>
 		<th></th>
 	</tr>
@@ -148,7 +148,14 @@ $t = count($records);
 				<?php echo $records[$i]['website'];	?>
 			</td>
 			<td>
-				<a href='<?php echo site_url2()."?a=".($records[$i]['id']); ?>' target='_blank'>Link</a>
+				<?php
+				if(trim($records[$i]['coupon'])){
+					echo trim($records[$i]['coupon']);
+				}
+				else{
+					?><a href='<?php echo site_url2()."?a=".($records[$i]['id']); ?>' target='_blank'>Link</a><?php
+				}
+				?>	
 			</td>
 			<td>
 				<?php echo $records[$i]['clicks'];	?>

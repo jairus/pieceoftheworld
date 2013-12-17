@@ -213,11 +213,11 @@ if(!$_SERVER['QUERY_STRING']){
 <title>PieceoftheWorld</title>
 <link rel="stylesheet" type="text/css" href="http://cdn.pieceoftheworld.com/css/styles.css" />
 <script src="http://cdn.pieceoftheworld.com/js/jquery-1.8.3.min.js" type="text/javascript"></script>
-<link href="http://cdn.pieceoftheworld.com/css/twitmarquee.css" media="screen" rel="stylesheet" type="text/css" />
+<link href="http://pieceoftheworld.com/css/twitmarquee.css" media="screen" rel="stylesheet" type="text/css" />
 <style>
 .ui-dialog {
     width: 450px;
-	top:60px;
+	top:135px;
 }
 #jquery-lightbox {
     z-index: 10000;
@@ -325,7 +325,7 @@ if($_SESSION['start']&&!$_GET['xy']){
 
 
 
-<link href="css/main2.css" rel="stylesheet">
+<link href="css/main2.css?_=<?php echo time(); ?>" rel="stylesheet">
 <style>
 .longbutton2{
 	background-color: #006A9B;
@@ -434,7 +434,10 @@ a:hover{
 }
 
 #popup {
-    top: 60px;
+    top: 135px;
+}
+#popup_content{
+	border:0px;
 }
 #theprice, #info-detail{
 	color:#000000;
@@ -524,6 +527,7 @@ jQuery(function(){
 <div id="header_bg">
 	<div id="header">
 		<div id="logo"><a href="?start=1"><img src="alt/images/logo.png" alt="PieceoftheWorld" title="PieceoftheWorld" /></a></div>
+		<!--
 		<div id="search">
 			<div id="search_inside">
 				<div id="search_field"><input type="text" class="input_1" style="width:257px; height:20px; padding:0px 10px;" id="search_enteraplace" name="search" value="Search for an address or place to buy" onFocus="if(this.value=='Search for an address or place to buy'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Search for an address or place to buy'; }" /></div>
@@ -547,19 +551,71 @@ jQuery(function(){
 			
 			
 		</div>
+		-->
+		<div style="padding-top:10px; float:right; right:100px" class="fb-like" data-href="http://pieceoftheworld.com/" data-layout="button" data-action="like" data-show-faces="false" data-share="true"></div>
+		<style>
+		
+		
+		.mmenus{
+			position:absolute; 
+			background:#3777A8; 
+			color:white; 
+			top:80px;
+			font-family:arial;
+			padding:5px;
+			font-size:12px;
+			cursor:pointer;
+		}
+		.mmenus a, .mmenus a:link, .mmenus a:hover{
+			color:white; 
+			font-family:arial;
+			font-size:12px;
+			font-weight:normal;
+		}
+		</style>
+		<div style='float:right; position:relative'>
+			<div style='left:-143px; padding:0px; top:82px; position:absolute' id="search_field"><input type="text" class="input_1" style="border: 1px solid #3777A8;; padding:1px 3px 2px 3px; border-bottom-left-radius: 0px; border-top-left-radius: 0px; width:257px; height:20px;" id="search_enteraplace" name="search" value="Search for an address or place to buy" onFocus="if(this.value=='Search for an address or place to buy'){ this.value=''; }" onBlur="if(this.value==''){ this.value='Search for an address or place to buy'; }" /></div>
+			<div class='mmenus' style='left:-193px;' onClick="self.location='?start=1'" >Home</div>
+			<div class='mmenus' style='left:129px; width:50px;' onClick="openClosePopUp('top_lists');">Top List</div>
+			<?php
+			if($_SESSION['userdata']){
+				?>
+				<div id='sign_in'>
+					<div class='mmenus' style='left:195px; width:50px;'>
+						<a style='cursor:pointer' class="link_1" onClick="logoutUser();">Sign Out</a>
+					</div>
+					<div class='mmenus' style='left:261px; width:40px;'>
+						<a class="link_1" style='cursor:pointer;' onClick="updateProfile(); openClosePopUp('facebook'); ">Profile</a>
+					</div>
+				</div>
+				<?php
+			}
+			else{
+				?>
+				<div id='sign_in'>
+					<div class='mmenus' style='left:195px; width:40px;' id='sign_in'>
+						<a onclick="updateProfile(); openClosePopUp('facebook');" style="cursor:pointer;" class="link_1">Sign in</a>
+					</div>
+				</div>
+				<?php
+			}
+			?>
+			
+			
+		</div>
 	</div>
 </div>
-<div id="header_arc"></div>
+<!--<div id="header_arc"></div>-->
 <div id="map_canvas"></div>
-<div id="footer">
+<div id="footer" style='background:#ffffff; height:30px'>
 	<style>
 	#trends li {
-    background-color: #5F96E6;
-    border: 1px solid #5F96E6;
+    background-color: #fffff;
+    border: 1px solid #ffffff;
 	}
 		
 	#trends a.active, #trends a:hover {
-		color: #ffffff !important;
+		color: #5F96E6 !important;
 	}
 	#trends{
 		width:950px;
@@ -567,8 +623,11 @@ jQuery(function(){
 	#trends .inner{
 		width:950px;
 	}
+	.search_link{
+		color: #007DAF !important;
+	}
 	</style>
-	<div id="updates" style='float:left; padding-top:12px; padding-left:170px;'>
+	<div id="updates" style='float:left; padding-top:0px; padding-left:170px;'>
 		<table width="882" height="28" border="0" cellspacing="0" cellpadding="0">
 		  <tr>
 			<td valign="top" width="950px">
@@ -606,7 +665,7 @@ jQuery(function(){
 		  </tr>
 		</table>
 	</div>
-	<div style="float:right; width:auto; height:auto; margin-right:145px; margin-top:15px; color:#FFFFFF; font-family:Arial, Helvetica, sans-serif; font-size:15px;">Copyright Piece of the World Pte Ltd 2013</div>
+	<div style="float:right; width:auto; height:auto; margin-right:145px; margin-top:8px; color:#00; font-family:Arial, Helvetica, sans-serif; font-size:11px;">Copyright Piece of the World Pte Ltd 2013</div>
 </div>
 
 
@@ -621,7 +680,7 @@ jQuery(function(){
 	<?php
 	*/
 	?>
-	<div id="popup_content" style='padding:10px; border:2px solid #7F97E8'>
+	<div id="popup_content" style='padding:5px; border:0px solid #7F97E8'>
 		<div id="popup_header">
 			<!--
 			<div id="popup_icon_interscape"><img src="http://cdn.pieceoftheworld.com/images/interscape_blue.png" width="21" height="22" border="0" /></div>
@@ -1110,7 +1169,7 @@ jQuery(function(){
 		else{
 			jQuery("#profile_name").html(data.content.useremail);
 		}
-		jQuery("#sign_in").html('<a style=\'cursor:pointer\' class="link_1" onClick="logoutUser();">Sign Out</a>&nbsp;&nbsp;&nbsp;<a class="link_1" style="cursor:pointer;" onClick="updateProfile(); openClosePopUp(\'facebook\'); ">Profile</a>&nbsp;');
+		jQuery("#sign_in").html('<div class="mmenus" style="left:195px; width:50px;"><a style="cursor:pointer" class="link_1" onClick="logoutUser();">Sign Out</a></div><div class="mmenus" style="left:261px; width:40px;"><a class="link_1" style="cursor:pointer;" onClick="updateProfile(); openClosePopUp(\'facebook\'); ">Profile</a></div>');
 	}
 
 	/*
@@ -1252,7 +1311,7 @@ jQuery(function(){
 					jQuery("#userProfile").hide();
 					jQuery("#loginForm").show();
 					//jQuery("#sign_in").html("<a class=\"text_1\" style='cursor:pointer;' onClick=\"updateProfile(); openClosePopUp('facebook'); \">Sign In</a>");
-					jQuery("#sign_in").html('<a onclick="updateProfile(); openClosePopUp(\'facebook\');" style="cursor:pointer;" class="link_1">Sign in</a>');
+					jQuery("#sign_in").html('<div class="mmenus" style="left:195px; width:40px;" id="sign_in"><a onclick="updateProfile(); openClosePopUp(\'facebook\');" style="cursor:pointer;" class="link_1">Sign in</a></div>');
 					
 				}
 			}
