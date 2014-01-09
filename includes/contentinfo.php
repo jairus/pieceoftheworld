@@ -70,7 +70,7 @@ function submitBidForm(){
 	height: auto;
 	padding: 5px;
 	text-align: center;
-	width: 290px;
+	width: 272px;
 	color: #FFFFFF;
     font-family: Arial,Helvetica,sans-serif;
     font-size: 14px;
@@ -89,10 +89,10 @@ function submitBidForm(){
 <span id="info-span" style="display:none;">
 	<div id="top_list_title_1" class="text_2"><span id="info-city"></span><span id="info-title"></span></div>
 	<div id="top_list_img_2" align="center"><div class="img"><a id="info-lightbox" style='cursor:pointer'><img id="info-img" border="0"></a></div></div>
-	<div style="float:left; width:290px; height:auto;">
+	<div style="float:left; width:272px; height:auto;">
 	<div id="thumbs" style="display:none;" class="text_3"></div>
 	<div id="video" style="display:none;" class="text_3"></div>
-	<table width="290" border="0" cellspacing="0" cellpadding="0" id="table_main_info">
+	<table width="272" border="0" cellspacing="0" cellpadding="0" id="table_main_info">
 	  <tr>
 		<td width="150px"><a id='fbsharelink'><img src="http://cdn.pieceoftheworld.com/images/facebook_icon.png" height="15" border="0" id='fbshare' style="cursor:pointer;" />&nbsp;Share this location</a></td>
 		<td id='likecolumn_id'></td>

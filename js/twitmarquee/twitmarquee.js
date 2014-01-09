@@ -49,8 +49,8 @@ function loadTrendDescriptions() {
 }
 $(document).ready(function () {
 
-    page.trendDescriptions = {};
-    loadTrendDescriptions();
+    //page.trendDescriptions = {};
+    //loadTrendDescriptions();
 
 });
 

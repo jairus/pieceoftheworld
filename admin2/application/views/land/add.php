@@ -272,7 +272,7 @@ else{
 		</tr>
 		<tr class="even required">
 		  <td>* Title:</td>
-		  <td><input type="text" name="title" size="40">&nbsp;<a target='_blank' href='/index2.php?xy=<?php echo $record['x']."~".$record['y']?>'>View in Map</a></td>
+		  <td><input type="text" name="title" size="40">&nbsp;<a target='_blank' href='/index.php?xy=<?php echo $record['x']."~".$record['y']?>'>View in Map</a></td>
 		</tr>
 		<tr class="odd required">
 		  <td>* Detail:</td>

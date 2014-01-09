@@ -133,10 +133,10 @@ else {
 		$imgdir = $rs[$prefix2][$i]['pictures'][0]['picture'];
 		if(!trim($imgdir)){
 			$imgdir = dirname(__FILE__)."/../images/place_holder_default.jpg";
-			$imgurl = "http://pieceoftheworld.co/image.php?abs=".base64_encode($imgdir)."&w=290&h=150";
+			$imgurl = "http://pieceoftheworld.co/image.php?abs=".base64_encode($imgdir)."&w=272&h=140";
 		}
 		else{
-			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=290&h=150";
+			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=272&h=140";
 		}
 		
 		//teleportid
@@ -171,7 +171,7 @@ else {
 			<?php
 		}
 		?>
-		<table width="290" cellspacing="0" cellpadding="0" border="0">
+		<table width="272" cellspacing="0" cellpadding="0" border="0">
 		  <tbody><tr class='details'>
 			<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
 			<td style="display: table-cell;"><?php echo $likehtml; ?></td>
@@ -248,10 +248,10 @@ else {
 		$imgdir = $rs[$prefix2][$i]['pictures'][0]['picture'];
 		if(!trim($imgdir)){
 			$imgdir = dirname(__FILE__)."/../images/place_holder_default.jpg";
-			$imgurl = "http://pieceoftheworld.co/image.php?abs=".base64_encode($imgdir)."&w=290&h=150";
+			$imgurl = "http://pieceoftheworld.co/image.php?abs=".base64_encode($imgdir)."&w=272&h=140";
 		}
 		else{
-			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=290&h=150";
+			$imgurl = "http://pieceoftheworld.co/image.php?dir=".base64_encode($imgdir)."&w=272&h=140";
 		}
 		
 		//teleportid
@@ -286,7 +286,7 @@ else {
 			<?php
 		}
 		?>
-		<table width="290" cellspacing="0" cellpadding="0" border="0">
+		<table width="272" cellspacing="0" cellpadding="0" border="0">
 		  <tbody><tr class='details'>
 			<td width="150px"><a style="display: inline;" href="<?php echo $sharelink; ?>"><img border="0" height="15" style="cursor:pointer;" src="images/facebook_icon.png">&nbsp;Share this location</a></td>
 			<td style="display: table-cell;"><?php echo $likehtml; ?></td>

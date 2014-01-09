@@ -43,6 +43,8 @@ if(trim(strtoupper($ppvalidate))=="VERIFIED"||$_GET['jairus']){
 	$txnId = "PAYPAL-".$_POST['txn_id'];
 	$mc_gross = $_POST['mc_gross'];
 	$affid = $_GET['affid'];
+	$tracking = $_POST['txn_id'];
+	
 	include_once(dirname(__FILE__)."/ipn_process.php");
 	
 }

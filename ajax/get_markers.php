@@ -332,7 +332,7 @@ if(count($markers)==1&&$markers[0]['id']>0&&$markers[0]['owner_user_id']==0&&$ma
 		
 		$picture = $picturex;
 		if(file_exists($picture)){
-			showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+			showThumb($picture, 272, 140, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 			showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 			//if not special land
 			$markers[0]['thumb_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/thumb_".basename($picture.".png");
@@ -385,7 +385,7 @@ else if($markers[0]['owner_user_id']){ //if bought
 				
 				$picture = $picturex;
 				if(file_exists($picture)){
-					showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+					showThumb($picture, 272, 140, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 					//if not special land
 					$markers[0]['thumb_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/thumb_".basename($picture.".png");
@@ -414,7 +414,7 @@ else if($markers[0]['owner_user_id']){ //if bought
 				$picture = $picturex;
 				if(file_exists($picture)){
 					//showThumb($picture, 120, 120*1.3, dirname($picture)."/"."thumb_".basename($picture).".png", true);
-					showThumb($picture, 290, 150, dirname($picture)."/"."thumb_".basename($picture).".png", true);
+					showThumb($picture, 272, 140, dirname($picture)."/"."thumb_".basename($picture).".png", true);
 					showThumb($picture, "450", "300", dirname($picture)."/"."450_".basename($picture).".png", false);
 					//if not special land
 					$markers[0]['thumb_url'] = "http://pieceoftheworld.com/_uploads2/".$dir."/thumb_".basename($picture.".png");

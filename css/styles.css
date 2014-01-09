@@ -149,7 +149,7 @@ a:link, a:hover, a:visited{
 
 #popup_content{
 	float:left;
-	width:290px;
+	width:272px;
 	height:auto;
 	padding-left:9px;
 	padding-right:9px;
@@ -159,7 +159,7 @@ a:link, a:hover, a:visited{
 }
 
 #popup_header{
-	width:290px;
+	width:272px;
 	height:auto;
 	position:relative;
     top:-10px;
@@ -186,7 +186,7 @@ a:link, a:hover, a:visited{
 
 #popup_main_content{
 	float:left;
-	width:290px;
+	width:272px;
 	height:auto;
 }
 
@@ -235,7 +235,7 @@ a:link, a:hover, a:visited{
 
 #top_list_items{
 	float:left;
-	width:132px;
+	width:272px;
 	height:auto;
 	padding:3px 4px 3px 4px;
 	background-color:#00a4da;
@@ -256,7 +256,7 @@ a:link, a:hover, a:visited{
 
 #top_list_title_1{
 	float:left;
-	width:290px;
+	width:272px;
 	height:auto;
 	text-align:center;
 	background-color:#006a9b;
@@ -265,9 +265,15 @@ a:link, a:hover, a:visited{
 
 #top_list_img_2{
 	float:left;
-	width:290px;
+	width:272px;
 	padding-top:10px;
 	padding-bottom:10px;
+}
+#top_list_img_2 .img {
+	width: 272px;
+}
+#top_list_img_2 .img a img{
+	width: 272px;
 }
 /* END OF TOP LISTS */
 

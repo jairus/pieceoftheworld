@@ -20,7 +20,7 @@ if($_GET['action']=='Biggest Land Owners' || $_GET['action']=='Biggest Water Own
 	$t = count($subcategories);
 	
 	for($i=0; $i<$t; $i++){
-		echo '<div id="top_list_items" class="text_3" onclick="step2(\''.$subcategories[$i].'\', \''.$areatype.'\');">'.$subcategories[$i].'</div>';
+		echo '<div id="top_list_items" class="text_3" onclick="step2(\''.$subcategories[$i].'\', \''.$areatype.'\');"><p>'.$subcategories[$i].'</p></div>';
 	}
 	
 	exit();
@@ -76,14 +76,14 @@ if($_GET['action']=='In the World'){
 			
 			for($z=0; $z<$limit; $z++){
 				if($ownerArr[$z]['area_owned']){
-					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');">'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');"><p>'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 	
 	exit();
@@ -141,7 +141,7 @@ if($_GET['action']=='In Country'){
 		sort($countryArr);
 		for($ic=0; $ic<$tc; $ic++){
 			if($countryArr[$ic]['country']!=$countryArr[($ic-1)]['country']){
-				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');">'.$countryArr[$ic]['country'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');"><p>'.$countryArr[$ic]['country'].'</p></div>';
 			}
 		}
 	}
@@ -204,14 +204,14 @@ if($_GET['action']=='country'){
 		
 			for($z=0; $z<$limit; $z++){
 				if($ownerArr[$z]['area_owned']){
-					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');">'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');"><p>'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 
 	exit();
@@ -269,7 +269,7 @@ if($_GET['action']=='In Region'){
 		sort($countryArr);
 		for($ic=0; $ic<$tc; $ic++){
 			if($countryArr[$ic]['country']!=$countryArr[($ic-1)]['country']){
-				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country2\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');">'.$countryArr[$ic]['country'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country2\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');"><p>'.$countryArr[$ic]['country'].'</p></div>';
 			}
 		}
 	}
@@ -324,7 +324,7 @@ if($_GET['action']=='country2'){
 		sort($regionArr);
 		for($ic=0; $ic<$tc; $ic++){
 			if($regionArr[$ic]['region']!=$regionArr[($ic-1)]['region']){
-				echo '<div id="top_list_items" class="text_3" onclick="step4(\'region\', \''.$_GET['country'].'\', \''.$regionArr[$ic]['region'].'\', \''.$_GET['areatype'].'\');">'.$regionArr[$ic]['region'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="step4(\'region\', \''.$_GET['country'].'\', \''.$regionArr[$ic]['region'].'\', \''.$_GET['areatype'].'\');"><p>'.$regionArr[$ic]['region'].'</p></div>';
 			}
 		}
 	}
@@ -387,14 +387,14 @@ if($_GET['action']=='region'){
 		
 			for($z=0; $z<$limit; $z++){
 				if($ownerArr[$z]['area_owned']){
-					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');">'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');"><p>'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 	
 	exit();
@@ -452,7 +452,7 @@ if($_GET['action']=='In City'){
 		sort($countryArr);
 		for($ic=0; $ic<$tc; $ic++){
 			if($countryArr[$ic]['country']!=$countryArr[($ic-1)]['country']){
-				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country3\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');">'.$countryArr[$ic]['country'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="step3(\'country3\', \''.$countryArr[$ic]['country'].'\', \''.$areatype.'\');"><p>'.$countryArr[$ic]['country'].'</p></div>';
 			}
 		}
 	}
@@ -507,7 +507,7 @@ if($_GET['action']=='country3'){
 		sort($regionArr);
 		for($ic=0; $ic<$tc; $ic++){
 			if($regionArr[$ic]['region']!=$regionArr[($ic-1)]['region']){
-				echo '<div id="top_list_items" class="text_3" onclick="step4(\'region2\', \''.$_GET['country'].'\', \''.$regionArr[$ic]['region'].'\', \''.$_GET['areatype'].'\');">'.$regionArr[$ic]['region'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="step4(\'region2\', \''.$_GET['country'].'\', \''.$regionArr[$ic]['region'].'\', \''.$_GET['areatype'].'\');"><p>'.$regionArr[$ic]['region'].'</p></div>';
 			}
 		}
 	}
@@ -562,7 +562,7 @@ if($_GET['action']=='region2'){
 		sort($cityArr);
 		for($ic=0; $ic<$tc; $ic++){
 			if($cityArr[$ic]['city']!=$cityArr[($ic-1)]['city']){
-				echo '<div id="top_list_items" class="text_3" onclick="step5(\'city\', \''.$_GET['country'].'\', \''.$_GET['region'].'\', \''.$cityArr[$ic]['city'].'\', \''.$_GET['areatype'].'\');">'.$cityArr[$ic]['city'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="step5(\'city\', \''.$_GET['country'].'\', \''.$_GET['region'].'\', \''.$cityArr[$ic]['city'].'\', \''.$_GET['areatype'].'\');"><p>'.$cityArr[$ic]['city'].'</p></div>';
 			}
 		}
 	}
@@ -625,14 +625,14 @@ if($_GET['action']=='city'){
 		
 			for($z=0; $z<$limit; $z++){
 				if($ownerArr[$z]['area_owned']){
-					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');">'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="userProfile(\''.$ownerArr[$z]['id'].'\');"><p>'.($z+1).' - '.$ownerArr[$z]['name'].' - '.$ownerArr[$z]['area_owned'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 
 	exit();
@@ -706,7 +706,7 @@ if($_GET['action']=='get_user_profile'){
 		  
 		  for($i=0; $i<$t; $i++){
 		  	if($landArr[$i]['title']!=$landArr[($i-1)]['title']){
-				echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$landArr[$i]['x'].'~'.$landArr[$i]['y'].'\';">'.$landArr[$i]['title'].'</div>';
+				echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$landArr[$i]['x'].'~'.$landArr[$i]['y'].'\';"><p>'.$landArr[$i]['title'].'</p></div>';
 			}
 		  }
 		  
@@ -751,14 +751,14 @@ if($_GET['action']=='Most Expensive Lands'){
 		if($display){
 			for($z=0; $z<$limit; $z++){
 				if($expensiveLandArr[$z]['price']){
-					echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$expensiveLandArr[$z]['x'].'~'.$expensiveLandArr[$z]['y'].'\';">'.($z+1).' - '.$expensiveLandArr[$z]['title'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$expensiveLandArr[$z]['x'].'~'.$expensiveLandArr[$z]['y'].'\';"><p>'.($z+1).' - '.$expensiveLandArr[$z]['title'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 	
 	exit();
@@ -795,14 +795,14 @@ if($_GET['action']=='Most Liked Lands'){
 		if($display){
 			for($z=0; $z<$limit; $z++){
 				if($landLikedArr[$z]['total_likes']){
-					echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$landLikedArr[$z]['x'].'~'.$landLikedArr[$z]['y'].'\';">'.($z+1).' - '.$landLikedArr[$z]['title'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$landLikedArr[$z]['x'].'~'.$landLikedArr[$z]['y'].'\';"><p>'.($z+1).' - '.$landLikedArr[$z]['title'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 	
 	exit();
@@ -843,14 +843,14 @@ if($_GET['action']=='Most Viewed Lands'){
 		if($display){
 			for($z=0; $z<$limit; $z++){
 				if($landViewedArr[$z]['total_views']){
-					echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$landViewedArr[$z]['x'].'~'.$landViewedArr[$z]['y'].'\';">'.($z+1).' - '.$landViewedArr[$z]['title'].'</div>';
+					echo '<div id="top_list_items" class="text_3" onclick="location.href=\'index.php?xy='.$landViewedArr[$z]['x'].'~'.$landViewedArr[$z]['y'].'\';"><p>'.($z+1).' - '.$landViewedArr[$z]['title'].'</p></div>';
 				}
 			}
 		}else{
-			echo '<div id="top_list_items" class="text_3">No Results</div>';
+			echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 		}
 	}else{
-		echo '<div id="top_list_items" class="text_3">No Results</div>';
+		echo '<div id="top_list_items" class="text_3"><p>No Results</p></div>';
 	}
 	
 	exit();

@@ -268,7 +268,7 @@ else{
 		  <td><input type="text" name="title" size="40">&nbsp;
 		  <?php
 		  if($record){
-			?><a target='_blank' href='/index2.php?xy=<?php echo $record['points'][0]['x']."~".$record['points'][0]['y']?>'>View in Map</a><?php
+			?><a target='_blank' href='/index.php?xy=<?php echo $record['points'][0]['x']."~".$record['points'][0]['y']?>'>View in Map</a><?php
 		  }
 		  else{
 			if($add_data->points[0]){
@@ -300,7 +300,7 @@ else{
 		</tr>
 		<tr class="odd">
 		  <td>Date Bought:</td>
-		  <td><input type="text" name="datebought" size="40" /><div class='hint'>YYYY-MM-DD </div>
+		  <td><input type="text" name="datebought" size="40" /><div class='hint'>YYYY-MM-DD</div>
 		  </td>
 		</tr>
         <tr class="even">

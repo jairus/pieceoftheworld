@@ -15,6 +15,10 @@ $concatFields = $_POST['merchant_id']
 
 $MBEmail = 'pieceoftheworld2013@gmail.com';
 
+if (isset($_POST['transaction_id'])) {
+    $transaction_id = $_POST['transaction_id'];
+}
+
 // Ensure the signature is valid, the status code == 2,
 // and that the money is going to you
 
@@ -29,7 +33,8 @@ if ((strtoupper(md5($concatFields)) == $_POST['md5sig']
 {
 	$uploads_dir = dirname(__FILE__).'/_uploads/'.$_GET['f'];
 	$post = unserialize(file_get_contents($uploads_dir."/post.txt"));
-
+    $transaction_id = $_POST['transaction_id'];
+    $mb_amount = $_POST['mb_amount'];
 	include_once(dirname(__FILE__)."/ipn_process.php");
 	
 }

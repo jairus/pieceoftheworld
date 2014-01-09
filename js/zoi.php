@@ -6,8 +6,13 @@
 jQuery(function(){ jQuery("#popup").draggable({ containment: "window" }); });
 <!--END OF MAKE BOX DRAGGABLE-->
 
+
 <!--OPEN/CLOSE POPUP-->
 function openClosePopUp(menu){
+	//if(MyHistory[0] === "cta") MyHistory.pop();
+	//MyHistory.push(menu);
+	
+
 	jQuery('#content_about').hide();
 	jQuery('#content_top_lists').hide();
 	jQuery('#content_tutorials').hide();
@@ -15,6 +20,18 @@ function openClosePopUp(menu){
 	jQuery('#content_buy').hide();
 	jQuery('#content_facebook').hide();
 	jQuery('#content_cta').hide();
+	jQuery('#content_how_it_works').hide();
+	jQuery('#content_partner').hide();
+	jQuery('#content_places_of_interest').hide();
+	jQuery('#wraper_result').hide();
+
+	jQuery('#step1').hide();
+	jQuery('#step2').hide();
+	jQuery('#step3').hide();
+	jQuery('#step4').hide();
+	jQuery('#step5').hide();
+	jQuery('#step6').hide();
+	jQuery('#step7').hide();
 	
 	jQuery('#menu_about').attr("src", 'http://cdn.pieceoftheworld.com/images/menu_about.png');
 	jQuery('#menu_top_lists').attr("src", 'http://cdn.pieceoftheworld.com/images/menu_top_lists.png');
@@ -28,15 +45,16 @@ function openClosePopUp(menu){
 		//jQuery('#sign_in').show();//jairus 
 	}
 	
-	jQuery('#popup').show();
+	//jQuery('#popup').show();
 	
 }
 <!--END OF OPEN/CLOSE POPUP-->
 
 //TOP LISTS
 function step1(action, count){
-	jQuery('#top_list_categories_active').attr("id", "top_list_categories");
-	jQuery('.cat'+count).attr("id", "top_list_categories_active");
+		
+	//jQuery('#top_list_categories_active').attr("id", "top_list_categories");
+	//jQuery('.cat'+count).attr("id", "top_list_categories_active");
 
     jQuery('#step1').hide();
 	jQuery('#step2').hide();
@@ -53,8 +71,27 @@ function step1(action, count){
         data: '',
 
         success: function(data) {
+        	jQuery('#content_about').hide();
+			
+			jQuery('#content_tutorials').hide();
+			jQuery('#content_info').hide();
+			jQuery('#content_buy').hide();
+			jQuery('#content_facebook').hide();
+			jQuery('#content_cta').hide();
+			jQuery('#content_how_it_works').hide();
+			jQuery('#content_partner').hide();
+			jQuery('#content_places_of_interest').hide();
+			
+
+        	jQuery('#content_top_lists').slideUp(200);
+        	if(jQuery('#wraper_result').css('display') === 'none'){
+				jQuery('#wraper_result').show();
+        	}
+        	
 			jQuery('#step2').show();
-		
+			
+			jQuery('#wraper_result').find('.title_result').empty().text(action);
+
             jQuery("#tab_wrapperonly2").html(data);
             jQuery('#results2').fadeIn(200);
             
@@ -79,11 +116,33 @@ function step2(action, areatype){
         data: '',
 
         success: function(data) {
+			jQuery('#step1').hide();
+			jQuery('#step2').hide();
+			jQuery('#step3').hide();
+			jQuery('#step4').hide();
+			jQuery('#step5').hide();
+			jQuery('#step6').hide();
+			jQuery('#step7').hide();
+
+        	jQuery('#content_about').hide();
+			jQuery('#content_tutorials').hide();
+			jQuery('#content_info').hide();
+			jQuery('#content_buy').hide();
+			jQuery('#content_facebook').hide();
+			jQuery('#content_cta').hide();
+			jQuery('#content_how_it_works').hide();
+			jQuery('#content_partner').hide();
+			jQuery('#content_places_of_interest').hide();
+			
+			jQuery('#content_top_lists').slideUp(200);
+			if(jQuery('#wraper_result').css('display') === 'none'){
+				jQuery('#wraper_result').show();
+        	}
 			jQuery('#step3').show();
 		
             jQuery("#tab_wrapperonly3").html(data);
             jQuery('#results3').fadeIn(200);
-            
+            jQuery('#wraper_result').find('.title_result').empty().text(action);
             jQuery('.searching').hide();
         }
     });
@@ -183,8 +242,28 @@ function userProfile(userID){
         data: '',
 
         success: function(data) {
+			jQuery('#step1').hide();
+			jQuery('#step2').hide();
+			jQuery('#step3').hide();
+			jQuery('#step4').hide();
+			jQuery('#step5').hide();
+			jQuery('#step6').hide();
+			jQuery('#step7').hide();
+
+        	jQuery('#content_about').hide();
+			jQuery('#content_tutorials').hide();
+			jQuery('#content_info').hide();
+			jQuery('#content_buy').hide();
+			jQuery('#content_facebook').hide();
+			jQuery('#content_cta').hide();
+			jQuery('#content_how_it_works').hide();
+			jQuery('#content_partner').hide();
+			jQuery('#content_places_of_interest').hide();
 			jQuery('#step7').show();
-		
+			jQuery('#content_top_lists').slideUp(200);
+			if(jQuery('#wraper_result').css('display') === 'none'){
+				jQuery('#wraper_result').show();
+        	}
             jQuery("#tab_wrapperonly7").html(data);
             jQuery('#results7').fadeIn(200);
             

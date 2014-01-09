@@ -22,7 +22,7 @@ if($_SESSION['user']['affiliate']){
 	return 0;
 }
 ?>
-<ul >
+<ul>
 	<li <?php if($controller=="latest"){ echo "class='selected'"; } ?> onclick='self.location="<?php echo site_url()."latest";?>"'>
 		Latest Updates
 	</li>

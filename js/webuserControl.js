@@ -203,18 +203,19 @@ $(document).ready(function(){
             url: "ajax/user_fxn.php?action=login",
             data: $('#loginForm').serialize(),
             success: function(data){
-                consoleX(data);
-				if(data.status){
-					
-                    /*
-					$('#tabs [href="#ownedLands"]').show();
+                $('#loadingImageFb1').hide();
+                $('#loadingImageFb2').hide();
+
+                if(data.status){
+                    $('#tabs [href="#ownedLands"]').show();
                     $('#tabs [href="#login"]').hide();
                     $( "#tabs" ).tabs( {active: 5});
                     $('.currentUser').html(data.content.useremail);
+                    FB.XFBML.parse();
                     getLands();
-					*/
-				}
-				else {
+                } else {
+                    $("#loginStatus").html(data.message);
+                    $("#loginStatus").show('slide');
                 }
             }
         });

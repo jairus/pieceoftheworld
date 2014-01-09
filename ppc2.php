@@ -34,6 +34,9 @@ function mail_attachment($to, $subject, $message, $from, $file, $filename) {
       ."--".$uid."--"; 
 	return mail($to, $subject, "", $header);
 }
+
+
+
 ?>
 <!doctype html>
 <html lang="us">
@@ -224,6 +227,42 @@ if(0){
 }
 
 echo '<center><h2>Thank you for your purchase.</h2></center>';
+
+// Assign payment notification values to local variables 
+if(isset($_POST['item_name'])){
+	$item_name = $_POST['item_name'];
+}
+if(isset($_POST['item_number'])){
+	$item_number = $_POST['item_number'];
+}
+if(isset($_POST['payment_status'])){
+	$payment_status = $_POST['payment_status'];
+}
+if(isset($_POST['mc_gross'])){
+	$payment_amount = $_POST['mc_gross'];
+}
+if(isset($_POST['mc_currency'])){
+	$payment_currency = $_POST['mc_currency'];
+}
+if(isset($_POST['txn_id'])){
+	$txn_id = $_POST['txn_id'];
+}
+if(isset($_POST['receiver_email'])){
+	$receiver_email = $_POST['receiver_email'];
+}
+if(isset($_POST['payer_email'])){
+	$payer_email = $_POST['payer_email'];
+}
+
+if(isset($_GET['gross']){
+	$payment_amount = $_GET['gross'];
+}
+if(isset($_GET['tracking'])){
+	$txn_id = $_GET['tracking'];
+}
+
+
+echo '<img src="https://shareasale.com/sale.cfm?amount='.$payment_amount.'&tracking='.$txn_id .'&transtype=SALE&merchantID=45738" width="1" height="1">';
 ?>
 <script>window.opener.location = window.opener.location;</script>
 </body>

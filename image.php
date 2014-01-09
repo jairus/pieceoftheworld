@@ -90,9 +90,7 @@ else if($_GET['special']){
 else if($_GET['dir']){
 	
 	$picture = explode("/_uploads2/", base64_decode($_GET['dir']));
-	
-	print_r($_GET);
-	exit();
+
 	$dir = dirname($picture[1]);
 	$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
 	if(!file_exists($picturex)){
@@ -101,6 +99,40 @@ else if($_GET['dir']){
 	$picture = $picturex;
 	if(file_exists($picture)){
 		header("Content-Type: image/png");
+		if(!$_GET['w']&&!$_GET['h']){
+			showThumbx($picture, 132, 78);
+		}
+		else{
+			showThumbx($picture, $_GET['w'], $_GET['h']);
+		}
+	}
+	exit();
+}
+else if($_GET['abs']){
+	$picture = base64_decode($_GET['abs']);
+	if(file_exists($picture)){
+		header("Content-Type: image/png");
+		if(!$_GET['w']&&!$_GET['h']){
+			showThumbx($picture, 132, 78);
+		}
+		else{
+			showThumbx($picture, $_GET['w'], $_GET['h']);
+		}
+	}
+	exit();
+}
+else if($_GET['p']){
+	
+	$picture = explode("/_uploads2/", base64_decode($_GET['dir']));
+
+	$dir = dirname($picture[1]);
+	$picturex = dirname(__FILE__)."/_uploads2/".$picture[1];
+	if(!file_exists($picturex)){
+		$picturex = dirname(__FILE__)."/_uploads2/".urldecode($picture[1]);
+	}
+	$picture = $picturex;
+	if(file_exists($picture)){
+		//header("Content-Type: image/png");
 		if(!$_GET['w']&&!$_GET['h']){
 			showThumbx($picture, 132, 78);
 		}
@@ -352,7 +384,7 @@ function showThumbx($src, $thumbWidth, $thumbHeight, $dest="") {
 		imagepng( $tmp_img , null, 0);
 	}
 	else{
-		@imagepng ( $tmp_img , $dest, 0);
+		imagepng ( $tmp_img , $dest, 0);
 		//imagepng ( $tmp_img , null, 0);
 	}
 	// save thumbnail into a file

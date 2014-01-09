@@ -153,7 +153,7 @@ else if($_GET['f']){
 	height: auto;
 	padding: 5px;
 	text-align: center;
-	width: 290px;
+	width: 272px;
 	color: #FFFFFF;
     font-family: Arial,Helvetica,sans-serif;
     font-size: 14px;
@@ -244,9 +244,14 @@ $(document).ready(function() {
 if($_GET['type']&&$_GET['thumb']&&$_GET['link']){
 	$_SESSION["GET"] = $_GET;
 }
-if($_POST['step']==1||$_GET['fromshare']){
+if($_POST['step']==1||$_GET['fromshare']||isset($_POST['couponcode'])){
 	$affdiscount = 0;
 	$paypalvalue = $_SESSION['px'];
+	
+	$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
+	$uploads_http = 'http://pieceoftheworld.com/_uploads/'.$foldername;
+	$filename = $uploads_dir."/post.txt";
+	$post3 = unserialize(file_get_contents($filename));
 	//get discount from affiliate
 	$sql = "select * from `affiliates` where `id`='".$_SESSION['affid']."' and `active`=1";
 	$r = dbQuery($sql, $_dblink);
@@ -258,12 +263,48 @@ if($_POST['step']==1||$_GET['fromshare']){
 		if(strpos($rate, "%")!==false){
 			$rate = $rate*1;
 			$rate = $rate/100;
-			$affdiscount = $paypalvalue*$rate;
+			if($rate==1){
+				$coords = json_decode(stripslashes($post3['coords']));
+				if(count($coords->points)==1){ //100% discount for 1 block only
+					$affdiscount = $paypalvalue-0.01;
+				}
+			}
+			else{
+				$affdiscount = $paypalvalue*$rate;
+			}
 		}
 		//if fixed
 		else{
 			$rate = $rate*1;
 			$affdiscount = $rate;
+		}
+	}
+	if(trim($_POST['couponcode'])!=""){
+		$sql = "select * from `affiliates` where `coupon`='".trim($_POST['couponcode'])."' and `active`=1";
+		$r = dbQuery($sql, $_dblink);
+		$r = $r[0];
+		if($r['id']){
+			$rate = trim($r['discountrate']);
+			$affname = '"'.$r['title'].'"';
+			//if percentage
+			if(strpos($rate, "%")!==false){
+				$rate = $rate*1;
+				$rate = $rate/100;
+				if($rate==1){
+					$coords = json_decode(stripslashes($post3['coords']));
+					if(count($coords->points)==1){ //100% discount for 1 block only
+						$affdiscount = $paypalvalue-0.01;
+					}
+				}
+				else{
+					$affdiscount = $paypalvalue*$rate;
+				}
+			}
+			//if fixed
+			else{
+				$rate = $rate*1;
+				$affdiscount = $rate;
+			}
 		}
 	}
 	$paypalvalue = $paypalvalue - $affdiscount;
@@ -278,14 +319,14 @@ if($_POST['step']==1||$_GET['fromshare']){
 	$paypalvalue = $paypalvalue - ($paypalvalue * $discount);	
 	$paypalvalue = number_format($paypalvalue,2, '.', '');
 	
-	$uploads_dir = dirname(__FILE__).'/_uploads/'.$foldername;
-	$uploads_http = 'http://pieceoftheworld.com/_uploads/'.$foldername;
-	$filename = $uploads_dir."/post.txt";
-	$post3 = unserialize(file_get_contents($filename));
+	
 	$post3['paypalvalue'] = $paypalvalue;
 	$post3['fbdiscount'] = $discount;
 	$post3['affdiscount'] = $affdiscount;
 	$post3['affname'] = $affname;
+	$post3['couponcode'] = $_POST['couponcode'];
+	
+	
 	
 	file_put_contents ( $filename, serialize($post3)); //for price checking later on
 	
@@ -365,7 +406,7 @@ if($_POST['step']==1||$_GET['fromshare']){
 						</td>
 					</tr>
 					<tr>
-						<td colspan=2><input type='text' id='couponcode' /><input type='button' value='Submit Coupon Code' /></td>
+						<td colspan=2><form method='post' action='bidbuyland.php?type=<?php echo $_GET['type']; ?>&f=<?php echo $foldername; ?>' ><input type='text' name='couponcode' /><input type='submit' value='Submit Coupon Code' /></form></td>
 					</tr>
 					<tr>
 						<td colspan=2 class='header'>
@@ -445,6 +486,10 @@ if($_POST['step']==1||$_GET['fromshare']){
 									<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_buynowCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" onclick="if(!jQuery('#tor1').attr('checked')){ alert('Please check the Terms and Conditions before proceeding.'); return false; }">
 									<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
 								</form>
+								
+ -->
+								
+
 							</div>
 							<div id='ccx' style='padding:10px; text-align:center; display:none' class='paymentform'>
 								<?php

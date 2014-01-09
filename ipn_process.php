@@ -274,5 +274,9 @@
 	ob_end_clean();
 ?>
 <script>
-self.location = 'http://pieceoftheworld.com/ppc2.php';
+
+    
+var mc_gross = "<?php echo $mb_amount;?>";
+var tracking = "<?php echo $transaction_id;?>";
+self.location = 'http://pieceoftheworld.com/ppc2.php?gross='+mc_gross+'&tracking='+tracking;
 </script>
